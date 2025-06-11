@@ -36,7 +36,7 @@ const Dashboard = () => {
     {
       id: 2,
       title: "Utilisateurs",
-      description: "Gérer les étudiants et les enseignants",
+      description: "Gérer les employés",
       action: "Bientôt disponible",
       icon: (
         <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
