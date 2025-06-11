@@ -16,19 +16,7 @@ const Dashboard = () => {
           Logout
         </button>
       </div>
-      
-      <div className="dashboard-content">
-        <div className="user-info">
-          <h3>User Information</h3>
-          <p><strong>Email:</strong> {user?.email}</p>
-          <p><strong>Status:</strong> Logged in</p>
-        </div>
-        
-        <div className="dashboard-section">
-          <h3>Quick Actions</h3>
-          <p>Welcome to the Learning Management System! This is where you would access your courses, assignments, and other educational content.</p>
-        </div>
-      </div>
+
     </div>
   );
 };
