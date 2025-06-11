@@ -302,24 +302,4 @@ class UserAdminController extends AbstractController
             'byRole' => $usersByRole
         ]);
     }
-
-    /**
-     * Get users by role (for dropdowns, etc.)
-     */
-    #[Route('/by-role/{role}', name: 'by_role', methods: ['GET'])]
-    public function getUsersByRole(string $role): JsonResponse
-    {
-        $users = $this->userRepository->findBy(['roles' => $role]);
-
-        $usersData = [];
-        foreach ($users as $user) {
-            $usersData[] = [
-                'id' => $user->getId(),
-                'fullName' => $user->getFullName(),
-                'email' => $user->getEmail()
-            ];
-        }
-
-        return $this->json($usersData);
-    }
 }
