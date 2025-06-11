@@ -18,7 +18,7 @@ class CorsListener
         $method = $request->getRealMethod();        if ($method === 'OPTIONS') {
             $response = new Response('', 200);
             $origin = $request->headers->get('Origin');
-            if (in_array($origin, ['http://localhost:3000', 'http://localhost:3001'])) {
+            if (in_array($origin, ['*'])) {
                 $response->headers->set('Access-Control-Allow-Origin', $origin);
             }
             $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');

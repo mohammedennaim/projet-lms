@@ -27,9 +27,8 @@ class RegistrationController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }        $user = new User();
         $user->setEmail($data['email']);
-        $user->setFullName($data['fullName']);
-        $user->setPlainPassword($data['password']);
-        $user->setRoles('employée');
+        $user->setFullName($data['fullName']);        $user->setPlainPassword($data['password']);
+        $user->setRoles($data['roles'] ?? 'employée');
         $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
         $user->setPassword($hashedPassword);
 

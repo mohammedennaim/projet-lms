@@ -29,10 +29,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
-    private ?string $fullName = null;
-
-    #[ORM\Column(length: 50)]
+    private ?string $fullName = null;    #[ORM\Column(length: 50)]
     #[Groups(['user:read'])]
+    #[Assert\Choice(choices: ['admin', 'instructeur', 'employée'], message: 'Le rôle doit être admin, instructeur ou employée')]
     private string $roles = 'employée';
 
     #[ORM\Column]
@@ -76,17 +75,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
-    }
-
-    /**
+    }    /**
      * @see UserInterface
      */
     public function getRoles(): array
     {
         // Convert string role to array format required by Symfony Security
-        $roles = [$this->roles];
+        $roles = [];
+        
+        // Map our custom roles to Symfony roles
+        switch ($this->roles) {
+            case 'admin':
+                $roles[] = 'ROLE_ADMIN';
+                break;
+            case 'instructeur':
+                $roles[] = 'ROLE_INSTRUCTOR';
+                break;
+            case 'employée':
+                $roles[] = 'ROLE_EMPLOYEE';
+                break;
+        }
+        
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'admin';
+        $roles[] = 'ROLE_USER';
         
         return array_unique($roles);
     }
