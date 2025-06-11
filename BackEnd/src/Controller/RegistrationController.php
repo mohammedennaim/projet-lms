@@ -19,15 +19,18 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator
-    ): JsonResponse {        $data = json_decode($request->getContent(), true);
+    ) {
+        $data = json_decode($request->getContent(), true);
 
         if (!isset($data['email']) || !isset($data['password']) || !isset($data['fullName'])) {
             return $this->json([
                 'message' => 'Email, password and fullName are required'
             ], JsonResponse::HTTP_BAD_REQUEST);
-        }        $user = new User();
+        }
+        $user = new User();
         $user->setEmail($data['email']);
-        $user->setFullName($data['fullName']);        $user->setPlainPassword($data['password']);
+        $user->setFullName($data['fullName']);
+        $user->setPlainPassword($data['password']);
         $user->setRoles($data['roles'] ?? 'employée');
         $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
         $user->setPassword($hashedPassword);
@@ -46,7 +49,8 @@ class RegistrationController extends AbstractController
 
         try {
             $entityManager->persist($user);
-            $entityManager->flush();            return $this->json([
+            $entityManager->flush();
+            return $this->json([
                 'message' => 'User created successfully',
                 'user' => [
                     'id' => $user->getId(),

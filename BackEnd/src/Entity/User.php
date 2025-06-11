@@ -32,7 +32,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $fullName = null;    #[ORM\Column(length: 50)]
     #[Groups(['user:read'])]
     #[Assert\Choice(choices: ['admin', 'instructeur', 'employée'], message: 'Le rôle doit être admin, instructeur ou employée')]
-    private string $roles = 'employée';
+    private string $roles = 'ROLE_EMPLOYEE';
 
     #[ORM\Column]
     private ?string $password = null;
@@ -88,16 +88,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             case 'admin':
                 $roles[] = 'ROLE_ADMIN';
                 break;
-            case 'instructeur':
-                $roles[] = 'ROLE_INSTRUCTOR';
-                break;
             case 'employée':
                 $roles[] = 'ROLE_EMPLOYEE';
                 break;
         }
-        
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
         
         return array_unique($roles);
     }
