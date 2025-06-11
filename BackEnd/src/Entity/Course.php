@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\CoursRepository;
+use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,32 +16,33 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 
-#[ORM\Entity(repositoryClass: CoursRepository::class)]
-#[ApiResource(
-    operations: [
-        new GetCollection(
-            normalizationContext: ['groups' => ['cours:read']],
-            security: "is_granted('admin')"
-        ),
-        new Get(
-            normalizationContext: ['groups' => ['cours:read', 'cours:details']],
-            security: "is_granted('admin') or is_granted('employée')"
-        ),
-        new Post(
-            denormalizationContext: ['groups' => ['cours:write']],
-            normalizationContext: ['groups' => ['cours:read']],
-            security: "is_granted('admin')"
-        ),
-        new Put(
-            denormalizationContext: ['groups' => ['cours:write']],
-            normalizationContext: ['groups' => ['cours:read']],
-            security: "is_granted('admin')"
-        ),
-        new Delete(
-            security: "is_granted('admin')"
-        )
-    ]
-)]
+#[ORM\Entity(repositoryClass: CourseRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+// API Platform désactivé - utilisation exclusive des contrôleurs admin
+// #[ApiResource(
+//     operations: [
+//         new GetCollection(
+//             normalizationContext: ['groups' => ['cours:read']]
+//         ),
+//         new Get(
+//             normalizationContext: ['groups' => ['cours:read', 'cours:details']],
+//             security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_EMPLOYEE')"
+//         ),
+//         new Post(
+//             denormalizationContext: ['groups' => ['cours:write']],
+//             normalizationContext: ['groups' => ['cours:read']],
+//             security: "is_granted('ROLE_ADMIN')"
+//         ),
+//         new Put(
+//             denormalizationContext: ['groups' => ['cours:write']],
+//             normalizationContext: ['groups' => ['cours:read']],
+//             security: "is_granted('ROLE_ADMIN')"
+//         ),
+//         new Delete(
+//             security: "is_granted('ROLE_ADMIN')"
+//         )
+//     ]
+// )]
 class Course
 {
     #[ORM\Id]

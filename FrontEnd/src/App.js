@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import CourseManagement from './components/CourseManagement';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -37,12 +38,19 @@ function App() {
                   <Register />
                 </PublicRoute>
               } 
-            />
-            <Route 
+            />            <Route 
               path="/dashboard" 
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/courses" 
+              element={
+                <ProtectedRoute>
+                  <CourseManagement />
                 </ProtectedRoute>
               } 
             />
