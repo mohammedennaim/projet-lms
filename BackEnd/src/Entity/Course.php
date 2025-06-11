@@ -18,31 +18,30 @@ use ApiPlatform\Metadata\Delete;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-// API Platform désactivé - utilisation exclusive des contrôleurs admin
-// #[ApiResource(
-//     operations: [
-//         new GetCollection(
-//             normalizationContext: ['groups' => ['cours:read']]
-//         ),
-//         new Get(
-//             normalizationContext: ['groups' => ['cours:read', 'cours:details']],
-//             security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_EMPLOYEE')"
-//         ),
-//         new Post(
-//             denormalizationContext: ['groups' => ['cours:write']],
-//             normalizationContext: ['groups' => ['cours:read']],
-//             security: "is_granted('ROLE_ADMIN')"
-//         ),
-//         new Put(
-//             denormalizationContext: ['groups' => ['cours:write']],
-//             normalizationContext: ['groups' => ['cours:read']],
-//             security: "is_granted('ROLE_ADMIN')"
-//         ),
-//         new Delete(
-//             security: "is_granted('ROLE_ADMIN')"
-//         )
-//     ]
-// )]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['cours:read']]
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['cours:read', 'cours:details']],
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_EMPLOYEE')"
+        ),
+        new Post(
+            denormalizationContext: ['groups' => ['cours:write']],
+            normalizationContext: ['groups' => ['cours:read']],
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Put(
+            denormalizationContext: ['groups' => ['cours:write']],
+            normalizationContext: ['groups' => ['cours:read']],
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')"
+        )
+    ]
+)]
 class Course
 {
     #[ORM\Id]

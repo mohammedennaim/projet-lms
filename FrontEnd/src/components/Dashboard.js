@@ -1,32 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import dashboardService from '../services/dashboardService';
 
 const Dashboard = () => {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const data = await dashboardService.getDashboardData();
-        setDashboardData(data);
-        setError(null);
-      } catch (err) {
-        setError(err.message);
-        console.error('Erreur lors du chargement du dashboard:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
+  const [activeCard, setActiveCard] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -36,398 +15,153 @@ const Dashboard = () => {
     navigate('/courses');
   };
 
-  if (loading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
-        <p>Chargement du tableau de bord...</p>
-        <style jsx>{`
-          .dashboard-loading {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-          }
-          .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #e3e3e3;
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-error">
-        <div className="error-container">
-          <div className="error-icon">⚠️</div>
-          <h2>Erreur de chargement</h2>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="retry-btn">
-            Réessayer
-          </button>
-        </div>
-        <style jsx>{`
-          .dashboard-error {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-          }
-          .error-container {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          }
-          .error-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-          }
-          .retry-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 16px;
-          }
-          .retry-btn:hover {
-            background-color: #0056b3;
-          }
-        `}</style>
-      </div>
-    );
-  }
+  // Données des cartes pour faciliter la maintenance
+  const cards = [
+    {
+      id: 1,
+      title: "Gestion des Cours",
+      description: "Créer, modifier et gérer tous vos cours",
+      action: "Accéder →",
+      icon: (
+        <svg className="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+      ),
+      onClick: handleNavigateToCourses,
+      available: true,
+      bgColor: "bg-blue-50",
+      hoverBgColor: "hover:bg-blue-100",
+      borderColor: "border-blue-200",
+    },
+    {
+      id: 2,
+      title: "Utilisateurs",
+      description: "Gérer les étudiants et les enseignants",
+      action: "Bientôt disponible",
+      icon: (
+        <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+      ),
+      available: false,
+      bgColor: "bg-green-50",
+      hoverBgColor: "hover:bg-green-100",
+      borderColor: "border-green-200",
+    },
+    {
+      id: 3,
+      title: "Statistiques",
+      description: "Voir les performances et les analyses",
+      action: "Bientôt disponible",
+      icon: (
+        <svg className="w-10 h-10 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+      ),
+      available: false,
+      bgColor: "bg-purple-50",
+      hoverBgColor: "hover:bg-purple-100",
+      borderColor: "border-purple-200",
+    }
+  ];
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1>Tableau de Bord Administrateur</h1>
-          {user && (
-            <p className="welcome-text">
-              Bienvenue, {user.email} - Accès Administrateur
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Header avec effet de verre */}
+      <div className="bg-white bg-opacity-80 backdrop-blur-lg shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  LMS Dashboard
+                </span>
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">Gérez votre plateforme d'apprentissage</p>
+            </div>
+            
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
+            >
+              <svg className="mr-2 -ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              Se déconnecter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Contenu principal */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Section de bienvenue */}
+        <div className="text-center mb-12">
+          <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">Bienvenue</h2>
+          <p className="mt-1 text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+            Votre espace d'apprentissage
+          </p>
+          <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
+            Accédez à tous vos outils de gestion en un seul endroit
+          </p>
+        </div>
+
+        {/* Grille de cartes */}
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card) => (
+            <div
+              key={card.id}
+              onClick={card.available ? card.onClick : undefined}
+              onMouseEnter={() => setActiveCard(card.id)}
+              onMouseLeave={() => setActiveCard(null)}
+              className={`relative overflow-hidden rounded-2xl border ${card.borderColor} ${card.bgColor} ${card.available ? card.hoverBgColor : ''} p-8 transition-all duration-300 ease-in-out ${
+                card.available ? 'cursor-pointer transform hover:-translate-y-1 hover:shadow-xl' : 'cursor-default'
+              }`}
+            >
+              {/* Cercle décoratif */}
+              <div className={`absolute -right-10 -top-10 h-40 w-40 rounded-full ${card.bgColor} opacity-30 transition-transform duration-500 ${activeCard === card.id ? 'scale-150' : 'scale-100'}`}></div>
+              
+              {/* Contenu de la carte */}
+              <div className="relative">
+                <div className={`inline-flex items-center justify-center rounded-xl ${card.bgColor} p-3`}>
+                  {card.icon}
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-gray-900">{card.title}</h3>
+                <p className="mt-2 text-gray-600">{card.description}</p>                <div className={`mt-6 inline-flex items-center font-medium ${card.available ? 'text-blue-600' : 'text-gray-600'}`}>
+                  {card.action}
+                  {card.available && (
+                    <svg className={`ml-2 h-4 w-4 transition-transform duration-300 ${activeCard === card.id ? 'translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Section d'aide */}
+        <div className="mt-16 bg-white bg-opacity-80 backdrop-blur-sm rounded-2xl shadow-sm p-8 border border-gray-100">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900">Besoin d'aide?</h3>
+            <p className="mt-2 text-sm text-gray-500">
+              Notre équipe de support est disponible pour vous aider à tirer le meilleur parti de votre plateforme LMS.
             </p>
-          )}
-        </div>
-        <button onClick={handleLogout} className="logout-btn">
-          Déconnexion
-        </button>
-      </div>
-
-      {dashboardData && dashboardData.stats && (
-        <div className="stats-section">
-          <div className="stats-container">
-            <div className="stat-card">
-              <div className="stat-icon">👥</div>
-              <div className="stat-content">
-                <h3>{dashboardData.stats.users?.total || 0}</h3>
-                <p>Utilisateurs Total</p>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">👑</div>
-              <div className="stat-content">
-                <h3>{dashboardData.stats.users?.admin || 0}</h3>
-                <p>Administrateurs</p>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">💼</div>
-              <div className="stat-content">
-                <h3>{dashboardData.stats.users?.employee || 0}</h3>
-                <p>Employés</p>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">📚</div>
-              <div className="stat-content">
-                <h3>{dashboardData.stats.courses?.total || 0}</h3>
-                <p>Cours Disponibles</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="dashboard-content">
-        <div className="admin-notice">
-          <div className="notice-icon">🔒</div>
-          <div className="notice-text">
-            <h3>Accès Administrateur Vérifié</h3>
-            <p>Vous avez accès à toutes les fonctionnalités d'administration basées sur votre rôle admin.</p>
-          </div>
-        </div>
-
-        <div className="dashboard-cards">
-          <div className="dashboard-card admin-card" onClick={handleNavigateToCourses}>
-            <div className="card-icon">📚</div>
-            <h3>Gestion des Cours</h3>
-            <p>Créer, modifier et gérer tous les cours de la plateforme</p>
-            <div className="card-action">Accéder →</div>
-          </div>
-          
-          <div className="dashboard-card admin-card">
-            <div className="card-icon">👥</div>
-            <h3>Gestion des Utilisateurs</h3>
-            <p>Administrer les comptes utilisateurs et leurs permissions</p>
-            <div className="card-action">Bientôt disponible</div>
-          </div>
-          
-          <div className="dashboard-card admin-card">
-            <div className="card-icon">📊</div>
-            <h3>Rapports & Analytics</h3>
-            <p>Consulter les statistiques et rapports détaillés</p>
-            <div className="card-action">Bientôt disponible</div>
-          </div>
-
-          <div className="dashboard-card admin-card">
-            <div className="card-icon">⚙️</div>
-            <h3>Configuration Système</h3>
-            <p>Paramétrer et configurer la plateforme LMS</p>
-            <div className="card-action">Bientôt disponible</div>
+            <button className="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Contacter le support
+            </button>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        .dashboard {
-          min-height: 100vh;
-          background-color: #f8f9fa;
-        }
-
-        .dashboard-header {
-          background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-          color: white;
-          padding: 40px 20px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-content h1 {
-          font-size: 32px;
-          font-weight: 700;
-          margin: 0 0 8px 0;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .welcome-text {
-          font-size: 16px;
-          opacity: 0.9;
-          margin: 0;
-          font-weight: 500;
-        }
-
-        .logout-btn {
-          background-color: rgba(255, 255, 255, 0.2);
-          color: white;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          padding: 12px 24px;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
-        }
-
-        .logout-btn:hover {
-          background-color: rgba(255, 255, 255, 0.3);
-          border-color: rgba(255, 255, 255, 0.5);
-          transform: translateY(-2px);
-        }
-
-        .stats-section {
-          padding: 40px 20px 20px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-
-        .stats-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-          margin-bottom: 20px;
-        }
-
-        .stat-card {
-          background: white;
-          padding: 24px;
-          border-radius: 12px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          border-left: 4px solid #dc3545;
-        }
-
-        .stat-icon {
-          font-size: 32px;
-        }
-
-        .stat-content h3 {
-          font-size: 28px;
-          font-weight: 700;
-          margin: 0;
-          color: #dc3545;
-        }
-
-        .stat-content p {
-          font-size: 14px;
-          color: #666;
-          margin: 4px 0 0 0;
-        }
-
-        .dashboard-content {
-          padding: 20px 20px 40px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-
-        .admin-notice {
-          background: linear-gradient(135deg, #28a745, #20c997);
-          color: white;
-          padding: 24px;
-          border-radius: 12px;
-          margin-bottom: 30px;
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .notice-icon {
-          font-size: 32px;
-        }
-
-        .notice-text h3 {
-          margin: 0 0 8px 0;
-          font-size: 20px;
-          font-weight: 600;
-        }
-
-        .notice-text p {
-          margin: 0;
-          opacity: 0.9;
-        }
-
-        .dashboard-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 24px;
-        }
-
-        .dashboard-card {
-          background: white;
-          border-radius: 12px;
-          padding: 32px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: all 0.3s ease;
-          cursor: pointer;
-          text-align: center;
-          border: 1px solid #e9ecef;
-        }
-
-        .admin-card {
-          border-left: 4px solid #dc3545;
-        }
-
-        .dashboard-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-icon {
-          font-size: 48px;
-          margin-bottom: 16px;
-        }
-
-        .dashboard-card h3 {
-          color: #333;
-          font-size: 24px;
-          font-weight: 600;
-          margin: 0 0 12px 0;
-        }
-
-        .dashboard-card p {
-          color: #666;
-          font-size: 16px;
-          line-height: 1.5;
-          margin: 0 0 20px 0;
-        }
-
-        .card-action {
-          color: #dc3545;
-          font-weight: 600;
-          font-size: 16px;
-        }
-
-        @media (max-width: 768px) {
-          .dashboard-header {
-            flex-direction: column;
-            gap: 20px;
-            text-align: center;
-            padding: 30px 20px;
-          }
-          
-          .header-content h1 {
-            font-size: 24px;
-          }
-          
-          .stats-container {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-          }
-          
-          .stat-card {
-            padding: 16px;
-            flex-direction: column;
-            text-align: center;
-            gap: 8px;
-          }
-          
-          .stat-content h3 {
-            font-size: 24px;
-          }
-          
-          .admin-notice {
-            flex-direction: column;
-            text-align: center;
-            padding: 20px;
-          }
-          
-          .dashboard-content {
-            padding: 20px;
-          }
-          
-          .dashboard-cards {
-            grid-template-columns: 1fr;
-            gap: 16px;
-          }
-          
-          .dashboard-card {
-            padding: 24px;
-          }
-        }
-      `}</style>
+      {/* Footer */}
+      <footer className="bg-white bg-opacity-80 backdrop-blur-sm mt-12 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-sm text-gray-500">
+            &copy; {new Date().getFullYear()} LMS Platform. Tous droits réservés.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
