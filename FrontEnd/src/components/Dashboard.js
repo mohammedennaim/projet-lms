@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const [activeCard, setActiveCard] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [stats, setStats] = useState({
+    totalCourses: 24,
+    activeStudents: 156,
+    completionRate: 87,
+    newEnrollments: 12
+  });
+
+  // Mise à jour de l'heure
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -15,151 +28,304 @@ const Dashboard = () => {
     navigate('/courses');
   };
 
-  // Données des cartes pour faciliter la maintenance
+  // Données des statistiques
+  const statsData = [
+    {
+      title: "Total Cours",
+      value: stats.totalCourses,
+      change: "+3 ce mois",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+      ),
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50"
+    },
+    {
+      title: "Étudiants Actifs",
+      value: stats.activeStudents,
+      change: "+18 cette semaine",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+      ),
+      color: "from-emerald-500 to-emerald-600",
+      bgColor: "bg-emerald-50"
+    },
+    {
+      title: "Taux de Réussite",
+      value: `${stats.completionRate}%`,
+      change: "+5% ce mois",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+        </svg>
+      ),
+      color: "from-amber-500 to-amber-600",
+      bgColor: "bg-amber-50"
+    },
+    {
+      title: "Nouvelles Inscriptions",
+      value: stats.newEnrollments,
+      change: "Aujourd'hui",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+      ),
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50"
+    }
+  ];
+
+  // Données des cartes principales
   const cards = [
     {
       id: 1,
       title: "Gestion des Cours",
-      description: "Créer, modifier et gérer tous vos cours",
-      action: "Accéder →",
+      description: "Créer, modifier et organiser vos contenus pédagogiques",
+      action: "Accéder maintenant",
       icon: (
-        <svg className="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
         </svg>
       ),
       onClick: handleNavigateToCourses,
       available: true,
-      bgColor: "bg-blue-50",
-      hoverBgColor: "hover:bg-blue-100",
-      borderColor: "border-blue-200",
+      gradient: "from-blue-500 to-indigo-600",
+      shadowColor: "shadow-blue-500/25"
     },
     {
       id: 2,
-      title: "Utilisateurs",
-      description: "Gérer les employés",
+      title: "Gestion des Utilisateurs",
+      description: "Administrer les comptes étudiants et enseignants",
       action: "Bientôt disponible",
       icon: (
-        <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
         </svg>
       ),
       available: false,
-      bgColor: "bg-green-50",
-      hoverBgColor: "hover:bg-green-100",
-      borderColor: "border-green-200",
+      gradient: "from-emerald-500 to-teal-600",
+      shadowColor: "shadow-emerald-500/25"
     },
     {
       id: 3,
-      title: "Statistiques",
-      description: "Voir les performances et les analyses",
+      title: "Analytics & Rapports",
+      description: "Visualiser les performances et statistiques détaillées",
       action: "Bientôt disponible",
       icon: (
-        <svg className="w-10 h-10 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
       ),
       available: false,
-      bgColor: "bg-purple-50",
-      hoverBgColor: "hover:bg-purple-100",
-      borderColor: "border-purple-200",
+      gradient: "from-purple-500 to-pink-600",
+      shadowColor: "shadow-purple-500/25"
     }
   ];
 
+  // Activités récentes simulées
+  const recentActivities = [
+    { id: 1, action: "Nouveau cours créé", course: "React Avancé", time: "Il y a 2h", type: "success" },
+    { id: 2, action: "Étudiant inscrit", course: "JavaScript Basics", time: "Il y a 4h", type: "info" },
+    { id: 3, action: "Quiz complété", course: "HTML/CSS", time: "Il y a 6h", type: "warning" },
+    { id: 4, action: "Certificat délivré", course: "Node.js", time: "Il y a 1j", type: "success" }
+  ];
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return "Bonjour";
+    if (hour < 18) return "Bon après-midi";
+    return "Bonsoir";
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Header avec effet de verre */}
-      <div className="bg-white bg-opacity-80 backdrop-blur-lg shadow-sm sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Header moderne avec glassmorphism */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-lg shadow-black/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+          <div className="flex justify-between items-center py-4">
+            {/* Logo et info */}
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   LMS Dashboard
-                </span>
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">Gérez votre plateforme d'apprentissage</p>
+                </h1>
+                <p className="text-xs text-gray-500">{currentTime.toLocaleDateString('fr-FR')}</p>
+              </div>
             </div>
-            
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
-            >
-              <svg className="mr-2 -ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-              </svg>
-              Se déconnecter
-            </button>
+
+            {/* Actions utilisateur */}
+            <div className="flex items-center space-x-4">
+              {/* Notifications */}
+              <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-5 5v-5zM10.07 2.82l3.12 3.12M7.05 5.84L10.17 8.96"></path>
+                </svg>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+
+              {/* Bouton déconnexion */}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-105 transition-all duration-200"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                Déconnexion
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Section de bienvenue */}
-        <div className="text-center mb-12">
-          <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">Bienvenue</h2>
-          <p className="mt-1 text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Votre espace d'apprentissage
-          </p>
-          <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
-            Accédez à tous vos outils de gestion en un seul endroit
-          </p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Message de bienvenue personnalisé */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            {getGreeting()}, {user?.name || 'Utilisateur'} 👋
+          </h2>
+          <p className="text-gray-600">Voici un aperçu de votre plateforme d'apprentissage</p>
         </div>
 
-        {/* Grille de cartes */}
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              onClick={card.available ? card.onClick : undefined}
-              onMouseEnter={() => setActiveCard(card.id)}
-              onMouseLeave={() => setActiveCard(null)}
-              className={`relative overflow-hidden rounded-2xl border ${card.borderColor} ${card.bgColor} ${card.available ? card.hoverBgColor : ''} p-8 transition-all duration-300 ease-in-out ${
-                card.available ? 'cursor-pointer transform hover:-translate-y-1 hover:shadow-xl' : 'cursor-default'
-              }`}
-            >
-              {/* Cercle décoratif */}
-              <div className={`absolute -right-10 -top-10 h-40 w-40 rounded-full ${card.bgColor} opacity-30 transition-transform duration-500 ${activeCard === card.id ? 'scale-150' : 'scale-100'}`}></div>
-              
-              {/* Contenu de la carte */}
-              <div className="relative">
-                <div className={`inline-flex items-center justify-center rounded-xl ${card.bgColor} p-3`}>
-                  {card.icon}
+        {/* Grille de statistiques */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statsData.map((stat, index) => (
+            <div key={index} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                  {stat.icon}
                 </div>
-                <h3 className="mt-6 text-xl font-bold text-gray-900">{card.title}</h3>
-                <p className="mt-2 text-gray-600">{card.description}</p>                <div className={`mt-6 inline-flex items-center font-medium ${card.available ? 'text-blue-600' : 'text-gray-600'}`}>
-                  {card.action}
-                  {card.available && (
-                    <svg className={`ml-2 h-4 w-4 transition-transform duration-300 ${activeCard === card.id ? 'translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  )}
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-xs text-gray-500">{stat.change}</div>
                 </div>
               </div>
+              <h3 className="text-sm font-medium text-gray-600">{stat.title}</h3>
             </div>
           ))}
         </div>
 
-        {/* Section d'aide */}
-        <div className="mt-16 bg-white bg-opacity-80 backdrop-blur-sm rounded-2xl shadow-sm p-8 border border-gray-100">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900">Besoin d'aide?</h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Notre équipe de support est disponible pour vous aider à tirer le meilleur parti de votre plateforme LMS.
-            </p>
-            <button className="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-              Contacter le support
-            </button>
+        {/* Section principale avec deux colonnes */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cartes principales */}
+          <div className="lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full mr-3"></div>
+              Modules Principaux
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {cards.map((card) => (
+                <div
+                  key={card.id}
+                  onClick={card.available ? card.onClick : undefined}
+                  onMouseEnter={() => setActiveCard(card.id)}
+                  onMouseLeave={() => setActiveCard(null)}
+                  className={`group relative overflow-hidden bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg transition-all duration-300 ${
+                    card.available 
+                      ? `cursor-pointer hover:shadow-2xl hover:-translate-y-2 ${card.shadowColor}` 
+                      : 'cursor-not-allowed opacity-75'
+                  }`}
+                >
+                  {/* Effet de brillance */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  
+                  {/* Icône avec gradient */}
+                  <div className={`w-14 h-14 bg-gradient-to-br ${card.gradient} rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg ${card.shadowColor} group-hover:scale-110 transition-transform duration-300`}>
+                    {card.icon}
+                  </div>
+                  
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{card.title}</h4>
+                  <p className="text-gray-600 text-sm mb-4 leading-relaxed">{card.description}</p>
+                  
+                  <div className={`flex items-center text-sm font-medium ${card.available ? 'text-blue-600' : 'text-gray-400'}`}>
+                    <span>{card.action}</span>
+                    {card.available && (
+                      <svg className={`ml-2 w-4 h-4 transition-transform duration-300 ${activeCard === card.id ? 'translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar avec activités récentes */}
+          <div className="space-y-6">
+            {/* Activités récentes */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Activités Récentes</h3>
+              <div className="space-y-4">
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${
+                      activity.type === 'success' ? 'bg-green-500' :
+                      activity.type === 'info' ? 'bg-blue-500' :
+                      activity.type === 'warning' ? 'bg-yellow-500' : 'bg-gray-500'
+                    }`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                      <p className="text-xs text-gray-600">{activity.course}</p>
+                      <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Widget météo/heure */}
+            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
+              <div className="text-center">
+                <div className="text-2xl font-bold">{currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                <div className="text-blue-100 text-sm">{currentTime.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <footer className="bg-white bg-opacity-80 backdrop-blur-sm mt-12 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} LMS Platform. Tous droits réservés.
-          </p>
+        {/* Section d'aide améliorée */}
+        <div className="mt-12 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-2xl">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold mb-2">Besoin d'assistance ?</h3>
+            <p className="text-indigo-100 mb-6 max-w-2xl mx-auto">
+              Notre équipe de support est disponible 24/7 pour vous accompagner dans l'utilisation de votre plateforme LMS.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                Centre d'aide
+              </button>
+              <button className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-medium hover:bg-white/30 transition-colors border border-white/30">
+                Contacter le support
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer moderne */}
+      <footer className="mt-16 bg-white/50 backdrop-blur-sm border-t border-white/20">
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              &copy; {new Date().getFullYear()} LMS Platform. Conçu avec ❤️ pour l'éducation.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
