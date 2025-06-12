@@ -18,10 +18,16 @@ const Dashboard = () => {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []);
-
-  const handleNavigateToCourses = () => {
+  }, []);  const handleNavigateToCourses = () => {
     navigate('/courses');
+  };
+
+  const handleNavigateToUsers = () => {
+    navigate('/users');
+  };
+
+  const handleNavigateToEmployees = () => {
+    navigate('/employees');
   };
 
   // Données des statistiques
@@ -75,7 +81,6 @@ const Dashboard = () => {
       bgColor: "bg-purple-50"
     }
   ];
-
   // Données des cartes principales
   const cards = [
     {
@@ -97,18 +102,34 @@ const Dashboard = () => {
       id: 2,
       title: "Gestion des Utilisateurs",
       description: "Administrer les comptes étudiants et enseignants",
-      action: "Bientôt disponible",
+      action: "Accéder maintenant",
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
         </svg>
       ),
-      available: false,
+      onClick: handleNavigateToUsers,
+      available: true,
       gradient: "from-emerald-500 to-teal-600",
       shadowColor: "shadow-emerald-500/25"
     },
     {
       id: 3,
+      title: "Gestion des Employés",
+      description: "Gérer les profils et les accès des employés",
+      action: "Accéder maintenant",
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+      ),
+      onClick: handleNavigateToEmployees,
+      available: true,
+      gradient: "from-amber-500 to-orange-600",
+      shadowColor: "shadow-amber-500/25"
+    },
+    {
+      id: 4,
       title: "Analytics & Rapports",
       description: "Visualiser les performances et statistiques détaillées",
       action: "Bientôt disponible",
@@ -148,7 +169,7 @@ const Dashboard = () => {
         {/* Message de bienvenue personnalisé */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {getGreeting()}, {user?.name || 'Invité'} 👋
+            {getGreeting()}, {user?.name || 'Utilisateur'}!
           </h2>
           <p className="text-gray-600">Voici un aperçu de votre plateforme d'apprentissage</p>
         </div>

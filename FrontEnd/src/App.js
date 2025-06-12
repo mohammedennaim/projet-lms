@@ -4,6 +4,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import CourseManagement from './components/CourseManagement';
+import UserManagement from './components/UserManagement';
+import EmployeeList from './components/EmployeeList';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -51,6 +53,21 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CourseManagement />
+                </ProtectedRoute>
+              } 
+            />            <Route 
+              path="/users" 
+              element={
+                <ProtectedRoute>
+                  <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employees" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeList />
                 </ProtectedRoute>
               } 
             />
