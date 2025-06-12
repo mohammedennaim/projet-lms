@@ -1,3 +1,5 @@
+/BackEnd/.phpunit.result.cache
+/BackEnd/phpunit.xml
 
 ###> symfony/framework-bundle ###
 /.env.local
