@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { courseService } from '../services/courseService';
-import './CourseForm.css';
 
 const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
   const [formData, setFormData] = useState({
@@ -105,22 +104,21 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
       onCancel();
     }
   };
-
   return (
-    <div className="course-form-container">
-      <div className="course-form-header">
-        <h2>{isEdit ? 'Modifier le cours' : 'Nouveau cours'}</h2>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-md animate-fadeIn">
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-semibold text-gray-800">{isEdit ? 'Modifier le cours' : 'Nouveau cours'}</h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="course-form">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {errors.submit && (
-          <div className="error-message submit-error">
+          <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">
             {errors.submit}
           </div>
         )}
 
-        <div className="form-group">
-          <label htmlFor="title" className="form-label">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="title" className="text-gray-800 font-medium text-sm">
             Titre du cours *
           </label>
           <input
@@ -129,20 +127,20 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
             name="title"
             value={formData.title}
             onChange={handleInputChange}
-            className={`form-input ${errors.title ? 'error' : ''}`}
+            className={`py-3 px-4 border-2 ${errors.title ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'} rounded-lg transition-all duration-300 focus:outline-none focus:ring`}
             placeholder="Entrez le titre du cours"
             maxLength="255"
           />
           {errors.title && (
-            <span className="error-text">{errors.title}</span>
+            <span className="text-red-500 text-sm font-medium">{errors.title}</span>
           )}
-          <small className="form-hint">
+          <small className="text-gray-500 text-xs">
             {formData.title.length}/255 caractères
           </small>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="description" className="form-label">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="description" className="text-gray-800 font-medium text-sm">
             Description *
           </label>
           <textarea
@@ -150,35 +148,35 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            className={`form-textarea ${errors.description ? 'error' : ''}`}
+            className={`py-3 px-4 border-2 ${errors.description ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'} rounded-lg transition-all duration-300 focus:outline-none focus:ring resize-y min-h-[150px]`}
             placeholder="Décrivez le contenu et les objectifs du cours"
             rows="6"
           />
           {errors.description && (
-            <span className="error-text">{errors.description}</span>
+            <span className="text-red-500 text-sm font-medium">{errors.description}</span>
           )}
-          <small className="form-hint">
+          <small className="text-gray-500 text-xs">
             Minimum 10 caractères ({formData.description.length} caractères)
           </small>
         </div>
 
-        <div className="form-actions">
+        <div className="flex justify-end gap-4 mt-6 pt-6 border-t border-gray-100">
           <button
             type="button"
             onClick={handleCancel}
-            className="btn btn-cancel"
+            className="px-6 py-3 bg-gray-500 text-white rounded-lg font-medium transition-all duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={loading}
           >
             Annuler
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium transition-all duration-300 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             disabled={loading}
           >
             {loading ? (
               <>
-                <span className="loading-spinner-small"></span>
+                <span className="w-4 h-4 border-2 border-transparent border-t-white rounded-full animate-spin"></span>
                 {isEdit ? 'Modification...' : 'Création...'}
               </>
             ) : (
