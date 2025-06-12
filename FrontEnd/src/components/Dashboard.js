@@ -148,7 +148,7 @@ const Dashboard = () => {
         {/* Message de bienvenue personnalisé */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {getGreeting()}, {user?.name || 'Utilisateur'} 👋
+            {getGreeting()}, {user?.name || 'Invité'} 👋
           </h2>
           <p className="text-gray-600">Voici un aperçu de votre plateforme d'apprentissage</p>
         </div>
@@ -274,11 +274,10 @@ const Dashboard = () => {
       </div>
 
       {/* Footer moderne */}
-      <footer className="mt-16 bg-white/50 backdrop-blur-sm border-t border-white/20">
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <footer className="mt-16 bg-white/50 backdrop-blur-sm border-t border-white/20">        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} LMS Platform. Conçu avec ❤️ pour l'éducation.
+              &copy; {new Date().getFullYear()} LMS Platform.
             </p>
           </div>
         </div>

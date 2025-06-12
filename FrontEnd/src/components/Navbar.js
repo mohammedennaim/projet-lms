@@ -109,7 +109,7 @@ const Navbar = () => {
                     {user?.name?.charAt(0) || 'U'}
                   </div>
                   <span className="hidden lg:block text-sm font-medium text-gray-700">
-                    {user?.name || 'Utilisateur'}
+                    {user?.name || 'Invité'}
                   </span>
                 </button>
                 {/* Dropdown could be added here */}
