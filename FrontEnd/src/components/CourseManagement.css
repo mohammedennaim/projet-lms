@@ -28,7 +28,7 @@
   from {
     opacity: 0;
     transform: translateY(10px);
-  }
+}
   to {
     opacity: 1;
     transform: translateY(0);
@@ -626,7 +626,7 @@
 
   .modal-actions {
     flex-direction: column;
-  }
+}
 
   .modal-actions button {
     width: 100%;

@@ -22,6 +22,7 @@
     "require-dev": {
         "api-platform/core": "^3.4.17",
         "doctrine/doctrine-bundle": ">=2.14",
+        "doctrine/doctrine-fixtures-bundle": "^4.1",
         "doctrine/orm": ">=3.3.3",
         "symfony/maker-bundle": ">=1.63",
         "symfony/security-bundle": "7.3.*"

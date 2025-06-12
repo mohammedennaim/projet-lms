@@ -31,8 +31,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 255)]
     private ?string $fullName = null;    #[ORM\Column(length: 50)]
     #[Groups(['user:read'])]
-    #[Assert\Choice(choices: ['admin', 'instructeur', 'employée'], message: 'Le rôle doit être admin, instructeur ou employée')]
-    private string $roles = 'ROLE_EMPLOYEE';
+    #[Assert\Choice(choices: ['admin', 'employée'], message: 'Le rôle doit être admin, instructeur, employée ou student')]
+    private string $roles = 'employée';
 
     #[ORM\Column]
     private ?string $password = null;
@@ -77,8 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }    /**
      * @see UserInterface
-     */
-    public function getRoles(): array
+     */    public function getRoles(): array
     {
         // Convert string role to array format required by Symfony Security
         $roles = [];
@@ -88,8 +87,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             case 'admin':
                 $roles[] = 'ROLE_ADMIN';
                 break;
+            case 'instructeur':
+                $roles[] = 'ROLE_INSTRUCTOR';
+                break;
             case 'employée':
                 $roles[] = 'ROLE_EMPLOYEE';
+                break;
+            case 'student':
+                $roles[] = 'ROLE_STUDENT';
                 break;
         }
         
