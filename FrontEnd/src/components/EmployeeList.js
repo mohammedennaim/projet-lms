@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
-import userService from '../services/userService';
+import userService from '../services/UserService';
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -23,7 +23,6 @@ const EmployeeList = () => {
     fetchEmployees();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filterDepartment]);
-
   const fetchEmployees = async () => {
     try {
       setLoading(true);
@@ -44,7 +43,13 @@ const EmployeeList = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching employees:', err);
-      setError('Impossible de charger les employés. Veuillez réessayer plus tard.');
+      if (err.message === "You don't have permission to access this resource") {
+        setError("Vous n'avez pas l'autorisation d'accéder à cette ressource. Veuillez contacter l'administrateur.");
+      } else if (!navigator.onLine) {
+        setError("Vous êtes hors ligne. Veuillez vérifier votre connexion internet.");
+      } else {
+        setError('Impossible de charger les employés. Veuillez réessayer plus tard.');
+      }
     } finally {
       setLoading(false);
     }
