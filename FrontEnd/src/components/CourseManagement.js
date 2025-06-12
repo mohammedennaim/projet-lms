@@ -53,9 +53,13 @@ const CourseManagement = () => {
       }
     }
   };
-
   const handleSubmit = async (formData) => {
     try {
+      // Assurer que l'image par défaut est utilisée si aucune n'est spécifiée
+      if (!formData.image) {
+        formData.image = "https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=";
+      }
+      
       if (selectedCourse) {
         await courseService.updateCourse(selectedCourse.id, formData);
         setCourses(courses.map(course => 
@@ -264,11 +268,10 @@ const CourseManagement = () => {
             onMouseEnter={() => setAnimateCard(course.id)}
             onMouseLeave={() => setAnimateCard(null)}
           >
-            {/* Image avec overlay gradient */}
-            <div className="relative h-48 overflow-hidden">
+            {/* Image avec overlay gradient */}            <div className="relative h-48 overflow-hidden">
               <div className={`absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-600/40 z-10 transition-opacity duration-300 ${animateCard === course.id ? 'opacity-70' : 'opacity-40'}`}></div>
               <img
-                src={course.image || 'https://via.placeholder.com/300x200'}
+                src="https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c="
                 alt={course.title}
                 className={`w-full h-full object-cover transition-transform duration-700 ${animateCard === course.id ? 'scale-110' : 'scale-100'}`}
               />
@@ -402,16 +405,15 @@ const CourseManagement = () => {
                     required
                   />
                 </div>
-                
-                {/* Image URL */}
+                  {/* Image URL */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">URL de l'image (optionnel)</label>
                   <input
                     type="url"
                     name="image"
-                    defaultValue={selectedCourse?.image}
+                    defaultValue={selectedCourse?.image || "https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c="}
                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                    placeholder="https://exemple.com/image.jpg"
+                    placeholder="https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c="
                   />
                 </div>
                 

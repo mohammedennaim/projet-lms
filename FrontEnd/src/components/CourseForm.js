@@ -9,17 +9,18 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Initialize form data when course prop changes
-  useEffect(() => {
+  // Initialize form data when course prop changes  useEffect(() => {
     if (course && isEdit) {
       setFormData({
         title: course.title || '',
-        description: course.description || ''
+        description: course.description || '',
+        image: course.image || 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c='
       });
     } else {
       setFormData({
         title: '',
-        description: ''
+        description: '',
+        image: 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c='
       });
     }
     setErrors({});
@@ -63,7 +64,6 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
       }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -73,13 +73,19 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
 
     setLoading(true);
     
+    // Assurer qu'il y a toujours une image (utiliser l'image par défaut si aucune n'est fournie)
+    const dataToSubmit = {
+      ...formData,
+      image: formData.image || "https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c="
+    };
+    
     try {
       let savedCourse;
       
       if (isEdit && course) {
-        savedCourse = await courseService.updateCourse(course.id, formData);
+        savedCourse = await courseService.updateCourse(course.id, dataToSubmit);
       } else {
-        savedCourse = await courseService.createCourse(formData);
+        savedCourse = await courseService.createCourse(dataToSubmit);
       }
       
       if (onSave) {
@@ -137,9 +143,7 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
           <small className="text-gray-500 text-xs">
             {formData.title.length}/255 caractères
           </small>
-        </div>
-
-        <div className="flex flex-col gap-2">
+        </div>        <div className="flex flex-col gap-2">
           <label htmlFor="description" className="text-gray-800 font-medium text-sm">
             Description *
           </label>
@@ -157,6 +161,35 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
           )}
           <small className="text-gray-500 text-xs">
             Minimum 10 caractères ({formData.description.length} caractères)
+          </small>
+        </div>
+        
+        <div className="flex flex-col gap-2">
+          <label htmlFor="image" className="text-gray-800 font-medium text-sm">
+            URL de l'image
+          </label>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="md:flex-1">
+              <input
+                type="url"
+                id="image"
+                name="image"
+                value={formData.image}
+                onChange={handleInputChange}
+                className="w-full py-3 px-4 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-200 rounded-lg transition-all duration-300 focus:outline-none focus:ring"
+                placeholder="URL de l'image du cours"
+              />
+            </div>
+            <div className="w-full md:w-32 h-32 rounded-lg overflow-hidden border border-gray-200">
+              <img 
+                src={formData.image || "https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c="} 
+                alt="Aperçu" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          <small className="text-gray-500 text-xs">
+            Laissez vide pour utiliser l'image par défaut
           </small>
         </div>
 

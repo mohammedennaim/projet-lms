@@ -87,54 +87,64 @@ const CourseList = ({ onSelectCourse, onEditCourse, onDeleteCourse }) => {
       {filteredCourses.length === 0 ? (
         <div className="text-center py-16 px-5 text-gray-600 text-lg">
           <p>Aucun cours trouvé.</p>
-        </div>
-      ) : (        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (
-            <div key={course.id} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-              <div className="flex justify-between items-start mb-4">
-                <h3 
-                  className="text-xl font-medium text-gray-800 hover:text-blue-600 cursor-pointer transition-colors duration-300 flex-1 mr-4"
-                  onClick={() => onSelectCourse && onSelectCourse(course)}
-                >
-                  {course.title}
-                </h3>
-                <div className="flex gap-2">
-                  <button
-                    className="bg-transparent border-none text-lg p-2 rounded-md hover:bg-blue-50 transition-colors duration-300"
-                    onClick={() => onEditCourse && onEditCourse(course)}
-                    title="Modifier"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    className="bg-transparent border-none text-lg p-2 rounded-md hover:bg-red-50 transition-colors duration-300"
-                    onClick={() => handleDelete(course.id)}
-                    title="Supprimer"
-                  >
-                    🗑️
-                  </button>
-                </div>
+            <div key={course.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+              {/* Image du cours */}
+              <div className="h-40 overflow-hidden">
+                <img 
+                  src="https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=" 
+                  alt={course.title}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
               </div>
-              
-              <div className="mb-5">
-                <p className="text-gray-600 line-clamp-3 text-sm leading-relaxed">{course.description}</p>
-              </div>
-              
-              <div className="flex justify-between items-end pt-4 border-t border-gray-100 mt-auto">
-                <div className="flex flex-col gap-1">
-                  <small className="text-gray-500 text-xs">Créé le {formatDate(course.createdAt)}</small>
-                  {course.updatedAt !== course.createdAt && (
-                    <small className="text-gray-500 text-xs">Modifié le {formatDate(course.updatedAt)}</small>
-                  )}
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 
+                    className="text-xl font-medium text-gray-800 hover:text-blue-600 cursor-pointer transition-colors duration-300 flex-1 mr-4"
+                    onClick={() => onSelectCourse && onSelectCourse(course)}
+                  >
+                    {course.title}
+                  </h3>
+                  <div className="flex gap-2">
+                    <button
+                      className="bg-transparent border-none text-lg p-2 rounded-md hover:bg-blue-50 transition-colors duration-300"
+                      onClick={() => onEditCourse && onEditCourse(course)}
+                      title="Modifier"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="bg-transparent border-none text-lg p-2 rounded-md hover:bg-red-50 transition-colors duration-300"
+                      onClick={() => handleDelete(course.id)}
+                      title="Supprimer"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
                 
-                {course.employees && course.employees.length > 0 && (
-                  <div>
-                    <span className="bg-blue-500 text-white text-xs font-medium py-1 px-3 rounded-full">
-                      {course.employees.length} inscription(s)
-                    </span>
+                <div className="mb-5">
+                  <p className="text-gray-600 line-clamp-3 text-sm leading-relaxed">{course.description}</p>
+                </div>
+                
+                <div className="flex justify-between items-end pt-4 border-t border-gray-100 mt-auto">
+                  <div className="flex flex-col gap-1">
+                    <small className="text-gray-500 text-xs">Créé le {formatDate(course.createdAt)}</small>
+                    {course.updatedAt !== course.createdAt && (
+                      <small className="text-gray-500 text-xs">Modifié le {formatDate(course.updatedAt)}</small>
+                    )}
                   </div>
-                )}
+                  
+                  {course.employees && course.employees.length > 0 && (
+                    <div>
+                      <span className="bg-blue-500 text-white text-xs font-medium py-1 px-3 rounded-full">
+                        {course.employees.length} inscription(s)
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}

@@ -70,12 +70,30 @@ const CourseDetails = ({ courseId, onClose, onEdit }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-5 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-auto shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-5 backdrop-blur-sm animate-fadeIn" onClick={onClose}>      <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-auto shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+        {/* Image d'en-tête */}
+        <div className="relative h-48 overflow-hidden">
+          <img 
+            src="https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=" 
+            alt={course.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+            <h2 className="text-2xl font-bold text-white p-6">{course.title}</h2>
+          </div>
+          <button 
+            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white hover:bg-white/40 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200" 
+            onClick={onClose} 
+            title="Fermer"
+          >
+            ✕
+          </button>
+        </div>
+        
         <div className="flex justify-between items-start p-6 pb-0 border-b border-gray-200 mb-6">
           <h2 className="text-2xl font-semibold text-gray-800 pr-5 leading-normal">{course.title}</h2>
           <button 
-            className="bg-transparent border-none text-gray-500 hover:text-gray-800 hover:bg-gray-100 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200" 
+            className="bg-transparent border-none text-gray-500 hover:text-gray-800 hover:bg-gray-100 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 lg:hidden" 
             onClick={onClose} 
             title="Fermer"
           >
