@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users', name: 'users_')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_EMPLOYÉE')]
 class UserController extends AbstractController
 {    public function __construct(
         private EntityManagerInterface $entityManager,

@@ -30,7 +30,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
     private ?string $fullName = null;    #[ORM\Column(length: 50)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'affectation:read', 'affectation:details'])]
     #[Assert\Choice(choices: ['admin', 'employée'], message: 'Le rôle doit être admin, instructeur, employée ou student')]
     private string $roles = 'employée';
 
@@ -77,10 +77,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }    /**
      * @see UserInterface
-     */    public function getRoles(): array
+     */
+    public function getRoles(): array
     {
         // Convert string role to array format required by Symfony Security
-        $roles = [];
+        $roles = ['ROLE_USER']; // Always include ROLE_USER as a base role
         
         // Map our custom roles to Symfony roles
         switch ($this->roles) {

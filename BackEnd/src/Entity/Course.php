@@ -47,17 +47,17 @@ class Course
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['cours:read', 'ressource:read'])]
+    #[Groups(['cours:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['cours:read', 'cours:write', 'ressource:read'])]
+    #[Groups(['cours:read', 'cours:write'])]
     #[Assert\NotBlank(message: 'Le titre est obligatoire')]
     #[Assert\Length(min: 3, max: 255, minMessage: 'Le titre doit contenir au moins 3 caractères')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['cours:read', 'cours:write', 'cours:details', 'ressource:read'])]
+    #[Groups(['cours:read', 'cours:write', 'cours:details'])]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
     #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins 10 caractères')]
     private ?string $description = null;
