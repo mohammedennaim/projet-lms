@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const Dashboard = () => {
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [activeCard, setActiveCard] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalCourses: 24,
     activeStudents: 156,
     completionRate: 87,
     newEnrollments: 12
   });
-
   // Mise à jour de l'heure
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const handleLogout = () => {
-    logout();
-  };
 
   const handleNavigateToCourses = () => {
     navigate('/courses');
@@ -141,55 +137,14 @@ const Dashboard = () => {
     if (hour < 18) return "Bon après-midi";
     return "Bonsoir";
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header moderne avec glassmorphism */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-lg shadow-black/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            {/* Logo et info */}
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  LMS Dashboard
-                </h1>
-                <p className="text-xs text-gray-500">{currentTime.toLocaleDateString('fr-FR')}</p>
-              </div>
-            </div>
-
-            {/* Actions utilisateur */}
-            <div className="flex items-center space-x-4">
-              {/* Notifications */}
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-5 5v-5zM10.07 2.82l3.12 3.12M7.05 5.84L10.17 8.96"></path>
-                </svg>
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
-              {/* Bouton déconnexion */}
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-105 transition-all duration-200"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                </svg>
-                Déconnexion
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      {/* Navbar */}
+      <Navbar />
+      
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Contenu principal */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Message de bienvenue personnalisé */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -314,9 +269,9 @@ const Dashboard = () => {
                 Contacter le support
               </button>
             </div>
-          </div>
-        </div>
-      </main>
+          </div>        </div>
+        </main>
+      </div>
 
       {/* Footer moderne */}
       <footer className="mt-16 bg-white/50 backdrop-blur-sm border-t border-white/20">
@@ -328,7 +283,7 @@ const Dashboard = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 };
 
