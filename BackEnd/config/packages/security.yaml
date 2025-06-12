@@ -27,14 +27,15 @@ security:    # https://symfony.com/doc/current/security.html#registering-the-use
             jwt: ~
         main:
             lazy: true
-            provider: app_user_provider
-
-    # Easy way to control access for large sections of your site
+            provider: app_user_provider    # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/employee, roles: ROLE_EMPLOYEE }
+        - { path: ^/api/affectations/my-courses, roles: [ROLE_EMPLOYEE, ROLE_ADMIN] }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
@@ -48,3 +49,8 @@ when@test:
                 cost: 4 # Lowest possible value for bcrypt
                 time_cost: 3 # Lowest possible value for argon
                 memory_cost: 10 # Lowest possible value for argon
+
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~        

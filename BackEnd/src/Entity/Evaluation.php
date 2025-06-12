@@ -21,5 +21,41 @@ class Evaluation
     #[ORM\JoinColumn(nullable: false)]
     private ?Affectation $affectation = null;
 
-    // Getters et setters ...
-} 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getNote(): int
+    {
+        return $this->note;
+    }
+
+    public function setNote(int $note): static
+    {
+        $this->note = $note;
+        return $this;
+    }
+
+    public function isEvalueAffectation(): bool
+    {
+        return $this->evalueAffectation;
+    }
+
+    public function setEvalueAffectation(bool $evalueAffectation): static
+    {
+        $this->evalueAffectation = $evalueAffectation;
+        return $this;
+    }
+
+    public function getAffectation(): ?Affectation
+    {
+        return $this->affectation;
+    }
+
+    public function setAffectation(?Affectation $affectation): static
+    {
+        $this->affectation = $affectation;
+        return $this;
+    }
+}
