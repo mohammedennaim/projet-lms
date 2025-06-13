@@ -54,6 +54,17 @@ const Navbar = () => {
     },
     {
       id: 5,
+      title: "Assignations",
+      path: "/assignments",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+        </svg>
+      ),
+      adminOnly: true
+    },
+    {
+      id: 6,
       title: "Statistiques",
       path: "/statistics",
       icon: (
@@ -79,11 +90,11 @@ const Navbar = () => {
                   LMS Platform
                 </h1>
               </div>
-            </div>
-
-            {/* Navigation principale - Desktop */}
+            </div>            {/* Navigation principale - Desktop */}
             <nav className="hidden md:flex items-center space-x-1">
-              {navItems.map((item) => (
+              {navItems
+                .filter(item => !item.adminOnly || (user && user.roles && user.roles.includes('ROLE_ADMIN')))
+                .map((item) => (
                 <NavLink
                   key={item.id}
                   to={item.path}
@@ -146,9 +157,10 @@ const Navbar = () => {
         </div>
       </header>      {/* Menu mobile */}
       {mobileMenuOpen && (
-        <div className="fixed top-[72px] left-0 right-0 z-40 md:hidden bg-white border-b border-gray-200 shadow-lg animate-fadeDown">
-          <nav className="flex flex-col px-4 py-2 space-y-1">
-            {navItems.map((item) => (
+        <div className="fixed top-[72px] left-0 right-0 z-40 md:hidden bg-white border-b border-gray-200 shadow-lg animate-fadeDown">          <nav className="flex flex-col px-4 py-2 space-y-1">
+            {navItems
+              .filter(item => !item.adminOnly || (user && user.roles && user.roles.includes('ROLE_ADMIN')))
+              .map((item) => (
               <NavLink
                 key={item.id}
                 to={item.path}

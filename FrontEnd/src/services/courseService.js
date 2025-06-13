@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { handleApiError } from '../utils/errorUtils';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api';
 
@@ -39,26 +40,32 @@ courseAPI.interceptors.response.use(
 );
 
 // Course service functions
-export const courseService = {  // Get all courses
+export const courseService = {
+  // Get all courses
   getAllCourses: async () => {
     try {
       const response = await courseAPI.get('/admin/courses');
-      // Return courses array from admin API response structure
-      return response.data.courses || [];
+      return {
+        success: true,
+        data: response.data.courses || []
+      };
     } catch (error) {
       console.error('Error fetching courses:', error);
-      throw new Error('Erreur lors de la récupération des cours');
+      return handleApiError(error, 'Erreur lors de la récupération des cours');
     }
   },
+
   // Get course by ID
   getCourseById: async (id) => {
     try {
       const response = await courseAPI.get(`/admin/courses/${id}`);
-      // Admin API returns course object directly
-      return response.data;
+      return {
+        success: true,
+        data: response.data
+      };
     } catch (error) {
       console.error('Error fetching course:', error);
-      throw new Error('Erreur lors de la récupération du cours');
+      return handleApiError(error, 'Erreur lors de la récupération du cours');
     }
   },
 
@@ -95,7 +102,9 @@ export const courseService = {  // Get all courses
       console.error('Error deleting course:', error);
       throw new Error('Erreur lors de la suppression du cours');
     }
-  },  // Search courses
+  },
+
+  // Search courses
   searchCourses: async (searchTerm) => {
     try {
       const response = await courseAPI.get(`/admin/courses?search=${encodeURIComponent(searchTerm)}`);

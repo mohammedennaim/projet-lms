@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { handleApiError } from '../utils/errorUtils';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
@@ -44,16 +45,36 @@ class UserService {
   }
   
   // Employee-specific methods
-  getAllEmployees() {
-    return axios.get(`${API_URL}/admin/employees`, {
-      headers: this.authHeader()
-    });
+  async getAllEmployees() {
+    try {
+      const response = await axios.get(`${API_URL}/admin/employees`, {
+        headers: this.authHeader()
+      });
+      
+      return {
+        success: true,
+        data: response.data || []
+      };
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      return handleApiError(error, 'Erreur lors du chargement des employés');
+    }
   }
   
-  getEmployeeById(id) {
-    return axios.get(`${API_URL}/employees/${id}`, {
-      headers: this.authHeader()
-    });
+  async getEmployeeById(id) {
+    try {
+      const response = await axios.get(`${API_URL}/employees/${id}`, {
+        headers: this.authHeader()
+      });
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error fetching employee:', error);
+      return handleApiError(error, 'Erreur lors du chargement de l\'employé');
+    }
   }
 
   // Get users with filters and pagination
