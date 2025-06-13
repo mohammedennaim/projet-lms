@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import courseService from '../services/courseService';
 import Navbar from './Navbar';
+import CourseForm from './CourseForm';
 
 const CourseManagement = () => {
   const navigate = useNavigate();
@@ -13,11 +14,12 @@ const CourseManagement = () => {
   const [toast, setToast] = useState(null);
   const [animateCard, setAnimateCard] = useState(null);
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       setLoading(true);
       const data = await courseService.getAllCourses();
@@ -29,7 +31,11 @@ const CourseManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const handleAddCourse = () => {
     setSelectedCourse(null);
@@ -50,36 +56,9 @@ const CourseManagement = () => {
       } catch (err) {
         showToast('Erreur lors de la suppression du cours', 'error');
       }
-    }
-  };
-  const handleSubmit = async (formData) => {
-    try {
-      // Assurer que l'image par défaut est utilisée si aucune n'est spécifiée
-      if (!formData.image) {
-        formData.image = "https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=";
-      }
-      
-      if (selectedCourse) {
-        await courseService.updateCourse(selectedCourse.id, formData);
-        setCourses(courses.map(course => 
-          course.id === selectedCourse.id ? { ...course, ...formData } : course
-        ));
-        showToast('Cours mis à jour avec succès', 'success');
-      } else {
-        const newCourse = await courseService.createCourse(formData);
-        setCourses([...courses, newCourse]);
-        showToast('Cours créé avec succès', 'success');
-      }
-      setShowModal(false);
-    } catch (err) {
-      showToast('Erreur lors de l\'enregistrement du cours', 'error');
-    }
-  };
+    }  };
 
-  const showToast = (message, type) => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };  const filteredCourses = courses.filter(course => {
+  const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
@@ -268,68 +247,28 @@ const CourseManagement = () => {
                   </svg>
                 </button>
               </div>
-              
-              {/* Formulaire */}
-              <form 
-                className="p-6"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.target);
-                  handleSubmit(Object.fromEntries(formData));
-                }}
-              >
-                <div className="space-y-6">
-                  {/* Titre */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Titre du cours</label>
-                    <input
-                      type="text"
-                      name="title"
-                      defaultValue={selectedCourse?.title}
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                      placeholder="Entrez le titre du cours"
-                      required
-                    />
-                  </div>
-                  
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                    <textarea
-                      name="description"
-                      defaultValue={selectedCourse?.description}
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all min-h-[120px] resize-y"
-                      placeholder="Décrivez le contenu du cours"
-                      required
-                    />                  </div>
-                  
-                  {/* Image URL - champ caché avec valeur par défaut */}
-                  <input
-                    type="hidden"
-                    name="image"
-                    defaultValue={selectedCourse?.image || "https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c="}
-                  />
-  
-                </div>
-                
-                {/* Actions */}
-                <div className="flex justify-end gap-4 mt-8">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-6 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-                  >
-                    Annuler
-                  </button>
-                  
-                  <button
-                    type="submit"
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105"
-                  >
-                    {selectedCourse ? 'Mettre à jour' : 'Créer le cours'}
-                  </button>
-                </div>
-              </form>
+                {/* Formulaire avec CourseForm */}
+              <div className="bg-white">
+                <CourseForm
+                  course={selectedCourse}
+                  onSave={(savedCourse) => {
+                    if (selectedCourse) {
+                      // Mise à jour
+                      setCourses(courses.map(course => 
+                        course.id === selectedCourse.id ? { ...course, ...savedCourse } : course
+                      ));
+                      showToast('Cours mis à jour avec succès', 'success');
+                    } else {
+                      // Création
+                      setCourses([...courses, savedCourse]);
+                      showToast('Cours créé avec succès', 'success');
+                    }
+                    setShowModal(false);
+                  }}
+                  onCancel={() => setShowModal(false)}
+                  isEdit={!!selectedCourse}
+                />
+              </div>
             </div>
           </div>
         )}
