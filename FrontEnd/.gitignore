@@ -21,3 +21,6 @@
 *.njsproj
 *.sln
 *.sw?
+
+# Services - fichiers à ne pas pousser
+src/services/userService.js
