@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
 use App\Entity\Question;
 use App\Entity\Reponse;
@@ -15,8 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api')]
-class ReponseController extends AbstractController
+#[Route('/api/admin')]
+class ReponseAdminController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private ReponseRepository $reponseRepository;

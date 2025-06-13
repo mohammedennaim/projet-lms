@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
 use App\Entity\Quiz;
 use App\Repository\QuizRepository;
@@ -14,8 +14,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
-#[Route('/api')]
-class QuizController extends AbstractController
+#[Route('/api/admin')]
+class QuizAdminController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private QuizRepository $quizRepository;
@@ -144,7 +144,7 @@ class QuizController extends AbstractController
         return $this->json(['message' => 'Quiz deleted successfully'], Response::HTTP_OK);
     }
     
-    #[Route('/admin/quizzes/{id}/validate', name: 'quiz_validate', methods: ['POST'])]
+    #[Route('/quizzes/{id}/validate', name: 'quiz_validate', methods: ['POST'])]
     public function validateQuiz(int $id): JsonResponse
     {
         $user = $this->security->getUser();
