@@ -104,14 +104,7 @@ const Navbar = () => {
 
               {/* Bouton profil utilisateur */}
               <div className="relative">
-                <button className="inline-flex items-center space-x-2 text-left bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {user?.name?.charAt(0) || 'U'}
-                  </div>
-                  <span className="hidden lg:block text-sm font-medium text-gray-700">
-                    {user?.name || 'Utilisateur'}
-                  </span>
-                </button>
+
                 {/* Dropdown could be added here */}
               </div>
 
