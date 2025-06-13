@@ -1,83 +1,79 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import { useAuth } from '../context/AuthContext';
+import UserService from '../services/UserService';
 
 const EmployeeManagement = () => {
-  const navigate = useNavigate();
+  // We're using the user object from useAuth for displaying the username
+  const { user } = useAuth(); 
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
   const [toast, setToast] = useState(null);
 
-  // Simulation de données pour la maquette
+  // Fetch real employees data from API
   useEffect(() => {
-    // Simule un chargement API
-    const timer = setTimeout(() => {
-      const mockEmployees = [
-        {
-          id: 1,
-          firstName: 'Jean',
-          lastName: 'Dupont',
-          email: 'jean.dupont@example.com',
-          department: 'IT',
-          role: 'Développeur',
-          status: 'active',
-          enrolledCourses: 3,
-          completionRate: 78
-        },
-        {
-          id: 2,
-          firstName: 'Marie',
-          lastName: 'Martin',
-          email: 'marie.martin@example.com',
-          department: 'Marketing',
-          role: 'Chef de projet',
-          status: 'active',
-          enrolledCourses: 5,
-          completionRate: 92
-        },
-        {
-          id: 3,
-          firstName: 'Pierre',
-          lastName: 'Dubois',
-          email: 'pierre.dubois@example.com',
-          department: 'RH',
-          role: 'Recruteur',
-          status: 'inactive',
-          enrolledCourses: 2,
-          completionRate: 45
-        },
-        {
-          id: 4,
-          firstName: 'Sophie',
-          lastName: 'Bernard',
-          email: 'sophie.bernard@example.com',
-          department: 'Finance',
-          role: 'Comptable',
-          status: 'active',
-          enrolledCourses: 4,
-          completionRate: 85
-        },
-        {
-          id: 5,
-          firstName: 'Thomas',
-          lastName: 'Petit',
-          email: 'thomas.petit@example.com',
-          department: 'IT',
-          role: 'Administrateur Système',
-          status: 'active',
-          enrolledCourses: 6,
-          completionRate: 67
-        }
-      ];
-      
-      setEmployees(mockEmployees);
-      setLoading(false);
-    }, 1500);
+    const fetchEmployees = async () => {
+      try {
+        setLoading(true);
+        // Use the actual API endpoint to get employee data
+        const response = await UserService.getAllEmployees();
+        setEmployees(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching employees:", err);
+        setError("Une erreur est survenue lors du chargement des employés");
+        setLoading(false);
+        
+        // Fallback to mock data if API fails
+        const mockEmployees = [
+          {
+            id: 1,
+            firstName: 'Jean',
+            lastName: 'Dupont',
+            email: 'jean.dupont@example.com',
+            enrolledCourses: 3,
+            completionRate: 78
+          },
+          {
+            id: 2,
+            firstName: 'Marie',
+            lastName: 'Martin',
+            email: 'marie.martin@example.com',
+            enrolledCourses: 5,
+            completionRate: 92
+          },
+          {
+            id: 3,
+            firstName: 'Pierre',
+            lastName: 'Dubois',
+            email: 'pierre.dubois@example.com',
+            enrolledCourses: 2
+
+            
+          },
+          {
+            id: 4,
+            firstName: 'Sophie',
+            lastName: 'Bernard',
+            email: 'sophie.bernard@example.com',
+            enrolledCourses: 4
+          },
+          {
+            id: 5,
+            firstName: 'Thomas',
+            lastName: 'Petit',
+            email: 'thomas.petit@example.com',
+            enrolledCourses: 6,
+          }
+        ];
+        
+        setEmployees(mockEmployees);
+      }
+    };
     
-    return () => clearTimeout(timer);
+    fetchEmployees();
   }, []);
 
   // Gestion des filtres
@@ -101,42 +97,6 @@ const EmployeeManagement = () => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
-
-  // Gestion du statut avec couleurs et icônes
-  const getStatusInfo = (status) => {
-    switch(status) {
-      case 'active':
-        return {
-          label: 'Actif',
-          bgColor: 'bg-gradient-to-r from-emerald-500 to-green-500',
-          textColor: 'text-white',
-          icon: (
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          )
-        };
-      case 'inactive':
-        return {
-          label: 'Inactif',
-          bgColor: 'bg-gradient-to-r from-gray-400 to-gray-500',
-          textColor: 'text-white',
-          icon: (
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          )
-        };
-      default:
-        return {
-          label: 'Inconnu',
-          bgColor: 'bg-gradient-to-r from-gray-400 to-gray-500',
-          textColor: 'text-white',
-          icon: null
-        };
-    }
-  };
-
   // Chargement
   if (loading) {
     return (
@@ -164,12 +124,12 @@ const EmployeeManagement = () => {
           <div className="absolute -left-40 -top-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
           <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
           
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
+          <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">            <div>
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Gestion des Employés
               </h1>
               <p className="text-gray-500 mt-2">
+                Bienvenue, <span className="font-medium text-blue-600">{user?.firstName || 'Utilisateur'}</span> - 
                 Gérez les profils et les inscriptions des employés
               </p>
             </div>
@@ -231,19 +191,15 @@ const EmployeeManagement = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employé</th>
+                  <tr>                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employé</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Département</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cours</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {filteredEmployees.map((employee) => {
-                    const statusInfo = getStatusInfo(employee.status);
-                    return (
+                  {filteredEmployees.map((employee) => {                    return (
                       <tr 
                         key={employee.id} 
                         className="bg-white hover:bg-gray-50 transition-colors"
@@ -266,14 +222,8 @@ const EmployeeManagement = () => {
                           <div className="text-sm text-gray-900">{employee.role}</div>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
-                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${statusInfo.bgColor} ${statusInfo.textColor}`}>
-                            {statusInfo.icon}
-                            {statusInfo.label}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{employee.enrolledCourses} cours</div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1.5">
+                          <div className="FSw-full bg-gray-200 rounded-full h-1.5 mt-1.5">
                             <div 
                               className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" 
                               style={{ width: `${employee.completionRate}%` }}

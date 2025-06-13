@@ -7,10 +7,7 @@ const EmployeeList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [departments] = useState(['IT', 'Marketing', 'RH', 'Finance', 'Direction']);
-  const [filterDepartment, setFilterDepartment] = useState('all');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);  const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({
@@ -18,11 +15,10 @@ const EmployeeList = () => {
     limit: 10,
     total: 0,
     pages: 1
-  });
-  useEffect(() => {
+  });  useEffect(() => {
     fetchEmployees();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, filterDepartment]);
+  }, [page]);
   const fetchEmployees = async () => {
     try {
       setLoading(true);
@@ -50,14 +46,8 @@ const EmployeeList = () => {
       } else {
         setError('Impossible de charger les employés. Veuillez réessayer plus tard.');
       }
-    } finally {
-      setLoading(false);
+    } finally {      setLoading(false);
     }
-  };
-
-  const handleAddEmployee = () => {
-    setSelectedEmployee(null);
-    setShowModal(true);
   };
 
   const handleEditEmployee = (employee) => {
@@ -76,94 +66,31 @@ const EmployeeList = () => {
       }
     }
   };
-
   const handleSubmit = async (formData) => {
     try {
       // Ajouter le rôle 'employée' pour s'assurer qu'il s'agit d'un employé
       formData.roles = 'employée';
       
-      if (selectedEmployee) {
-        // Mettre à jour l'employé existant
-        await userService.updateUser(selectedEmployee.id, formData);
-        showToast('Employé mis à jour avec succès', 'success');
-      } else {
-        // Créer un nouvel employé
-        await userService.createUser(formData);
-        showToast('Employé créé avec succès', 'success');
-      }
+      // Mettre à jour l'employé existant
+      await userService.updateUser(selectedEmployee.id, formData);
+      showToast('Employé mis à jour avec succès', 'success');
+      
       setShowModal(false);
       fetchEmployees();
     } catch (err) {
       showToast(err.message || 'Une erreur est survenue', 'error');
     }
   };
-
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1); // Retour à la première page lors d'une nouvelle recherche
     fetchEmployees();
   };
-
-  const handleDepartmentFilter = (department) => {
-    setFilterDepartment(department);
-    setPage(1); // Retour à la première page lors d'un nouveau filtre
-  };
-
   const showToast = (message, type) => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
     }, 3000);
-  };
-
-  // Gestion du statut avec couleurs et icônes
-  const getStatusInfo = (status) => {
-    if (!status) return {
-      label: 'Actif',
-      bgColor: 'bg-gradient-to-r from-emerald-500 to-green-500',
-      textColor: 'text-white',
-      icon: (
-        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-      )
-    };
-
-    switch(status) {
-      case 'active':
-        return {
-          label: 'Actif',
-          bgColor: 'bg-gradient-to-r from-emerald-500 to-green-500',
-          textColor: 'text-white',
-          icon: (
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          )
-        };
-      case 'inactive':
-        return {
-          label: 'Inactif',
-          bgColor: 'bg-gradient-to-r from-gray-400 to-gray-500',
-          textColor: 'text-white',
-          icon: (
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          )
-        };
-      default:
-        return {
-          label: 'Actif',
-          bgColor: 'bg-gradient-to-r from-emerald-500 to-green-500',
-          textColor: 'text-white',
-          icon: (
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          )
-        };
-    }
   };
 
   // Pagination controls
@@ -198,8 +125,7 @@ const EmployeeList = () => {
           {/* Effet de brillance */}
           <div className="absolute -left-40 -top-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
           <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
-          
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="relative">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Gestion des Employés
@@ -208,22 +134,9 @@ const EmployeeList = () => {
                 Gérez les profils et les inscriptions des employés
               </p>
             </div>
-            
-            <button 
-              onClick={handleAddEmployee} 
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-            >
-              <span className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Nouvel Employé
-              </span>
-            </button>
           </div>
-          
-          {/* Barre de recherche et filtres */}
-          <div className="mt-8 flex flex-col lg:flex-row gap-4">
+            {/* Barre de recherche */}
+          <div className="mt-8">
             <form onSubmit={handleSearch} className="flex-1">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -248,23 +161,6 @@ const EmployeeList = () => {
                 </button>
               </div>
             </form>
-            <div className="relative md:w-64">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                </svg>
-              </div>
-              <select
-                value={filterDepartment}
-                onChange={(e) => handleDepartmentFilter(e.target.value)}
-                className="w-full py-3 pl-12 pr-4 border-2 border-gray-200 rounded-lg text-base transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 bg-white/90"
-              >
-                <option value="all">Tous les départements</option>
-                {departments.map((department) => (
-                  <option key={department} value={department}>{department}</option>
-                ))}
-              </select>
-            </div>
           </div>
         </div>
 
@@ -287,20 +183,14 @@ const EmployeeList = () => {
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg shadow-blue-500/5 border border-white/20">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50">
+              <thead>                <tr className="bg-gray-50">
                   <th className="py-3 px-4 text-left text-gray-600 font-medium text-sm tracking-wider">Employé</th>
                   <th className="py-3 px-4 text-left text-gray-600 font-medium text-sm tracking-wider">Email</th>
-                  <th className="py-3 px-4 text-left text-gray-600 font-medium text-sm tracking-wider">Département</th>
-                  <th className="py-3 px-4 text-left text-gray-600 font-medium text-sm tracking-wider">Statut</th>
                   <th className="py-3 px-4 text-center text-gray-600 font-medium text-sm tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {employees.length > 0 ? (
+              <tbody className="divide-y divide-gray-100">                {employees.length > 0 ? (
                   employees.map((employee) => {
-                    const statusInfo = getStatusInfo(employee.status);
-                    
                     return (
                       <tr key={employee.id} className="hover:bg-blue-50/50 transition-colors">
                         <td className="py-3 px-4">
@@ -311,20 +201,8 @@ const EmployeeList = () => {
                             <div>
                               <p className="font-medium text-gray-800">{employee.fullName}</p>
                             </div>
-                          </div>
-                        </td>
+                          </div>                        </td>
                         <td className="py-3 px-4 text-gray-600">{employee.email}</td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-blue-100 text-blue-800">
-                            {employee.department || 'Non spécifié'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${statusInfo.bgColor} ${statusInfo.textColor}`}>
-                            {statusInfo.icon}
-                            {statusInfo.label}
-                          </span>
-                        </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center justify-center space-x-3">
                             <button
@@ -350,16 +228,15 @@ const EmployeeList = () => {
                         </td>
                       </tr>
                     );
-                  })
-                ) : loading ? (
+                  })                ) : loading ? (
                   <tr>
-                    <td colSpan="5" className="py-8 text-center text-gray-500">
+                    <td colSpan="3" className="py-8 text-center text-gray-500">
                       Chargement des employés...
                     </td>
                   </tr>
                 ) : (
                   <tr>
-                    <td colSpan="5" className="py-8 text-center text-gray-500">
+                    <td colSpan="3" className="py-8 text-center text-gray-500">
                       Aucun employé trouvé
                     </td>
                   </tr>
@@ -398,10 +275,9 @@ const EmployeeList = () => {
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm animate-fadeIn">
             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex justify-between items-center">
+              <div className="p-6 border-b border-gray-200">                <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-gray-900">
-                    {selectedEmployee ? 'Modifier l\'employé' : 'Ajouter un employé'}
+                    Modifier l'employé
                   </h3>
                   <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -410,10 +286,8 @@ const EmployeeList = () => {
                   </button>
                 </div>
               </div>
-              
-              <EmployeeForm 
+                <EmployeeForm 
                 employee={selectedEmployee}
-                departments={departments}
                 onSubmit={handleSubmit}
                 onCancel={() => setShowModal(false)}
               />
@@ -446,12 +320,9 @@ const EmployeeList = () => {
 };
 
 // Formulaire d'employé
-const EmployeeForm = ({ employee, departments, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+const EmployeeForm = ({ employee, onSubmit, onCancel }) => {  const [formData, setFormData] = useState({
     fullName: employee?.fullName || '',
     email: employee?.email || '',
-    department: employee?.department || 'IT',
-    status: employee?.status || 'active',
     password: '',
     confirmPassword: ''
   });
@@ -566,46 +437,11 @@ const EmployeeForm = ({ employee, departments, onSubmit, onCancel }) => {
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
             placeholder="john.doe@example.com"
-          />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+          />          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
         </div>
         
-        <div>
-          <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
-            Département
-          </label>
-          <select
-            id="department"
-            name="department"
-            value={formData.department}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          >
-            {departments.map((department) => (
-              <option key={department} value={department}>{department}</option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-            Statut
-          </label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          >
-            <option value="active">Actif</option>
-            <option value="inactive">Inactif</option>
-          </select>
-        </div>
-        
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            {employee ? 'Nouveau mot de passe (laisser vide pour ne pas modifier)' : 'Mot de passe'}
+        <div>          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            Nouveau mot de passe (laisser vide pour ne pas modifier)
           </label>
           <input
             type="password"
@@ -614,8 +450,7 @@ const EmployeeForm = ({ employee, departments, onSubmit, onCancel }) => {
             value={formData.password}
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-            placeholder={employee ? '••••••••' : 'Minimum 6 caractères'}
-            required={!employee}
+            placeholder="••••••••"
           />
           {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
         </div>

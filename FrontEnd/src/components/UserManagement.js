@@ -177,11 +177,10 @@ const UserManagement = () => {
           {/* Effet de brillance */}
           <div className="absolute -left-40 -top-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
           <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
-          
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Gestion des Utilisateurs
+                Gestion des Comptes
               </h1>
               <p className="text-gray-500 mt-2">
                 Administrez les accès et rôles des utilisateurs de la plateforme
