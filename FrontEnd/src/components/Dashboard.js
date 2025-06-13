@@ -66,7 +66,7 @@ const Dashboard = () => {
     {
       title: "Total Cours",
       value: loadingStats ? "..." : stats.totalCourses,
-      change: "+3 ce mois",
+      change: "Cours",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -131,16 +131,7 @@ const Dashboard = () => {
       ),
       available: false,
       gradient: "from-purple-500 to-pink-600",
-      shadowColor: "shadow-purple-500/25"
-    }
-  ];
-
-  // Activités récentes simulées
-  const recentActivities = [
-    { id: 1, action: "Nouveau cours créé", course: "React Avancé", time: "Il y a 2h", type: "success" },
-    { id: 2, action: "Étudiant inscrit", course: "JavaScript Basics", time: "Il y a 4h", type: "info" },
-    { id: 3, action: "Quiz complété", course: "HTML/CSS", time: "Il y a 6h", type: "warning" },
-    { id: 4, action: "Certificat délivré", course: "Node.js", time: "Il y a 1j", type: "success" }
+      shadowColor: "shadow-purple-500/25"    }
   ];
 
   const getGreeting = () => {
@@ -224,28 +215,18 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Sidebar avec activités récentes */}
-          <div className="space-y-6">
-            {/* Activités récentes */}
+          </div>          {/* Sidebar avec informations */}
+          <div className="space-y-6">{/* Informations simples */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Activités Récentes</h3>
-              <div className="space-y-4">
-                {recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${
-                      activity.type === 'success' ? 'bg-green-500' :
-                      activity.type === 'info' ? 'bg-blue-500' :
-                      activity.type === 'warning' ? 'bg-yellow-500' : 'bg-gray-500'
-                    }`}></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                      <p className="text-xs text-gray-600">{activity.course}</p>
-                      <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations</h3>
+              <div className="space-y-3">                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Plateforme</span>
+                  <span className="text-sm font-medium text-gray-900">LMS</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Version</span>
+                  <span className="text-sm font-medium text-gray-900">1.0.0</span>
+                </div>
               </div>
             </div>
 
