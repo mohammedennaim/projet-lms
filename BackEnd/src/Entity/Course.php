@@ -73,9 +73,14 @@ class Course
     #[Groups(['cours:details'])]
     private Collection $employees;
 
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Quiz::class)]
+    #[Groups(['cours:read', 'cours:details'])]
+    private Collection $quizzes;
+
     public function __construct()
     {
         $this->employees = new ArrayCollection();
+        $this->quizzes = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -147,6 +152,36 @@ class Course
     public function removeEmployee(User $employee): static
     {
         $this->employees->removeElement($employee);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Quiz>
+     */
+    public function getQuizzes(): Collection
+    {
+        return $this->quizzes;
+    }
+
+    public function addQuiz(Quiz $quiz): static
+    {
+        if (!$this->quizzes->contains($quiz)) {
+            $this->quizzes->add($quiz);
+            $quiz->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQuiz(Quiz $quiz): static
+    {
+        if ($this->quizzes->removeElement($quiz)) {
+            // set the owning side to null (unless already changed)
+            if ($quiz->getCourse() === $this) {
+                $quiz->setCourse(null);
+            }
+        }
 
         return $this;
     }
