@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\ApiProperty;
 
 #[ORM\Entity]
@@ -29,16 +30,16 @@ class Ressource
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
-
-    #[Groups(['ressource:read', 'ressource:write'])]
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $contenu;
-
-    #[Groups(['ressource:read', 'ressource:write'])]
+    private ?int $id = null;    #[Groups(['ressource:read', 'ressource:write'])]
+    #[ORM\Column(type: 'string', length: 500)]
+    #[Assert\NotBlank(message: 'L\'URL de la ressource vidéo est requise')]
+    #[Assert\Url(message: 'L\'URL fournie n\'est pas valide')]
+    #[Assert\Length(max: 500, maxMessage: 'L\'URL ne peut pas dépasser {{ limit }} caractères')]
+    private string $contenu;    #[Groups(['ressource:read', 'ressource:write'])]
     #[ORM\ManyToOne(targetEntity: Course::class)]
     #[ORM\JoinColumn(name: 'course_id', referencedColumnName: 'id', nullable: false)]
     #[ApiProperty(readableLink: true, push: true)]
+    #[Assert\NotNull(message: 'Le cours est requis')]
     private ?Course $course = null;
 
     public function getId(): ?int
