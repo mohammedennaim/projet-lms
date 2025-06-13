@@ -240,7 +240,8 @@ class AffectationController extends AbstractController
             $data[] = [
                 'id' => $employee->getId(),
                 'fullName' => $employee->getFullName(),
-                'email' => $employee->getEmail()
+                'email' => $employee->getEmail(),
+                'roles' => $employee->getRole()
             ];
         }
         

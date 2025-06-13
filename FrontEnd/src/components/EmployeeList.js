@@ -18,16 +18,32 @@ const EmployeeList = () => {
   });  useEffect(() => {
     fetchEmployees();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-  const fetchEmployees = async () => {
+  }, [page]);  const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const filters = {
-        role: 'employée', // Toujours filtrer sur le rôle employé
-        search: searchTerm || ''
-      };
       
-      const data = await userService.getUsers(page, 10, filters);
+      // Essayer d'abord avec l'endpoint spécifique aux employés
+      let data;
+      try {
+        const response = await userService.getAllEmployees();
+        data = {
+          users: response.data || [],
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: (response.data || []).length,
+            pages: 1
+          }
+        };
+      } catch (adminError) {
+        // Si l'endpoint admin ne fonctionne pas, essayer avec les filtres généraux
+        const filters = {
+          role: 'employée',
+          search: searchTerm || ''
+        };
+        data = await userService.getUsers(page, 10, filters);
+      }
+      
       setEmployees(data.users || []);
       setPagination(data.pagination || {
         page: 1,
@@ -39,14 +55,17 @@ const EmployeeList = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching employees:', err);
-      if (err.message === "You don't have permission to access this resource") {
+      if (err.response?.status === 403) {
         setError("Vous n'avez pas l'autorisation d'accéder à cette ressource. Veuillez contacter l'administrateur.");
+      } else if (err.response?.status === 401) {
+        setError("Votre session a expiré. Veuillez vous reconnecter.");
       } else if (!navigator.onLine) {
         setError("Vous êtes hors ligne. Veuillez vérifier votre connexion internet.");
       } else {
         setError('Impossible de charger les employés. Veuillez réessayer plus tard.');
       }
-    } finally {      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
