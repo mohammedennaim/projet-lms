@@ -43,21 +43,20 @@ use ApiPlatform\Metadata\Delete;
     ]
 )]
 class Course
-{
-    #[ORM\Id]
+{    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['cours:read'])]
+    #[Groups(['cours:read', 'ressource:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['cours:read', 'cours:write'])]
+    #[Groups(['cours:read', 'cours:write', 'ressource:read'])]
     #[Assert\NotBlank(message: 'Le titre est obligatoire')]
     #[Assert\Length(min: 3, max: 255, minMessage: 'Le titre doit contenir au moins 3 caractères')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['cours:read', 'cours:write', 'cours:details'])]
+    #[Groups(['cours:read', 'cours:write', 'cours:details', 'ressource:read'])]
     #[Assert\NotBlank(message: 'La description est obligatoire')]
     #[Assert\Length(min: 10, minMessage: 'La description doit contenir au moins 10 caractères')]
     private ?string $description = null;
@@ -71,16 +70,19 @@ class Course
     private ?\DateTimeImmutable $updatedAt = null;    #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'course_enrollments')]
     #[Groups(['cours:details'])]
-    private Collection $employees;
-
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Quiz::class)]
+    private Collection $employees;    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Quiz::class)]
     #[Groups(['cours:read', 'cours:details'])]
     private Collection $quizzes;
+
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Ressource::class)]
+    #[Groups(['cours:details'])]
+    private Collection $ressources;
 
     public function __construct()
     {
         $this->employees = new ArrayCollection();
         $this->quizzes = new ArrayCollection();
+        $this->ressources = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -180,6 +182,36 @@ class Course
             // set the owning side to null (unless already changed)
             if ($quiz->getCourse() === $this) {
                 $quiz->setCourse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ressource>
+     */
+    public function getRessources(): Collection
+    {
+        return $this->ressources;
+    }
+
+    public function addRessource(Ressource $ressource): static
+    {
+        if (!$this->ressources->contains($ressource)) {
+            $this->ressources->add($ressource);
+            $ressource->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRessource(Ressource $ressource): static
+    {
+        if ($this->ressources->removeElement($ressource)) {
+            // set the owning side to null (unless already changed)
+            if ($ressource->getCourse() === $this) {
+                $ressource->setCourse(null);
             }
         }
 
