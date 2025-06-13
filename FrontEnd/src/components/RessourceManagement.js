@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ressourceService } from '../services/ressourceService';
 import { courseService } from '../services/courseService';
 import Navbar from './Navbar';
+import AddVideoResource from './AddVideoResource';
+import EditVideoResource from './EditVideoResource';
 
 // Fonction d'aide pour valider les URLs
 const isValidUrl = (url) => {
@@ -15,13 +17,14 @@ const isValidUrl = (url) => {
   }
 };
 
-const RessourceManagement = () => {
-  const [ressources, setRessources] = useState([]);
+const RessourceManagement = () => {  const [ressources, setRessources] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingResource, setEditingResource] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -45,7 +48,6 @@ const RessourceManagement = () => {
       setLoading(false);
     }
   };
-
   const handleDeleteRessource = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette ressource ?')) {
       try {
@@ -55,6 +57,30 @@ const RessourceManagement = () => {
         console.error('Erreur lors de la suppression:', error);
       }
     }
+  };
+  const handleResourceAdded = (newResource) => {
+    setRessources(prev => [...prev, newResource]);
+    setShowAddForm(false);
+    setError(null);
+  };
+
+  const handleEditResource = (resourceId) => {
+    setEditingResource(resourceId);
+    setShowAddForm(false);
+  };
+
+  const handleResourceUpdated = (updatedResource) => {
+    setRessources(prev => 
+      prev.map(resource => 
+        resource.id === updatedResource.id ? updatedResource : resource
+      )
+    );
+    setEditingResource(null);
+    setError(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingResource(null);
   };
 
   // Filtrer les ressources
@@ -88,8 +114,7 @@ const RessourceManagement = () => {
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 md:p-8 mb-8 shadow-xl shadow-blue-500/5 border border-white/20 relative overflow-hidden">
           <div className="absolute -left-40 -top-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
           <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
-          
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="relative flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Gestion des Ressources
@@ -98,8 +123,50 @@ const RessourceManagement = () => {
                 Gérez les ressources vidéo des cours
               </p>
             </div>
-          </div>
-        </div>
+              <button
+              onClick={() => {
+                if (editingResource) {
+                  setEditingResource(null);
+                } else {
+                  setShowAddForm(!showAddForm);
+                }
+              }}
+              className={`px-6 py-3 rounded-xl font-medium focus:outline-none focus:ring-2 transition-all duration-300 flex items-center shadow-lg ${
+                editingResource 
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white hover:from-gray-600 hover:to-gray-700 focus:ring-gray-500/50 shadow-gray-500/25' 
+                  : 'bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 focus:ring-green-500/50 shadow-green-500/25'
+              }`}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {editingResource ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                )}
+              </svg>
+              {editingResource 
+                ? 'Annuler l\'édition' 
+                : showAddForm 
+                  ? 'Fermer le formulaire' 
+                  : 'Ajouter une Ressource'
+              }
+            </button>
+          </div>        </div>        {/* Formulaire d'ajout */}
+        {showAddForm && !editingResource && (
+          <AddVideoResource
+            onResourceAdded={handleResourceAdded}
+            onCancel={() => setShowAddForm(false)}
+          />
+        )}
+
+        {/* Formulaire d'édition */}
+        {editingResource && (
+          <EditVideoResource
+            resourceId={editingResource}
+            onResourceUpdated={handleResourceUpdated}
+            onCancel={handleCancelEdit}
+          />
+        )}
 
         {/* Filtres */}
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 mb-8 shadow-lg shadow-blue-500/5 border border-white/20">
@@ -226,9 +293,17 @@ const RessourceManagement = () => {
                             </span>
                           )}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      </td>                      <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex justify-center space-x-2">
+                          <button
+                            onClick={() => handleEditResource(ressource.id)}
+                            className="text-blue-600 hover:text-blue-900 transition-colors p-2 hover:bg-blue-50 rounded-lg"
+                            title="Modifier"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                          </button>
                           <button
                             onClick={() => handleDeleteRessource(ressource.id)}
                             className="text-red-600 hover:text-red-900 transition-colors p-2 hover:bg-red-50 rounded-lg"

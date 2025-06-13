@@ -75,6 +75,17 @@ class RessourceService {
       throw error;
     }
   }
+
+  // Obtenir une ressource par ID
+  async getRessourceById(id) {
+    try {
+      const response = await apiClient.get(`/api/admin/ressources/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la ressource:', error);
+      throw error;
+    }
+  }
 }
 
 export const ressourceService = new RessourceService();

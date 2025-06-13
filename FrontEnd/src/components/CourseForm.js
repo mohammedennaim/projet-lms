@@ -48,24 +48,57 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  // Initialize form data when course prop changes
+  const [loadingVideoUrl, setLoadingVideoUrl] = useState(false);  // Initialize form data when course prop changes
   useEffect(() => {
-    if (course && isEdit) {
-      setFormData({
-        title: course.title || '',
-        description: course.description || '',
-        image: course.image || 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=',
-        videoUrl: course.videoUrl || ''
-      });
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        image: 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=',
-        videoUrl: ''
-      });
-    }
-    setErrors({});
+    const loadCourseData = async () => {
+      if (course && isEdit) {
+        setLoadingVideoUrl(true);
+        try {
+          // Charger les données de base du cours
+          const baseData = {
+            title: course.title || '',
+            description: course.description || '',
+            image: course.image || 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=',
+            videoUrl: ''
+          };
+
+          // Récupérer l'URL de la ressource vidéo depuis la base de données
+          try {
+            const ressources = await ressourceService.getRessourcesByCourse(course.id);
+            if (ressources && ressources.length > 0) {
+              // Prendre la première ressource trouvée
+              baseData.videoUrl = ressources[0].contenu || '';
+            }
+          } catch (ressourceError) {
+            console.warn('Impossible de récupérer les ressources du cours:', ressourceError);
+            // Continuer avec videoUrl vide
+          }
+
+          setFormData(baseData);
+        } catch (error) {
+          console.error('Erreur lors du chargement des données du cours:', error);
+          // Fallback avec les données de base
+          setFormData({
+            title: course.title || '',
+            description: course.description || '',
+            image: course.image || 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=',
+            videoUrl: ''
+          });
+        } finally {
+          setLoadingVideoUrl(false);
+        }
+      } else {
+        setFormData({
+          title: '',
+          description: '',
+          image: 'https://media.istockphoto.com/id/1499883210/photo/word-lms-with-learning-management-system-related-icons-learning-management-system-concept-for.jpg?s=1024x1024&w=is&k=20&c=X-X9Hm66AYeRt6s6KwtmVzZvLAAazav91Ul4N573A4c=',
+          videoUrl: ''
+        });
+      }
+      setErrors({});
+    };
+
+    loadCourseData();
   }, [course, isEdit]);
 
   const validateForm = () => {
@@ -292,21 +325,27 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
             Laissez vide pour utiliser l'image par défaut
           </small>
         </div>
-        */}
-
-        <div className="flex flex-col gap-2">
+        */}        <div className="flex flex-col gap-2">
           <label htmlFor="videoUrl" className="text-gray-800 font-medium text-sm">
             Ressource vidéo (URL)
-          </label>          <div className="flex flex-col gap-2">
-            <div className="relative">
-              <input
+            {loadingVideoUrl && (
+              <span className="ml-2 text-blue-600 text-xs flex items-center">
+                <svg className="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Chargement...
+              </span>
+            )}
+          </label><div className="flex flex-col gap-2">
+            <div className="relative">              <input
                 type="url"
                 id="videoUrl"
                 name="videoUrl"
                 value={formData.videoUrl}
                 onChange={handleInputChange}
-                className={`py-3 px-4 pr-10 border-2 ${errors.videoUrl ? 'border-red-500 focus:ring-red-200' : formData.videoUrl && isValidVideoUrl(formData.videoUrl) ? 'border-green-500 focus:ring-green-200' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'} rounded-lg transition-all duration-300 focus:outline-none focus:ring w-full`}
-                placeholder="https://www.youtube.com/watch?v=... ou https://vimeo.com/..."
+                disabled={loadingVideoUrl}
+                className={`py-3 px-4 pr-10 border-2 ${errors.videoUrl ? 'border-red-500 focus:ring-red-200' : formData.videoUrl && isValidVideoUrl(formData.videoUrl) ? 'border-green-500 focus:ring-green-200' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'} rounded-lg transition-all duration-300 focus:outline-none focus:ring w-full ${loadingVideoUrl ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                placeholder={loadingVideoUrl ? "Chargement de l'URL..." : "https://www.youtube.com/watch?v=... ou https://vimeo.com/..."}
               />
               {/* Indicateur de validation */}
               {formData.videoUrl && (
