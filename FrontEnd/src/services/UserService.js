@@ -45,7 +45,7 @@ class UserService {
   
   // Employee-specific methods
   getAllEmployees() {
-    return axios.get(`${API_URL}/employees`, {
+    return axios.get(`${API_URL}/admin/employees`, {
       headers: this.authHeader()
     });
   }
@@ -54,6 +54,19 @@ class UserService {
     return axios.get(`${API_URL}/employees/${id}`, {
       headers: this.authHeader()
     });
+  }
+
+  // Get users with filters and pagination
+  getUsers(page = 1, limit = 10, filters = {}) {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...filters
+    });
+    
+    return axios.get(`${API_URL}/users?${params}`, {
+      headers: this.authHeader()
+    }).then(response => response.data);
   }
   
   // Helper methods

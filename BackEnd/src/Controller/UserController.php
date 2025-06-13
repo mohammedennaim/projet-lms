@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users', name: 'users_')]
-#[IsGranted('ROLE_EMPLOYÉE')]
+#[IsGranted('ROLE_ADMIN')]
 class UserController extends AbstractController
 {    public function __construct(
         private EntityManagerInterface $entityManager,
@@ -141,5 +141,146 @@ class UserController extends AbstractController
         $stats['recent_users'] = $this->normalizer->normalize($recentUsers, null, ['groups' => ['user:read']]);
 
         return new JsonResponse($stats, Response::HTTP_OK);
+    }
+
+    #[Route('', name: 'list', methods: ['GET'])]
+    public function list(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = min(50, max(1, $request->query->getInt('limit', 10)));
+        $search = $request->query->get('search');
+        $role = $request->query->get('role');
+
+        $queryBuilder = $userRepository->createQueryBuilder('u');
+
+        if ($search) {
+            $queryBuilder->andWhere('u.fullName LIKE :search OR u.email LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($role) {
+            $queryBuilder->andWhere('u.roles = :role')
+                ->setParameter('role', $role);
+        }
+
+        // Count total
+        $totalQuery = clone $queryBuilder;
+        $total = $totalQuery->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Get paginated results
+        $users = $queryBuilder
+            ->orderBy('u.id', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        $usersData = [];
+        foreach ($users as $user) {
+            $usersData[] = [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'fullName' => $user->getFullName(),
+                'roles' => $user->getRole()
+            ];
+        }
+
+        return $this->json([
+            'users' => $usersData,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $total,
+                'pages' => ceil($total / $limit)
+            ]
+        ]);
+    }
+
+    #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(int $id, UserRepository $userRepository): JsonResponse
+    {
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            return $this->json(['message' => 'Utilisateur non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'fullName' => $user->getFullName(),
+            'roles' => $user->getRole()
+        ]);
+    }
+
+    #[Route('/{id}', name: 'update', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    public function update(int $id, Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            return $this->json(['message' => 'Utilisateur non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return $this->json(['error' => 'Données JSON invalides'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        // Update user fields
+        if (isset($data['fullName'])) {
+            $user->setFullName($data['fullName']);
+        }
+        
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        if (isset($data['roles'])) {
+            $user->setRoles($data['roles']);
+        }
+
+        // Validate the user
+        $errors = $this->validator->validate($user);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = [
+                    'property' => $error->getPropertyPath(),
+                    'message' => $error->getMessage()
+                ];
+            }
+            return $this->json(['errors' => $errorMessages], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->entityManager->flush();
+
+        return $this->json([
+            'message' => 'Utilisateur mis à jour avec succès',
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'fullName' => $user->getFullName(),
+                'roles' => $user->getRole()
+            ]
+        ]);
+    }
+
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    public function delete(int $id, UserRepository $userRepository): JsonResponse
+    {
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            return $this->json(['message' => 'Utilisateur non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+
+        return $this->json(['message' => 'Utilisateur supprimé avec succès']);
     }
 }

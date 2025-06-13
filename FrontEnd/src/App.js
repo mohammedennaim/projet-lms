@@ -6,6 +6,8 @@ import Dashboard from './components/Dashboard';
 import CourseManagement from './components/CourseManagement';
 import UserManagement from './components/UserManagement';
 import EmployeeList from './components/EmployeeList';
+import RessourceManagement from './components/RessourceManagement';
+import Statistics from './components/Statistics';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -62,12 +64,26 @@ function App() {
                   <UserManagement />
                 </ProtectedRoute>
               } 
-            />
-            <Route 
+            />            <Route 
               path="/employees" 
               element={
                 <ProtectedRoute>
                   <EmployeeList />
+                </ProtectedRoute>
+              } 
+            />            <Route 
+              path="/ressources" 
+              element={
+                <ProtectedRoute>
+                  <RessourceManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/statistics" 
+              element={
+                <ProtectedRoute>
+                  <Statistics />
                 </ProtectedRoute>
               } 
             />
