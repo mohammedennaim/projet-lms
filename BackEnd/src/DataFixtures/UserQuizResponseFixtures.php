@@ -8,7 +8,7 @@ use App\Entity\UserQuizResponse;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
-use Faker\Factory;
+use Faker\Factory as FakerFactory;
 
 class UserQuizResponseFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -16,7 +16,7 @@ class UserQuizResponseFixtures extends Fixture implements DependentFixtureInterf
 
     public function load(ObjectManager $manager): void
     {
-        $faker = Factory::create('fr_FR');
+        $faker = FakerFactory::create('fr_FR');
 
         $responseCounter = 0;
         

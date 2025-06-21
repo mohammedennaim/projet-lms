@@ -29,37 +29,44 @@ const RessourceManagement = () => {  const [ressources, setRessources] = useStat
   useEffect(() => {
     fetchData();
   }, []);
-
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [ressourcesData, coursesData] = await Promise.all([
+      const [ressourcesResponse, coursesResponse] = await Promise.all([
         ressourceService.getAllRessources(),
         courseService.getAllCourses()
       ]);
+      
+      // Extract data from response objects and ensure they are arrays
+      const ressourcesData = Array.isArray(ressourcesResponse?.data) ? ressourcesResponse.data : 
+                            Array.isArray(ressourcesResponse) ? ressourcesResponse : [];
+      const coursesData = Array.isArray(coursesResponse?.data) ? coursesResponse.data : 
+                         Array.isArray(coursesResponse) ? coursesResponse : [];
       
       setRessources(ressourcesData);
       setCourses(coursesData);
       setError(null);
     } catch (err) {
       setError('Erreur lors du chargement des données');
+      setRessources([]); // Ensure it's always an array
+      setCourses([]); // Ensure it's always an array
       console.error('Erreur:', err);
     } finally {
       setLoading(false);
     }
-  };
-  const handleDeleteRessource = async (id) => {
+  };  const handleDeleteRessource = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette ressource ?')) {
       try {
         await ressourceService.deleteRessource(id);
-        setRessources(ressources.filter(r => r.id !== id));
+        setRessources(prevRessources => 
+          Array.isArray(prevRessources) ? prevRessources.filter(r => r.id !== id) : []
+        );
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
       }
     }
-  };
-  const handleResourceAdded = (newResource) => {
-    setRessources(prev => [...prev, newResource]);
+  };  const handleResourceAdded = (newResource) => {
+    setRessources(prev => Array.isArray(prev) ? [...prev, newResource] : [newResource]);
     setShowAddForm(false);
     setError(null);
   };
@@ -71,9 +78,9 @@ const RessourceManagement = () => {  const [ressources, setRessources] = useStat
 
   const handleResourceUpdated = (updatedResource) => {
     setRessources(prev => 
-      prev.map(resource => 
+      Array.isArray(prev) ? prev.map(resource => 
         resource.id === updatedResource.id ? updatedResource : resource
-      )
+      ) : [updatedResource]
     );
     setEditingResource(null);
     setError(null);
@@ -82,14 +89,13 @@ const RessourceManagement = () => {  const [ressources, setRessources] = useStat
   const handleCancelEdit = () => {
     setEditingResource(null);
   };
-
   // Filtrer les ressources
-  const filteredRessources = ressources.filter(ressource => {
+  const filteredRessources = Array.isArray(ressources) ? ressources.filter(ressource => {
     const matchesSearch = ressource.contenu?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ressource.course?.title?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCourse = selectedCourse === 'all' || ressource.course?.id === parseInt(selectedCourse);
     return matchesSearch && matchesCourse;
-  });
+  }) : [];
 
   if (loading) {
     return (
@@ -330,16 +336,15 @@ const RessourceManagement = () => {  const [ressources, setRessources] = useStat
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{filteredRessources.length}</div>
                 <div className="text-sm text-gray-500">Ressources trouvées</div>
-              </div>
-              <div className="text-center">
+              </div>              <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {filteredRessources.filter(r => r.contenu && isValidUrl(r.contenu)).length}
+                  {Array.isArray(filteredRessources) ? filteredRessources.filter(r => r.contenu && isValidUrl(r.contenu)).length : 0}
                 </div>
                 <div className="text-sm text-gray-500">URLs valides</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
-                  {filteredRessources.filter(r => r.contenu && !isValidUrl(r.contenu)).length}
+                  {Array.isArray(filteredRessources) ? filteredRessources.filter(r => r.contenu && !isValidUrl(r.contenu)).length : 0}
                 </div>
                 <div className="text-sm text-gray-500">URLs invalides</div>
               </div>

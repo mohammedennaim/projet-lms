@@ -1,4 +1,3 @@
-import api from './api';
 import { handleApiError, isNetworkError, getMockData } from '../utils/errorUtils';
 import apiClient from '../utils/apiClient';
 
@@ -101,9 +100,8 @@ class RessourceService {
           throw new Error('URL invalide: ' + urlError.message);
         }
       }
-      
-      console.log('Creating ressource:', data);
-      const response = await api.post('/api/admin/ressources', data);
+        console.log('Creating ressource:', data);
+      const response = await apiClient.post('/api/admin/ressources', data);
       console.log('Create ressource response:', response);
       
       return {
@@ -130,9 +128,8 @@ class RessourceService {
   }
   // Mettre à jour une ressource
   async updateRessource(id, data) {
-    try {
-      console.log('Updating ressource:', id, data);
-      const response = await api.put(`/api/admin/ressources/${id}`, data);
+    try {      console.log('Updating ressource:', id, data);
+      const response = await apiClient.put(`/api/admin/ressources/${id}`, data);
       console.log('Update ressource response:', response);
       
       return {
@@ -160,9 +157,8 @@ class RessourceService {
 
   // Supprimer une ressource
   async deleteRessource(id) {
-    try {
-      console.log('Deleting ressource:', id);
-      await api.delete(`/api/admin/ressources/${id}`);
+    try {      console.log('Deleting ressource:', id);
+      await apiClient.delete(`/api/admin/ressources/${id}`);
       console.log('Delete ressource success');
       
       return {

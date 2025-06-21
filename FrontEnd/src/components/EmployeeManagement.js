@@ -8,23 +8,42 @@ const EmployeeManagement = () => {
   const { user } = useAuth(); 
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
   const [toast, setToast] = useState(null);
-
   // Fetch real employees data from API
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
         // Use the actual API endpoint to get employee data
         const response = await UserService.getAllEmployees();
-        setEmployees(response.data);
-        setLoading(false);
+        
+        if (response.success && Array.isArray(response.data)) {
+          // Transform API data to match component expectations
+          const transformedEmployees = response.data.map(emp => {
+            const nameParts = emp.fullName.split(' ');
+            return {
+              id: emp.id,
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || '',
+              email: emp.email,
+              role: emp.roles || 'employée',
+              department: 'IT', // Default department since it's not in API
+              enrolledCourses: 0, // Default values
+              completionRate: 0
+            };
+          });
+          setEmployees(transformedEmployees);
+        } else {
+          throw new Error('Format de réponse invalide');
+        }
       } catch (err) {
         console.error("Error fetching employees:", err);
         setError("Une erreur est survenue lors du chargement des employés");
-        setLoading(false);
         
         // Fallback to mock data if API fails
         const mockEmployees = [
@@ -33,6 +52,8 @@ const EmployeeManagement = () => {
             firstName: 'Jean',
             lastName: 'Dupont',
             email: 'jean.dupont@example.com',
+            role: 'employée',
+            department: 'IT',
             enrolledCourses: 3,
             completionRate: 78
           },
@@ -41,6 +62,8 @@ const EmployeeManagement = () => {
             firstName: 'Marie',
             lastName: 'Martin',
             email: 'marie.martin@example.com',
+            role: 'employée',
+            department: 'HR',
             enrolledCourses: 5,
             completionRate: 92
           },
@@ -49,48 +72,56 @@ const EmployeeManagement = () => {
             firstName: 'Pierre',
             lastName: 'Dubois',
             email: 'pierre.dubois@example.com',
-            enrolledCourses: 2
-
-            
+            role: 'employée',
+            department: 'Finance',
+            enrolledCourses: 2,
+            completionRate: 65
           },
           {
             id: 4,
             firstName: 'Sophie',
             lastName: 'Bernard',
             email: 'sophie.bernard@example.com',
-            enrolledCourses: 4
+            role: 'employée',
+            department: 'Marketing',
+            enrolledCourses: 4,
+            completionRate: 88
           },
           {
             id: 5,
             firstName: 'Thomas',
             lastName: 'Petit',
             email: 'thomas.petit@example.com',
+            role: 'employée',
+            department: 'IT',
             enrolledCourses: 6,
+            completionRate: 75
           }
         ];
         
         setEmployees(mockEmployees);
+      } finally {
+        setLoading(false);
       }
     };
     
     fetchEmployees();
   }, []);
-
   // Gestion des filtres
-  const filteredEmployees = employees.filter(employee => {
+  const filteredEmployees = Array.isArray(employees) ? employees.filter(employee => {
     const matchesSearch = 
-      employee.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.role.toLowerCase().includes(searchTerm.toLowerCase());
+      (employee.firstName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.lastName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.role || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesDepartment = filterDepartment === 'all' || employee.department === filterDepartment;
     
     return matchesSearch && matchesDepartment;
-  });
+  }) : [];
 
   // Gestion des départements uniques pour le filtre
-  const departments = ['all', ...new Set(employees.map(emp => emp.department))];
+  const departments = ['all', ...new Set(employees.map(emp => emp.department || 'IT'))];
 
   // Affichage du toast
   const showToast = (message, type) => {
@@ -172,10 +203,25 @@ const EmployeeManagement = () => {
             </div>
           </div>
         </div>
-        
-        {/* Liste des employés */}
+          {/* Liste des employés */}
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-2 md:p-4 shadow-xl shadow-blue-500/5 border border-white/20 overflow-hidden">
-          {filteredEmployees.length === 0 ? (
+          {error ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-red-700 mb-2">Erreur de chargement</h3>
+              <p className="text-red-500 max-w-md mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Réessayer
+              </button>
+            </div>
+          ) : filteredEmployees.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

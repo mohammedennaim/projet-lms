@@ -43,17 +43,21 @@ class UserService {
       headers: this.authHeader()
     });
   }
-  
   // Employee-specific methods
   async getAllEmployees() {
     try {
-      const response = await axios.get(`${API_URL}/admin/employees`, {
+      const response = await axios.get(`${API_URL}/admin/users`, {
         headers: this.authHeader()
       });
       
+      // Filter employees on the client side
+      const employees = (response.data.users || []).filter(user => 
+        user.roles === 'employée'
+      );
+      
       return {
         success: true,
-        data: response.data || []
+        data: employees
       };
     } catch (error) {
       console.error('Error fetching employees:', error);
