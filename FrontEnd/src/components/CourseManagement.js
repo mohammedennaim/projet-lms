@@ -9,7 +9,8 @@ const CourseManagement = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState(null);
   const [animateCard, setAnimateCard] = useState(null);
@@ -17,16 +18,16 @@ const CourseManagement = () => {
   const showToast = (message, type) => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
-  };
-
-  const fetchCourses = useCallback(async () => {
+  };  const fetchCourses = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await courseService.getAllCourses();
-      setCourses(data);
+      const coursesData = await courseService.getAllCourses();
+      // Le service retourne maintenant directement un tableau
+      setCourses(Array.isArray(coursesData) ? coursesData : []);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erreur lors du chargement des cours');
+      setCourses([]); // S'assurer que courses reste un tableau même en cas d'erreur
       showToast('Erreur lors du chargement des cours', 'error');
     } finally {
       setLoading(false);
@@ -46,23 +47,22 @@ const CourseManagement = () => {
     setSelectedCourse(course);
     setShowModal(true);
   };
-
   const handleDeleteCourse = async (courseId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) {
       try {
         await courseService.deleteCourse(courseId);
-        setCourses(courses.filter(course => course.id !== courseId));
+        setCourses(prevCourses => Array.isArray(prevCourses) ? prevCourses.filter(course => course.id !== courseId) : []);
         showToast('Cours supprimé avec succès', 'success');
       } catch (err) {
         showToast('Erreur lors de la suppression du cours', 'error');
       }
-    }  };
-
-  const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+  };
+  const filteredCourses = Array.isArray(courses) ? courses.filter(course => {
+    const matchesSearch = course?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course?.description?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
-  });
+  }) : [];
 
   if (loading) {
     return (
@@ -248,19 +248,22 @@ const CourseManagement = () => {
                 </button>
               </div>
                 {/* Formulaire avec CourseForm */}
-              <div className="bg-white">
-                <CourseForm
+              <div className="bg-white">                <CourseForm
                   course={selectedCourse}
                   onSave={(savedCourse) => {
                     if (selectedCourse) {
                       // Mise à jour
-                      setCourses(courses.map(course => 
-                        course.id === selectedCourse.id ? { ...course, ...savedCourse } : course
-                      ));
+                      setCourses(prevCourses => Array.isArray(prevCourses) ? 
+                        prevCourses.map(course => 
+                          course.id === selectedCourse.id ? { ...course, ...savedCourse } : course
+                        ) : [savedCourse]
+                      );
                       showToast('Cours mis à jour avec succès', 'success');
                     } else {
                       // Création
-                      setCourses([...courses, savedCourse]);
+                      setCourses(prevCourses => Array.isArray(prevCourses) ? 
+                        [...prevCourses, savedCourse] : [savedCourse]
+                      );
                       showToast('Cours créé avec succès', 'success');
                     }
                     setShowModal(false);

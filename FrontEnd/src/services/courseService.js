@@ -40,18 +40,15 @@ courseAPI.interceptors.response.use(
 );
 
 // Course service functions
-export const courseService = {
-  // Get all courses
+export const courseService = {  // Get all courses
   getAllCourses: async () => {
     try {
       const response = await courseAPI.get('/admin/courses');
-      return {
-        success: true,
-        data: response.data.courses || []
-      };
+      const courses = response.data?.courses || response.data || [];
+      return Array.isArray(courses) ? courses : [];
     } catch (error) {
       console.error('Error fetching courses:', error);
-      return handleApiError(error, 'Erreur lors de la récupération des cours');
+      throw error; // Laisser le composant gérer l'erreur
     }
   },
 

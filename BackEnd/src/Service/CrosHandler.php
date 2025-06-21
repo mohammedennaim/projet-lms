@@ -21,23 +21,27 @@ class CrosHandler
         $response->headers->set('Access-Control-Max-Age', '86400');
         
         return $response;
-    }
-
-    public function addCorsHeaders(Response $response, Request $request): void
+    }    public function addCorsHeaders(Response $response, Request $request): void
     {
         $origin = $request->headers->get('Origin');
         
         if ($this->isOriginAllowed($origin)) {
-            $response->headers->set('Access-Control-Allow-Origin', $origin);
+            $response->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+        } else {
+            // Allow all origins for development
+            $response->headers->set('Access-Control-Allow-Origin', '*');
         }
         
         $response->headers->set('Access-Control-Allow-Methods', implode(', ', $this->allowedMethods));
         $response->headers->set('Access-Control-Allow-Headers', implode(', ', $this->allowedHeaders));
-        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        $response->headers->set('Access-Control-Allow-Credentials', 'false'); // Can't use credentials with *
     }
 
     private function isOriginAllowed(?string $origin): bool
     {
+        if (in_array('*', $this->allowedOrigins)) {
+            return true;
+        }
         return $origin && in_array($origin, $this->allowedOrigins);
     }
 }
