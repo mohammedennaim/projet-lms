@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import CourseManagement from './components/CourseManagement';
+import CourseAssignment from './components/CourseAssignment';
 import UserManagement from './components/UserManagement';
 import EmployeeList from './components/EmployeeList';
 import RessourceManagement from './components/RessourceManagement';
@@ -76,6 +77,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RessourceManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/assignments" 
+              element={
+                <ProtectedRoute>
+                  <CourseAssignment />
                 </ProtectedRoute>
               } 
             />
