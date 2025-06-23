@@ -51,18 +51,14 @@ export const courseService = {  // Get all courses
       throw error; // Laisser le composant gérer l'erreur
     }
   },
-
   // Get course by ID
   getCourseById: async (id) => {
     try {
       const response = await courseAPI.get(`/admin/courses/${id}`);
-      return {
-        success: true,
-        data: response.data
-      };
+      return response.data; // Retourner directement les données
     } catch (error) {
       console.error('Error fetching course:', error);
-      return handleApiError(error, 'Erreur lors de la récupération du cours');
+      throw error; // Laisser le composant gérer l'erreur
     }
   },
 

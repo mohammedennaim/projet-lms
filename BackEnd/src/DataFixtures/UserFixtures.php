@@ -21,7 +21,7 @@ class UserFixtures extends Fixture
         $admin = new User();
         $admin->setEmail('admin@lms.com');
         $admin->setFullName('Administrateur Principal');
-        $admin->setRoles('admin');
+        $admin->setRoles('ROLE_ADMIN');
         $hashedPassword = $this->passwordHasher->hashPassword($admin, 'admin123');
         $admin->setPassword($hashedPassword);
         $manager->persist($admin);
@@ -40,7 +40,7 @@ class UserFixtures extends Fixture
             $user = new User();
             $user->setEmail($employees[$i-1]['email']);
             $user->setFullName($employees[$i-1]['name']);
-            $user->setRoles('employée');
+            $user->setRoles('ROLE_EMPLOYEE');
             
             $hashedPassword = $this->passwordHasher->hashPassword($user, 'password123');
             $user->setPassword($hashedPassword);

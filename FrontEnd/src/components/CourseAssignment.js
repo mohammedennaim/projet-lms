@@ -50,18 +50,17 @@ const CourseAssignment = () => {
   const fetchCourses = useCallback(async () => {
     try {
       console.log('Fetching courses...');
-      const response = await courseService.getAllCourses();
-      console.log('Courses response:', response);
+      const courses = await courseService.getAllCourses();
+      console.log('Courses response:', courses);
 
-      if (response.success) {
-        const courseData = response.data || [];
-        console.log('Setting courses:', courseData);
-        setCourses(courseData);
+      if (Array.isArray(courses)) {
+        console.log('Setting courses:', courses);
+        setCourses(courses);
       } else {
-        console.error('Failed to fetch courses:', response.error);
+        console.error('Courses response is not an array:', courses);
         setCourses([]);
-        setDataError(response.error);
-        showToast(response.error || 'Erreur lors du chargement des cours', 'error');
+        setDataError('Format de réponse des cours invalide');
+        showToast('Erreur lors du chargement des cours', 'error');
       }
     } catch (error) {
       console.error('Error in fetchCourses:', error);
@@ -143,20 +142,33 @@ const CourseAssignment = () => {
       setLoading(true);
       
       // Utiliser la méthode bulk assign du backend
-      await affectationService.assignCourseToUsers(
+      const result = await affectationService.assignCourseToUsers(
         selectedCourse,
         selectedEmployees,
         assignmentDate
       );
       
-      showToast(`Cours assigné avec succès à ${selectedEmployees.length} employé(s)`, 'success');
-      setSelectedCourse('');
-      setSelectedEmployees([]);
-      setShowAssignmentModal(false);
-      fetchAssignments();
+      if (result.success) {
+        if (result.data && result.data.created > 0) {
+          showToast(`Cours assigné avec succès à ${result.data.created} employé(s)`, 'success');
+        }
+        
+        if (result.data && result.data.errors && result.data.errors.length > 0) {
+          console.warn('Some assignments had errors:', result.data.errors);
+          showToast(`Assignations partielles: ${result.data.errors.length} erreur(s)`, 'warning');
+        }
+        
+        setSelectedCourse('');
+        setSelectedEmployees([]);
+        setShowAssignmentModal(false);
+        fetchAssignments();
+      } else {
+        showToast('Erreur lors de l\'assignation du cours', 'error');
+      }
     } catch (error) {
-      showToast('Erreur lors de l\'assignation du cours', 'error');
       console.error('Error assigning course:', error);
+      const errorMessage = error.message || 'Erreur lors de l\'assignation du cours';
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -350,25 +362,45 @@ const CourseAssignment = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Employés ({employees.length} disponibles)
               </label>
-              <select
-                multiple
-                value={selectedEmployees}
-                onChange={(e) => {
-                  const values = Array.from(e.target.selectedOptions, option => option.value);
-                  setSelectedEmployees(values);
-                }}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                size="5"
-              >
+              
+              {/* Bouton Select All */}
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={handleSelectAllEmployees}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  {selectedEmployees.length === employees.length ? 'Désélectionner tout' : 'Sélectionner tout'}
+                </button>
+                <span className="text-sm text-gray-500 ml-2">
+                  ({selectedEmployees.length} sélectionné(s))
+                </span>
+              </div>
+
+              {/* Liste des employés avec checkboxes */}
+              <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
                 {employees.map((employee) => (
-                  <option key={employee.id} value={employee.id}>
-                    {employee.firstName} {employee.lastName}
-                  </option>
+                  <div key={employee.id} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`employee-${employee.id}`}
+                      checked={selectedEmployees.includes(employee.id.toString())}
+                      onChange={() => handleEmployeeSelection(employee.id.toString())}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label 
+                      htmlFor={`employee-${employee.id}`}
+                      className="text-sm text-gray-700 cursor-pointer flex-1"
+                    >
+                      {employee.firstName} {employee.lastName} ({employee.email})
+                    </label>
+                  </div>
                 ))}
-              </select>
-              <p className="text-sm text-gray-500 mt-1">
-                Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs employés
-              </p>
+              </div>
+              
+              {employees.length === 0 && (
+                <p className="text-sm text-gray-500 italic">Aucun employé disponible</p>
+              )}
             </div>
 
             {/* Date d'assignation */}

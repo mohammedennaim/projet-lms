@@ -209,13 +209,14 @@ const affectationService = {
   assignCourseToUsers: async (courseId, userIds, assignmentDate = null) => {
     try {
       const assignmentData = {
-        courseId: courseId,
-        userIds: userIds,
-        dateAssigned: assignmentDate || new Date().toISOString().split('T')[0]
+        courseId: parseInt(courseId),
+        userIds: userIds.map(id => parseInt(id)),
+        dateAssigned: assignmentDate || new Date().toISOString().split('T')[0],
+        assigneCours: true
       };
 
       console.log('Sending bulk assignment data:', assignmentData);
-      const response = await api.post('/api/admin/affectations/bulk-assign', assignmentData);
+      const response = await api.post('/api/admin/affectations/bulk-assign-users', assignmentData);
       console.log('Bulk assignment response:', response);
       
       return {

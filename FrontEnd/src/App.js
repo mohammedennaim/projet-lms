@@ -4,11 +4,18 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import CourseManagement from './components/CourseManagement';
+import CourseDetailsPage from './components/CourseDetailsPage';
 import CourseAssignment from './components/CourseAssignment';
 import UserManagement from './components/UserManagement';
 import EmployeeList from './components/EmployeeList';
 import RessourceManagement from './components/RessourceManagement';
 import Statistics from './components/Statistics';
+import QuizManagement from './components/QuizManagement';
+import QuestionsList from './components/QuestionsList';
+import QuestionForm from './components/QuestionForm';
+import AffectationsList from './components/AffectationsList';
+import RessourcesList from './components/RessourcesList';
+import EmployeeQuizDetails from './components/EmployeeQuizDetails';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -87,12 +94,82 @@ function App() {
                   <CourseAssignment />
                 </ProtectedRoute>
               } 
-            />
-            <Route 
+            />            <Route 
               path="/statistics" 
               element={
                 <ProtectedRoute>
                   <Statistics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/quizzes" 
+              element={
+                <ProtectedRoute>
+                  <QuizManagement />
+                </ProtectedRoute>
+              } 
+            />            <Route 
+              path="/questions" 
+              element={
+                <ProtectedRoute>
+                  <QuestionsList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/questions/create" 
+              element={
+                <ProtectedRoute>
+                  <QuestionForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/questions/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <QuestionForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/affectations" 
+              element={
+                <ProtectedRoute>
+                  <AffectationsList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ressources-list" 
+              element={
+                <ProtectedRoute>
+                  <RessourcesList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/quiz/:quizId/details" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeQuizDetails />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/course/:courseId/details" 
+              element={
+                <ProtectedRoute>
+                  <CourseDetailsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/courses/:id" 
+              element={
+                <ProtectedRoute>
+                  <CourseDetailsPage />
                 </ProtectedRoute>
               } 
             />

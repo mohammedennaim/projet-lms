@@ -1,28 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { courseService } from '../services/courseService';
+import { useParams, useNavigate } from 'react-router-dom';
+import courseService from '../services/courseService';
+import Navbar from './Navbar';
 
-const CourseDetails = ({ courseId, onClose, onEdit }) => {
+const CourseDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
-    if (courseId) {
+    const fetchCourseDetails = async () => {
+      try {
+        setLoading(true);
+        const courseData = await courseService.getCourseById(id);
+        setCourse(courseData);
+        
+        // Sélectionner automatiquement la première vidéo s'il y en a une
+        if (courseData.ressources && courseData.ressources.length > 0) {
+          setSelectedVideo(courseData.ressources[0]);
+        }
+        
+        setError(null);
+      } catch (err) {
+        setError('Erreur lors du chargement des détails du cours');
+        showToast('Erreur lors du chargement du cours', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
       fetchCourseDetails();
     }
-  }, [courseId]);
+  }, [id]);
 
-  const fetchCourseDetails = async () => {
-    try {
-      setLoading(true);
-      const courseData = await courseService.getCourseById(courseId);
-      setCourse(courseData);
-      setError('');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  // Fonction pour extraire l'ID de la vidéo YouTube
+  const getYouTubeVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  // Fonction pour créer l'URL embed YouTube
+  const getYouTubeEmbedUrl = (url) => {
+    const videoId = getYouTubeVideoId(url);
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1` : null;
+  };
+
+  // Fonction pour vérifier si c'est une URL YouTube
+  const isYouTubeUrl = (url) => {
+    return url.includes('youtube.com') || url.includes('youtu.be');
   };
 
   const formatDate = (dateString) => {

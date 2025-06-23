@@ -41,10 +41,21 @@ class RessourceAdminController extends AbstractController
     public function create(Request $request, EntityManagerInterface $em): JsonResponse
     {
         try {
+            // Vérifier que l'utilisateur est authentifié
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->json(['error' => 'Utilisateur non authentifié. Veuillez vous connecter.'], 401);
+            }
+            
+            // Vérifier que l'utilisateur a le rôle admin
+            if (!$this->isGranted('ROLE_ADMIN')) {
+                return $this->json(['error' => 'Accès refusé. Droits administrateur requis.'], 403);
+            }
+            
             $data = json_decode($request->getContent(), true);
             
             if (!$data) {
-                return $this->json(['error' => 'Invalid JSON data'], 400);
+                return $this->json(['error' => 'Données JSON invalides'], 400);
             }
             
             // Validation des données requises
@@ -89,7 +100,10 @@ class RessourceAdminController extends AbstractController
                 ['groups' => ['ressource:read']]
             );
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Erreur lors de la création de la ressource: ' . $e->getMessage()], 500);
+            return $this->json([
+                'error' => 'Erreur lors de la création de la ressource: ' . $e->getMessage(),
+                'details' => $e->getFile() . ':' . $e->getLine()
+            ], 500);
         }
     }    #[Route('/{id}', name: 'admin_ressource_update', methods: ['PUT', 'PATCH'])]
     public function update(Request $request, Ressource $ressource, EntityManagerInterface $em): JsonResponse

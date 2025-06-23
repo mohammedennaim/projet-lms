@@ -89,12 +89,35 @@ class CourseAdminController extends AbstractController
 
         if (!$course) {
             return $this->json(['message' => 'Cours non trouvé'], JsonResponse::HTTP_NOT_FOUND);
-        }        $employees = [];
+        }
+
+        $employees = [];
         foreach ($course->getEmployees() as $employee) {
             $employees[] = [
                 'id' => $employee->getId(),
                 'fullName' => $employee->getFullName(),
                 'email' => $employee->getEmail(),
+            ];
+        }
+
+        // Récupérer les ressources associées au cours
+        $ressources = [];
+        foreach ($course->getRessources() as $ressource) {
+            $ressources[] = [
+                'id' => $ressource->getId(),
+                'contenu' => $ressource->getContenu(),
+                'url' => $ressource->getContenu() // L'URL de la vidéo
+            ];
+        }
+
+        // Récupérer les quiz associés au cours
+        $quizzes = [];
+        foreach ($course->getQuizzes() as $quiz) {
+            $quizzes[] = [
+                'id' => $quiz->getId(),
+                'title' => $quiz->getTitle(),
+                'description' => $quiz->getDescription(),
+                'questionsCount' => $quiz->getQuestions()->count()
             ];
         }
 
@@ -104,7 +127,9 @@ class CourseAdminController extends AbstractController
             'description' => $course->getDescription(),
             'createdAt' => $course->getCreatedAt()?->format('Y-m-d H:i:s'),
             'updatedAt' => $course->getUpdatedAt()?->format('Y-m-d H:i:s'),
-            'employees' => $employees
+            'employees' => $employees,
+            'ressources' => $ressources,
+            'quizzes' => $quizzes
         ]);
     }
 

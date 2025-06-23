@@ -70,6 +70,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * Get first name from full name
+     */
+    #[Groups(['user:read'])]
+    public function getFirstName(): ?string
+    {
+        if (!$this->fullName) {
+            return null;
+        }
+        
+        $parts = explode(' ', $this->fullName, 2);
+        return $parts[0] ?? null;
+    }
+
+    /**
+     * Get last name from full name
+     */
+    #[Groups(['user:read'])]
+    public function getLastName(): ?string
+    {
+        if (!$this->fullName) {
+            return null;
+        }
+        
+        $parts = explode(' ', $this->fullName, 2);
+        return $parts[1] ?? '';
+    }
+
+    /**
      * A visual identifier that represents this user.
      */
     public function getUserIdentifier(): string
@@ -86,15 +114,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // Map our custom roles to Symfony roles
         switch ($this->roles) {
             case 'admin':
+            case 'ROLE_ADMIN':
                 $roles[] = 'ROLE_ADMIN';
                 break;
             case 'instructeur':
+            case 'ROLE_INSTRUCTOR':
                 $roles[] = 'ROLE_INSTRUCTOR';
                 break;
             case 'employée':
+            case 'ROLE_EMPLOYEE':
                 $roles[] = 'ROLE_EMPLOYEE';
                 break;
             case 'student':
+            case 'ROLE_STUDENT':
                 $roles[] = 'ROLE_STUDENT';
                 break;
         }

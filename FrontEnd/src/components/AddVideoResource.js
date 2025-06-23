@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ressourceService } from '../services/ressourceService';
 import { courseService } from '../services/courseService';
+import { useAuth } from '../context/AuthContext';
 
 const AddVideoResource = ({ onResourceAdded, onCancel }) => {
+  const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     contenu: '',
     course_id: ''
@@ -13,8 +15,12 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
   const [urlValidation, setUrlValidation] = useState({ isValid: false, message: '' });
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setError('Vous devez être connecté en tant qu\'administrateur pour ajouter des ressources.');
+      return;
+    }
     fetchCourses();
-  }, []);
+  }, [isAuthenticated]);
 
   const fetchCourses = async () => {
     try {
@@ -87,7 +93,14 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
         course_id: parseInt(formData.course_id)
       };
 
+      console.log('🔍 DEBUG - Données à envoyer:', resourceData);
+      console.log('🔍 DEBUG - Token présent:', localStorage.getItem('token') ? 'Oui' : 'Non');
+      console.log('🔍 DEBUG - Utilisateur authentifié:', isAuthenticated);
+      console.log('🔍 DEBUG - URL de base API:', process.env.REACT_APP_API_URL || 'http://localhost:8000');
+
       const newResource = await ressourceService.createRessource(resourceData);
+      
+      console.log('✅ Ressource créée avec succès:', newResource);
       
       // Réinitialiser le formulaire
       setFormData({ contenu: '', course_id: '' });
@@ -99,8 +112,29 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
       }
       
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Erreur lors de la création de la ressource');
-      console.error('Erreur:', err);
+      console.error('❌ ERREUR DÉTAILLÉE:');
+      console.error('- Message:', err.message);
+      console.error('- Response Status:', err.response?.status);
+      console.error('- Response Data:', err.response?.data);
+      console.error('- Response Headers:', err.response?.headers);
+      console.error('- Erreur complète:', err);
+      
+      // Gestion spécifique des erreurs
+      if (!err.response) {
+        setError('❌ Erreur de connexion: Impossible de contacter le serveur. Vérifiez que le serveur backend (localhost:8000) est démarré.');
+      } else if (err.response.status === 401) {
+        setError('❌ Erreur d\'authentification: Veuillez vous connecter en tant qu\'administrateur pour créer des ressources.');
+      } else if (err.response.status === 403) {
+        setError('❌ Accès refusé: Droits administrateur requis pour créer des ressources.');
+      } else if (err.response.status === 400) {
+        const errorMsg = err.response?.data?.error || 'Données invalides';
+        setError(`❌ Erreur de validation: ${errorMsg}`);
+      } else if (err.response.status === 500) {
+        const errorMsg = err.response?.data?.error || 'Erreur serveur';
+        setError(`❌ Erreur serveur: ${errorMsg}`);
+      } else {
+        setError(`❌ Erreur ${err.response.status}: ${err.response?.data?.error || err.message || 'Erreur inconnue lors de la création de la ressource'}`);
+      }
     } finally {
       setLoading(false);
     }

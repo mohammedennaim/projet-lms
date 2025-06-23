@@ -36,7 +36,7 @@ class Ressource
     #[Assert\Url(message: 'L\'URL fournie n\'est pas valide')]
     #[Assert\Length(max: 500, maxMessage: 'L\'URL ne peut pas dépasser {{ limit }} caractères')]
     private string $contenu;    #[Groups(['ressource:read', 'ressource:write'])]
-    #[ORM\ManyToOne(targetEntity: Course::class)]
+    #[ORM\ManyToOne(targetEntity: Course::class, inversedBy: 'ressources')]
     #[ORM\JoinColumn(name: 'course_id', referencedColumnName: 'id', nullable: false)]
     #[ApiProperty(readableLink: true, push: true)]
     #[Assert\NotNull(message: 'Le cours est requis')]

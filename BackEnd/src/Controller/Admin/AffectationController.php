@@ -411,6 +411,94 @@ class AffectationController extends AbstractController
         return new JsonResponse($responseData, Response::HTTP_CREATED);
     }
 
+    /**
+     * Assign a course to multiple users (bulk operation)
+     */
+    #[Route('/bulk-assign-users', name: 'bulk_assign_users', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function bulkAssignUsers(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        if (!$data || !isset($data['courseId']) || !isset($data['userIds']) || !is_array($data['userIds'])) {
+            return new JsonResponse(
+                ['error' => 'courseId and userIds array are required'], 
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $course = $this->courseRepository->find($data['courseId']);
+        if (!$course) {
+            return new JsonResponse(
+                ['error' => 'Course not found'], 
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $createdAffectations = [];
+        $errors = [];
+
+        foreach ($data['userIds'] as $userId) {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                $errors[] = "User with ID {$userId} not found";
+                continue;
+            }
+
+            // Check if assignment already exists
+            $existingAffectation = $this->affectationRepository->findOneBy([
+                'user' => $user,
+                'cours' => $course
+            ]);
+
+            if ($existingAffectation) {
+                $errors[] = "User with ID {$userId} is already assigned to this course";
+                continue;
+            }
+
+            // Create new affectation
+            $affectation = new Affectation();
+            $affectation->setUser($user);
+            $affectation->setCours($course);
+            
+            // Set optional fields
+            if (isset($data['dateAssigned'])) {
+                $dateAssigned = new \DateTime($data['dateAssigned']);
+                $affectation->setDateAssigned($dateAssigned);
+            }
+            
+            if (isset($data['assigneCours'])) {
+                $affectation->setAssigneCours($data['assigneCours']);
+            }
+
+            $this->entityManager->persist($affectation);
+            $createdAffectations[] = $affectation;
+        }
+
+        if (!empty($createdAffectations)) {
+            $this->entityManager->flush();
+        }
+
+        $responseData = [
+            'created' => count($createdAffectations),
+            'errors' => $errors,
+            'message' => 'Course assigned successfully to ' . count($createdAffectations) . ' user(s)'
+        ];
+
+        if (!empty($createdAffectations)) {
+            $responseData['affectations'] = json_decode(
+                $this->serializer->serialize(
+                    $createdAffectations, 
+                    'json', 
+                    ['groups' => ['affectation:read']]
+                ), 
+                true
+            );
+        }
+
+        return new JsonResponse($responseData, Response::HTTP_CREATED);
+    }
+
     // /**
     //  * Mark a course assignment as completed
     //  */

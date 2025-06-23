@@ -1,10 +1,9 @@
 import api from './api';
 
-const dashboardService = {
-  // Get dashboard statistics and data
+const dashboardService = {  // Get dashboard statistics and data
   getDashboardData: async () => {
     try {
-      const response = await api.get('/dashboard');
+      const response = await api.get('/admin/dashboard');
       return response.data;
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -21,12 +20,10 @@ const dashboardService = {
         recentActivities: []
       };
     }
-  },
-
-  // Get dashboard statistics
+  },  // Get dashboard statistics
   getStats: async () => {
     try {
-      const response = await api.get('/dashboard/stats');
+      const response = await api.get('/admin/dashboard');
       return response.data;
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -37,13 +34,11 @@ const dashboardService = {
         activeEnrollments: 0
       };
     }
-  },
-
-  // Get recent activities
+  },  // Get recent activities
   getRecentActivities: async () => {
     try {
-      const response = await api.get('/dashboard/activities');
-      return response.data;
+      const response = await api.get('/admin/dashboard');
+      return response.data.recentActivities || [];
     } catch (error) {
       console.error('Error fetching recent activities:', error);
       return [];
@@ -53,8 +48,8 @@ const dashboardService = {
   // Get recent courses
   getRecentCourses: async () => {
     try {
-      const response = await api.get('/dashboard/courses');
-      return response.data;
+      const response = await api.get('/admin/dashboard');
+      return response.data.courses?.recent || [];
     } catch (error) {
       console.error('Error fetching recent courses:', error);
       return [];

@@ -15,49 +15,44 @@ class UserService {
   
   // User management methods
   getAllUsers() {
-    return axios.get(`${API_URL}/users`, {
+    return axios.get(`${API_URL}/admin/users`, {
       headers: this.authHeader()
     });
   }
   
   getUserById(id) {
-    return axios.get(`${API_URL}/users/${id}`, {
+    return axios.get(`${API_URL}/admin/users/${id}`, {
       headers: this.authHeader()
     });
   }
   
   createUser(userData) {
-    return axios.post(`${API_URL}/users`, userData, {
+    return axios.post(`${API_URL}/admin/users`, userData, {
       headers: this.authHeader()
     });
   }
   
   updateUser(id, userData) {
-    return axios.put(`${API_URL}/users/${id}`, userData, {
+    return axios.put(`${API_URL}/admin/users/${id}`, userData, {
       headers: this.authHeader()
     });
   }
   
   deleteUser(id) {
-    return axios.delete(`${API_URL}/users/${id}`, {
+    return axios.delete(`${API_URL}/admin/users/${id}`, {
       headers: this.authHeader()
     });
   }
   // Employee-specific methods
   async getAllEmployees() {
     try {
-      const response = await axios.get(`${API_URL}/admin/users`, {
+      const response = await axios.get(`${API_URL}/admin/employees`, {
         headers: this.authHeader()
       });
       
-      // Filter employees on the client side
-      const employees = (response.data.users || []).filter(user => 
-        user.roles === 'employée'
-      );
-      
       return {
         success: true,
-        data: employees
+        data: response.data.data || response.data || []
       };
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -89,7 +84,7 @@ class UserService {
       ...filters
     });
     
-    return axios.get(`${API_URL}/users?${params}`, {
+    return axios.get(`${API_URL}/admin/users?${params}`, {
       headers: this.authHeader()
     }).then(response => response.data);
   }

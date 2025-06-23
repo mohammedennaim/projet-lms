@@ -38,6 +38,7 @@ class Quiz
     private Collection $questions;
 
     #[ORM\ManyToOne(inversedBy: 'quizzes')]
+    #[Groups(['quiz:read', 'quiz:write'])]
     private ?Course $course = null;
 
     public function __construct()

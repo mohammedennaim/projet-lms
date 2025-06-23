@@ -3,7 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Quiz;
+use App\Entity\Course;
 use App\Repository\QuizRepository;
+use App\Repository\CourseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,6 +21,7 @@ class QuizAdminController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private QuizRepository $quizRepository;
+    private CourseRepository $courseRepository;
     private SerializerInterface $serializer;
     private ValidatorInterface $validator;
     private Security $security;
@@ -26,12 +29,14 @@ class QuizAdminController extends AbstractController
     public function __construct(
         EntityManagerInterface $entityManager,
         QuizRepository $quizRepository,
+        CourseRepository $courseRepository,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         Security $security
     ) {
         $this->entityManager = $entityManager;
         $this->quizRepository = $quizRepository;
+        $this->courseRepository = $courseRepository;
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->security = $security;
@@ -73,6 +78,15 @@ class QuizAdminController extends AbstractController
             $quiz->setDescription($data['description']);
         }
         
+        // Gérer l'association avec le cours
+        if (isset($data['course'])) {
+            $course = $this->courseRepository->find($data['course']);
+            if (!$course) {
+                return $this->json(['errors' => ['course' => 'Cours introuvable']], Response::HTTP_BAD_REQUEST);
+            }
+            $quiz->setCourse($course);
+        }
+        
         $errors = $this->validator->validate($quiz);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -109,6 +123,15 @@ class QuizAdminController extends AbstractController
         
         if (isset($data['description'])) {
             $quiz->setDescription($data['description']);
+        }
+        
+        // Gérer l'association avec le cours
+        if (isset($data['course'])) {
+            $course = $this->courseRepository->find($data['course']);
+            if (!$course) {
+                return $this->json(['errors' => ['course' => 'Cours introuvable']], Response::HTTP_BAD_REQUEST);
+            }
+            $quiz->setCourse($course);
         }
         
         $errors = $this->validator->validate($quiz);
