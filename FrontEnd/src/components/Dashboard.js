@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import courseService from '../services/courseService';
 import userService from '../services/UserService';
+import dashboardService from '../services/dashboardService';
 import AssignmentDebug from './AssignmentDebug';
 import ApiTestComponent from './ApiTestComponent';
 import AuthDiagnostic from './AuthDiagnostic';
@@ -13,22 +14,56 @@ const Dashboard = () => {
   const navigate = useNavigate();  const [activeCard, setActiveCard] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());  const [stats, setStats] = useState({
     totalCourses: 0,
-    newEnrollments: 0
+    newEnrollments: 0,
+    totalEmployees: 0,
+    recentUsers: []
   });
-  const [loadingStats, setLoadingStats] = useState(true);  // Mise à jour de l'heure
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [isMockData, setIsMockData] = useState(false);// Mise à jour de l'heure
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []);
-  // Charger les données des cours depuis la base de données
+  }, []);  // Charger les données des cours depuis la base de données
   useEffect(() => {
     fetchDashboardData();
-  }, []);
-
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const fetchDashboardData = async () => {
     try {
       setLoadingStats(true);
       
+      // Récupérer les statistiques depuis le nouveau service dashboardService
+      const response = await dashboardService.getStats();
+      
+      if (response.success && response.data) {
+        const dashboardData = response.data;
+        
+        // Calculer les nouvelles inscriptions depuis les utilisateurs récents
+        const newEnrollments = dashboardService.calculateNewEnrollments(dashboardData);
+        
+        setStats({
+          totalCourses: dashboardData.courses?.total || 0,
+          newEnrollments: newEnrollments,
+          totalEmployees: dashboardData.users?.total || 0,
+          recentUsers: dashboardData.users?.recent || []
+        });
+        
+        setIsMockData(response.isMockData || false);
+      } else {
+        // Fallback vers l'ancien système si le nouveau service ne fonctionne pas
+        await fetchDashboardDataFallback();
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des données du dashboard:', error);
+      // Fallback vers l'ancien système
+      await fetchDashboardDataFallback();
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  // Méthode de fallback utilisant l'ancien système
+  const fetchDashboardDataFallback = async () => {
+    try {
       // Récupérer les cours
       const courses = await courseService.getAllCourses();
       
@@ -50,13 +85,13 @@ const Dashboard = () => {
       
       setStats({
         totalCourses: courses.length,
-        newEnrollments: employeeCount
+        newEnrollments: employeeCount, // Dans le fallback, on utilise le nombre total d'employés
+        totalEmployees: employeeCount,
+        recentUsers: []
       });
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+      console.error('Erreur lors du chargement des données (fallback):', error);
       // Garder les valeurs par défaut en cas d'erreur
-    } finally {
-      setLoadingStats(false);
     }
   };const handleNavigateToCourses = () => {
     navigate('/courses');
@@ -94,14 +129,16 @@ const Dashboard = () => {
     },    {
       title: "Nouvelles Inscriptions",
       value: loadingStats ? "..." : stats.newEnrollments,
-      change: "Employés",
+      change: stats.recentUsers.length > 0 ? `${stats.recentUsers.length} récentes` : "Employés",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
         </svg>
       ),
       color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
+      isDynamic: true,
+      recentData: stats.recentUsers
     }
   ];
   // Données des cartes principales
@@ -208,17 +245,61 @@ const Dashboard = () => {
       
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         {/* Contenu principal */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Message de bienvenue personnalisé */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">        {/* Message de bienvenue personnalisé */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {getGreeting()}
-          </h2>
-          <p className="text-gray-600">Voici un aperçu de votre plateforme d'apprentissage</p>
-        </div>        {/* Grille de statistiques */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {getGreeting()}
+              </h2>
+              <p className="text-gray-600">Voici un aperçu de votre plateforme d'apprentissage</p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {/* Indicateur de données de démonstration */}
+              {isMockData && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-yellow-100 border border-yellow-300 rounded-lg">
+                  <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>
+                  <span className="text-xs text-yellow-700 font-medium">Données de démonstration</span>
+                </div>
+              )}
+              
+              {/* Bouton de rafraîchissement */}
+              <button
+                onClick={fetchDashboardData}
+                disabled={loadingStats}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
+              >
+                <svg 
+                  className={`w-4 h-4 text-gray-600 ${loadingStats ? 'animate-spin' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span className="text-sm text-gray-700">
+                  {loadingStats ? 'Actualisation...' : 'Actualiser'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>{/* Grille de statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {statsData.map((stat, index) => (
-            <div key={index} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div key={index} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 relative">
+              {/* Indicateur de données dynamiques */}
+              {stat.isDynamic && (
+                <div className="absolute top-3 right-3">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-600 font-medium">En temps réel</span>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
                   {stat.icon}
@@ -228,7 +309,40 @@ const Dashboard = () => {
                   <div className="text-xs text-gray-500">{stat.change}</div>
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-600">{stat.title}</h3>
+              
+              <h3 className="text-sm font-medium text-gray-600 mb-3">{stat.title}</h3>
+              
+              {/* Affichage des utilisateurs récents pour les nouvelles inscriptions */}
+              {stat.isDynamic && stat.recentData && stat.recentData.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="text-xs text-gray-500 mb-2">Dernières inscriptions :</div>
+                  <div className="space-y-1 max-h-20 overflow-y-auto">
+                    {stat.recentData.slice(0, 3).map((user, userIndex) => (
+                      <div key={userIndex} className="flex items-center gap-2 text-xs">
+                        <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                          {user.fullName ? user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2) : '??'}
+                        </div>
+                        <span className="text-gray-600 truncate flex-1">
+                          {user.fullName || user.email || 'Utilisateur anonyme'}
+                        </span>
+                        <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                      </div>
+                    ))}
+                  </div>
+                  {stat.recentData.length > 3 && (
+                    <div className="text-xs text-gray-400 pt-1">
+                      +{stat.recentData.length - 3} autres...
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Message de fallback si pas de données récentes */}
+              {stat.isDynamic && (!stat.recentData || stat.recentData.length === 0) && (
+                <div className="mt-3 text-xs text-gray-400 italic">
+                  Aucune nouvelle inscription récente
+                </div>
+              )}
             </div>
           ))}
         </div>
