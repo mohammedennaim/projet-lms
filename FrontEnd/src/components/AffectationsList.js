@@ -101,7 +101,7 @@ const AffectationsList = () => {
                   Gestion des Affectations
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  Gérez les affectations de cours aux employés (ROLE_EMPLOYEE)
+                  Gérez les affectations de cours aux employés
                 </p>
               </div>
               <div className="text-right">
@@ -188,29 +188,32 @@ const AffectationsList = () => {
               <div className="text-center py-8">
                 <p className="text-gray-500">Aucune affectation trouvée</p>
               </div>
-            ) : (
-              <div className="overflow-x-auto">                <table className="min-w-full">
-                  <thead className="bg-gray-50">                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Employé (ROLE_EMPLOYEE)
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cours assigné
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date d'affectation
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {affectations.map((affectation) => (
-                      <tr key={affectation.id} className="hover:bg-gray-50">                        <td className="px-6 py-4 whitespace-nowrap">
+            ) : (              <div className="overflow-x-auto">
+                <div className="min-w-full inline-block align-middle">
+                  <div className="overflow-hidden border border-gray-200 rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                            Employé
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">
+                            Cours assigné
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                            Date d'affectation
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/8">
+                            Statut
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">{affectations.map((affectation) => (
+                        <tr key={affectation.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 whitespace-nowrap w-1/4">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -218,8 +221,24 @@ const AffectationsList = () => {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                               </div>
-                            </div>
-                            <div className="ml-4">                              <div className="text-sm font-medium text-gray-900">
+                            </div>                            <div className="ml-4 flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900 truncate" title={(() => {
+                                const user = affectation.user || affectation.employee;
+                                const firstName = user?.firstName || '';
+                                const lastName = user?.lastName || '';
+                                const fullName = user?.fullName || '';
+                                const email = user?.email || '';
+                                
+                                if (fullName && fullName.trim() !== '') {
+                                  return fullName.trim();
+                                } else if (firstName || lastName) {
+                                  return `${firstName} ${lastName}`.trim();
+                                } else if (email && email.includes('@')) {
+                                  return email.split('@')[0];
+                                } else {
+                                  return 'Nom non disponible';
+                                }
+                              })()}>
                                 {(() => {
                                   const user = affectation.user || affectation.employee;
                                   if (!user) return 'Employé non défini';
@@ -230,60 +249,72 @@ const AffectationsList = () => {
                                   const email = user.email || '';
                                   const id = user.id || '';
                                   
+                                  let name = '';
                                   if (fullName && fullName.trim() !== '') {
-                                    return fullName.trim();
+                                    name = fullName.trim();
                                   } else if (firstName || lastName) {
-                                    return `${firstName} ${lastName}`.trim();
+                                    name = `${firstName} ${lastName}`.trim();
                                   } else if (email && email.includes('@')) {
-                                    return email.split('@')[0];
+                                    name = email.split('@')[0];
                                   } else if (id) {
-                                    return `Utilisateur ${id}`;
+                                    name = `Utilisateur ${id}`;
                                   } else {
-                                    return 'Nom non disponible';
+                                    name = 'Nom non disponible';
                                   }
+                                  
+                                  // Tronquer à 25 caractères pour éviter le défilement
+                                  return name.length > 25 ? name.substring(0, 25) + '...' : name;
                                 })()}
-                              </div>
-                              <div className="text-sm text-gray-500">
+                              </div>                              <div className="text-sm text-gray-500 truncate" title={(() => {
+                                const user = affectation.user || affectation.employee;
+                                return user?.email || 'Email non disponible';
+                              })()}>
                                 {(() => {
                                   const user = affectation.user || affectation.employee;
                                   const email = user?.email || '';
-                                  return email || 'Email non disponible';
+                                  const displayEmail = email || 'Email non disponible';
+                                  // Tronquer l'email à 30 caractères
+                                  return displayEmail.length > 30 ? displayEmail.substring(0, 30) + '...' : displayEmail;
                                 })()}
-                              </div>
-                              <div className="text-xs text-blue-600 font-medium">
-                                ROLE_EMPLOYEE
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                </svg>
-                              </div>
-                            </div>                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
+                        </td>                          <td className="px-4 py-4 whitespace-nowrap w-1/3">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                  <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                  </svg>
+                                </div>
+                              </div><div className="ml-4 flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900 truncate max-w-xs" title={(() => {
+                                const course = affectation.cours || affectation.course;
+                                return course?.title || 'Cours non défini';
+                              })()}>
                                 {(() => {
                                   const course = affectation.cours || affectation.course;
                                   if (!course) return 'Cours non défini';
                                   
                                   const title = course.title || '';
-                                  return title || 'Titre de cours non disponible';
+                                  // Tronquer le titre à 35 caractères max pour éviter le défilement
+                                  return title.length > 35 ? title.substring(0, 35) + '...' : title || 'Titre non disponible';
                                 })()}
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 truncate max-w-xs" title={(() => {
+                                const course = affectation.cours || affectation.course;
+                                return course?.description || 'Description non disponible';
+                              })()}>
                                 {(() => {
                                   const course = affectation.cours || affectation.course;
                                   const description = course?.description || '';
-                                  return description || 'Description non disponible';
+                                  // Tronquer la description à 45 caractères max
+                                  return description.length > 45 ? description.substring(0, 45) + '...' : description || 'Description non disponible';
                                 })()}
                               </div>
                             </div>
                           </div>
-                        </td>                        <td className="px-6 py-4 whitespace-nowrap">
+                        </td>                        <td className="px-4 py-4 whitespace-nowrap w-1/6">
                           <div className="text-sm text-gray-900 font-medium">
                             {formatDate(affectation.dateAssigned || affectation.assignedAt)}
                           </div>
@@ -294,35 +325,37 @@ const AffectationsList = () => {
                             }
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-4 whitespace-nowrap w-1/8">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             affectation.assigneCours ? 
                             'bg-green-100 text-green-800' : 
                             'bg-yellow-100 text-yellow-800'
                           }`}>
-                            {affectation.assigneCours ? '✅ Cours assigné' : '⏳ En attente'}
+                            {affectation.assigneCours ? '✅ Assigné' : '⏳ En attente'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex gap-2">
+                        <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium w-1/6">                          <div className="flex gap-1">
                             <button
                               onClick={() => window.location.href = `/affectations/${affectation.id}/edit`}
-                              className="px-3 py-1 text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors text-sm"
+                              className="px-2 py-1 text-xs text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors"
+                              title="Modifier cette affectation"
                             >
-                              Modifier
+                              ✏️
                             </button>
                             <button
                               onClick={() => handleDelete(affectation.id)}
-                              className="px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-50 transition-colors text-sm"
+                              className="px-2 py-1 text-xs text-red-600 border border-red-600 rounded hover:bg-red-50 transition-colors"
+                              title="Supprimer cette affectation"
                             >
-                              Supprimer
+                              🗑️
                             </button>
                           </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
+                    ))}                  </tbody>
                 </table>
+                  </div>
+                </div>
               </div>
             )}
 

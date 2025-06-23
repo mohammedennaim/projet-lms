@@ -256,9 +256,8 @@ const AffectationCreate = () => {
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/20 shadow-lg">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Nouvelle Affectation
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Affecter un cours à un employé
+            </h1>            <p className="text-gray-600 mt-2">
+              Gérez les affectations de cours aux employés
             </p>
           </div>
 
@@ -283,12 +282,11 @@ const AffectationCreate = () => {
                 <h3 className="text-sm font-semibold text-blue-900 mb-2">État du système</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white/70 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-blue-700">Employés (ROLE_EMPLOYEE)</span>
+                    <div className="flex items-center justify-between">                      <span className="text-sm text-blue-700">Employés</span>
                       <span className="text-sm font-bold text-blue-900">{employees.length}</span>
                     </div>
                     {employees.length === 0 && (
-                      <p className="text-xs text-red-600 mt-1">⚠️ Aucun employé avec le rôle ROLE_EMPLOYEE trouvé</p>
+                      <p className="text-xs text-red-600 mt-1">⚠️ Aucun employé trouvé</p>
                     )}
                   </div>
                   <div className="bg-white/70 rounded-lg p-3">
@@ -312,14 +310,13 @@ const AffectationCreate = () => {
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-yellow-800">Données manquantes !</h3>
-                      <div className="mt-2 text-sm text-yellow-700">
-                        {employees.length === 0 && (
+                      <div className="mt-2 text-sm text-yellow-700">                        {employees.length === 0 && (
                           <div className="mb-3">
-                            <p>• <strong>Aucun employé avec le rôle ROLE_EMPLOYEE trouvé.</strong></p>
+                            <p>• <strong>Aucun employé trouvé.</strong></p>
                             <p className="ml-4 text-xs mt-1">Solutions possibles :</p>
                             <ul className="ml-8 text-xs list-disc">
                               <li>Exécuter les fixtures : <code className="bg-gray-200 px-1 rounded">php bin/console doctrine:fixtures:load</code></li>
-                              <li>Créer un utilisateur avec le rôle ROLE_EMPLOYEE</li>
+                              <li>Créer un utilisateur employé</li>
                               <li>Vérifier que le serveur backend est démarré</li>
                             </ul>
                           </div>
@@ -335,9 +332,8 @@ const AffectationCreate = () => {
                   </div>
                 </div>
               )}{/* Sélection de l'employé avec informations détaillées */}
-              <div>
-                <label htmlFor="employee" className="block text-sm font-medium text-gray-700 mb-2">
-                  Employé (ROLE_EMPLOYEE) *                  {selectedEmployee && (
+              <div>                <label htmlFor="employee" className="block text-sm font-medium text-gray-700 mb-2">
+                  Employé *{selectedEmployee && (
                     <span className="ml-2 text-blue-600 font-semibold">
                       - {(() => {
                         const employee = employees.find(emp => emp.id.toString() === selectedEmployee.toString());
@@ -362,14 +358,13 @@ const AffectationCreate = () => {
                       {employee.roles && ` (${employee.roles})`}
                     </option>
                   ))}
-                </select>
-                {employees.length === 0 ? (
+                </select>                {employees.length === 0 ? (
                   <p className="text-sm text-red-600 mt-1">
-                    ❌ Aucun employé avec le rôle ROLE_EMPLOYEE trouvé. Vérifiez que des utilisateurs ont ce rôle.
+                    ❌ Aucun employé trouvé. Vérifiez que des utilisateurs employés existent.
                   </p>
                 ) : (
                   <p className="text-sm text-green-600 mt-1">
-                    ✅ {employees.length} employé(s) avec le rôle ROLE_EMPLOYEE disponible(s)
+                    ✅ {employees.length} employé(s) disponible(s)
                   </p>
                 )}
               </div>              {/* Sélection du cours avec informations détaillées */}
