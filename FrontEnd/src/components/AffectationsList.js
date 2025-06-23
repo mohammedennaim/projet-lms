@@ -93,15 +93,70 @@ const AffectationsList = () => {
       <Navbar />
       
       <div className="pt-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
+        <div className="max-w-7xl mx-auto">          {/* Header avec informations détaillées */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/20 shadow-lg">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Gestion des Affectations
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Gérez les affectations de cours aux employés
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Gestion des Affectations
+                </h1>
+                <p className="text-gray-600 mt-2">
+                  Gérez les affectations de cours aux employés (ROLE_EMPLOYEE)
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="bg-blue-100 rounded-lg px-4 py-2 inline-block">
+                  <p className="text-sm text-blue-800 font-medium">
+                    {affectations.length} affectation(s) active(s)
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Statistiques rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-200 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-green-600">Employés assignés</p>
+                    <p className="font-bold text-green-800">{new Set(affectations.map(a => a.user?.id || a.employee?.id)).size}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-200 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-600">Cours assignés</p>
+                    <p className="font-bold text-blue-800">{new Set(affectations.map(a => a.cours?.id || a.course?.id)).size}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-200 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-purple-600">Total affectations</p>
+                    <p className="font-bold text-purple-800">{affectations.length}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Controls */}
@@ -134,15 +189,13 @@ const AffectationsList = () => {
                 <p className="text-gray-500">Aucune affectation trouvée</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
+              <div className="overflow-x-auto">                <table className="min-w-full">
+                  <thead className="bg-gray-50">                    <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Employé
+                        Employé (ROLE_EMPLOYEE)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cours
+                        Cours assigné
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Date d'affectation
@@ -157,33 +210,97 @@ const AffectationsList = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {affectations.map((affectation) => (
-                      <tr key={affectation.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {affectation.user?.fullName || affectation.employee?.fullName || 'Employé non défini'}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {affectation.user?.email || affectation.employee?.email || ''}
+                      <tr key={affectation.id} className="hover:bg-gray-50">                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                              </div>
+                            </div>
+                            <div className="ml-4">                              <div className="text-sm font-medium text-gray-900">
+                                {(() => {
+                                  const user = affectation.user || affectation.employee;
+                                  if (!user) return 'Employé non défini';
+                                  
+                                  const firstName = user.firstName || '';
+                                  const lastName = user.lastName || '';
+                                  const fullName = user.fullName || '';
+                                  const email = user.email || '';
+                                  const id = user.id || '';
+                                  
+                                  if (fullName && fullName.trim() !== '') {
+                                    return fullName.trim();
+                                  } else if (firstName || lastName) {
+                                    return `${firstName} ${lastName}`.trim();
+                                  } else if (email && email.includes('@')) {
+                                    return email.split('@')[0];
+                                  } else if (id) {
+                                    return `Utilisateur ${id}`;
+                                  } else {
+                                    return 'Nom non disponible';
+                                  }
+                                })()}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {(() => {
+                                  const user = affectation.user || affectation.employee;
+                                  const email = user?.email || '';
+                                  return email || 'Email non disponible';
+                                })()}
+                              </div>
+                              <div className="text-xs text-blue-600 font-medium">
+                                ROLE_EMPLOYEE
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {affectation.cours?.title || affectation.course?.title || 'Cours non défini'}
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                              </div>
+                            </div>                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {(() => {
+                                  const course = affectation.cours || affectation.course;
+                                  if (!course) return 'Cours non défini';
+                                  
+                                  const title = course.title || '';
+                                  return title || 'Titre de cours non disponible';
+                                })()}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {(() => {
+                                  const course = affectation.cours || affectation.course;
+                                  const description = course?.description || '';
+                                  return description || 'Description non disponible';
+                                })()}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {affectation.cours?.description || affectation.course?.description || ''}
+                        </td>                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 font-medium">
+                            {formatDate(affectation.dateAssigned || affectation.assignedAt)}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatDate(affectation.dateAssigned || affectation.assignedAt)}
+                          <div className="text-xs text-gray-500">
+                            {affectation.dateAssigned || affectation.assignedAt ? 
+                              `Il y a ${Math.ceil((new Date() - new Date(affectation.dateAssigned || affectation.assignedAt)) / (1000 * 60 * 60 * 24))} jour(s)` : 
+                              'Date non définie'
+                            }
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            affectation.completed || affectation.isCompleted
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
+                            affectation.assigneCours ? 
+                            'bg-green-100 text-green-800' : 
+                            'bg-yellow-100 text-yellow-800'
                           }`}>
-                            {affectation.completed || affectation.isCompleted ? 'Terminé' : 'En cours'}
+                            {affectation.assigneCours ? '✅ Cours assigné' : '⏳ En attente'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

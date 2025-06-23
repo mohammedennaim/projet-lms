@@ -234,27 +234,62 @@ const affectationService = {
   // Assigner un cours à plusieurs utilisateurs (méthode bulk)
   assignCourseToUsers: async (courseId, userIds, assignmentDate = null) => {
     try {
+      // Validation des paramètres
+      if (!courseId || courseId === '') {
+        throw new Error('ID du cours requis');
+      }
+      
+      if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+        throw new Error('Au moins un employé doit être sélectionné');
+      }
+
       const assignmentData = {
         courseId: parseInt(courseId),
-        userIds: userIds.map(id => parseInt(id)),
+        userIds: userIds.map(id => {
+          const parsedId = parseInt(id);
+          if (isNaN(parsedId)) {
+            throw new Error(`ID employé invalide: ${id}`);
+          }
+          return parsedId;
+        }),
         dateAssigned: assignmentDate || new Date().toISOString().split('T')[0],
         assigneCours: true
       };
 
-      console.log('Sending bulk assignment data:', assignmentData);
-      const response = await api.post('/api/admin/affectations/bulk-assign-users', assignmentData);
-      console.log('Bulk assignment response:', response);
+      console.log('📤 Sending bulk assignment data:', assignmentData);
+      
+      const response = await api.post('/admin/affectations/bulk-assign-users', assignmentData);
+      console.log('📥 Bulk assignment response:', response);
+      
+      // Normaliser la réponse
+      let responseData = response.data;
+      if (typeof responseData === 'string') {
+        try {
+          responseData = JSON.parse(responseData);
+        } catch (parseError) {
+          console.warn('Could not parse response as JSON:', responseData);
+        }
+      }
       
       return {
-        data: response.data,
+        data: responseData,
         success: true
       };
     } catch (error) {
-      console.error('Error bulk assigning course to users:', error);
+      console.error('❌ Error bulk assigning course to users:', error);
+      
+      // Gestion d'erreurs d'authentification
+      if (error.response?.status === 401) {
+        throw new Error('Session expirée - Veuillez vous reconnecter');
+      }
+      
+      if (error.response?.status === 403) {
+        throw new Error('Permissions insuffisantes - Contactez l\'administrateur');
+      }
       
       if (isNetworkError(error)) {
         // En cas d'erreur réseau, simuler une assignation réussie pour les tests
-        console.warn('Network error - simulating successful assignment for demo');
+        console.warn('🔄 Network error - simulating successful assignment for demo');
         return {
           data: {
             created: userIds.length,
@@ -264,6 +299,30 @@ const affectationService = {
           success: true,
           isMockData: true
         };
+      }
+      
+      // Gestion d'erreurs spécifiques
+      if (error.response?.status === 409) {
+        throw new Error('Un ou plusieurs employés sont déjà assignés à ce cours');
+      }
+      
+      if (error.response?.status === 404) {
+        throw new Error('Cours ou employé introuvable');
+      }
+      
+      if (error.response?.status === 400) {
+        const message = error.response?.data?.message || error.response?.data?.error || 'Données d\'assignation invalides';
+        throw new Error(message);
+      }
+      
+      // Gestion des erreurs de validation du backend
+      if (error.response?.status === 422) {
+        const validationErrors = error.response?.data?.violations || [];
+        if (validationErrors.length > 0) {
+          const errorMessages = validationErrors.map(v => v.message).join(', ');
+          throw new Error(`Erreurs de validation: ${errorMessages}`);
+        }
+        throw new Error('Erreur de validation des données');
       }
       
       const errorResult = handleApiError(error, 'Erreur lors de l\'assignation en lot');

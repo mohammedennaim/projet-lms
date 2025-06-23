@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import courseService from '../services/courseService';
 import userService from '../services/UserService';
-import AssignmentStats from './AssignmentStats';
-import QuickAssignment from './QuickAssignment';
-import RecentAssignments from './RecentAssignments';
 import AssignmentDebug from './AssignmentDebug';
 import ApiTestComponent from './ApiTestComponent';
 import AuthDiagnostic from './AuthDiagnostic';
@@ -63,12 +60,8 @@ const Dashboard = () => {
     }
   };const handleNavigateToCourses = () => {
     navigate('/courses');
-  };
-  const handleNavigateToEmployees = () => {
+  };  const handleNavigateToEmployees = () => {
     navigate('/employees');
-  };
-  const handleNavigateToAssignments = () => {
-    navigate('/assignments');
   };
 
   const handleNavigateToQuizzes = () => {
@@ -122,26 +115,10 @@ const Dashboard = () => {
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
         </svg>
-      ),
-      onClick: handleNavigateToCourses,
+      ),      onClick: handleNavigateToCourses,
       available: true,
       gradient: "from-blue-500 to-indigo-600",
       shadowColor: "shadow-blue-500/25"    },
-    {
-      id: 2,
-      title: "Assignation de Cours",
-      description: "Assigner des cours aux employés et gérer les affectations",
-      action: "Accéder maintenant",
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-        </svg>
-      ),
-      onClick: handleNavigateToAssignments,
-      available: true,
-      gradient: "from-green-500 to-emerald-600",
-      shadowColor: "shadow-green-500/25"
-    },
     {
       id: 3,
       title: "Gestion des Employés",
@@ -301,16 +278,6 @@ const Dashboard = () => {
             </div>
           </div>          {/* Sidebar avec informations */}
           <div className="space-y-6">
-            {/* Widget des statistiques d'assignation */}
-            {user && user.roles && user.roles.includes('ROLE_ADMIN') && (
-              <AssignmentStats />
-            )}
-
-            {/* Widget d'assignation rapide */}
-            {user && user.roles && user.roles.includes('ROLE_ADMIN') && (
-              <QuickAssignment />
-            )}
-
             {/* Informations simples */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations</h3>
@@ -333,86 +300,7 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Section Assignations pour les administrateurs */}
-        {user && user.roles && user.roles.includes('ROLE_ADMIN') && (
-          <div className="mt-12">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full mr-3"></div>
-                  Gestion des Assignations
-                </h3>
-                <p className="text-gray-600 mt-1">Assignez des cours aux employés et suivez les progrès</p>
-              </div>
-              <button
-                onClick={() => navigate('/assignments')}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg"
-              >
-                Gestion complète
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Assignations récentes */}
-              <RecentAssignments />
-              
-              {/* Actions rapides */}
-              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h4>
-                <div className="space-y-4">
-                  <button
-                    onClick={() => navigate('/assignments')}
-                    className="w-full flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 group"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white mr-3 group-hover:scale-110 transition-transform">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                      </svg>
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-gray-900">Nouvelle Assignation</div>
-                      <div className="text-sm text-gray-600">Assigner un cours à un employé</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/assignments')}
-                    className="w-full flex items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all duration-200 group"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white mr-3 group-hover:scale-110 transition-transform">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                      </svg>
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-gray-900">Rapport d'Assignations</div>
-                      <div className="text-sm text-gray-600">Voir toutes les statistiques</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/assignments')}
-                    className="w-full flex items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-all duration-200 group"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center text-white mr-3 group-hover:scale-110 transition-transform">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                      </svg>
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-gray-900">Assignation en Lot</div>
-                      <div className="text-sm text-gray-600">Assigner à plusieurs employés</div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Section d'aide améliorée */}
+        </div>        {/* Section d'aide améliorée */}
         <div className="mt-12 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-2xl">
           <div className="text-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">

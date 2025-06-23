@@ -192,3 +192,65 @@ export const getMockData = (type = 'affectations') => {
   
   return mockData[type] || [];
 };
+
+// Function to check server connectivity
+export const checkServerConnectivity = async () => {
+  try {
+    const response = await fetch('http://localhost:8000/api', {
+      method: 'GET',
+      timeout: 5000
+    });
+    
+    if (response.status === 401) {
+      return { isConnected: true, requiresAuth: true, message: 'Serveur accessible - Authentification requise' };
+    } else if (response.ok) {
+      return { isConnected: true, requiresAuth: false, message: 'Serveur accessible' };
+    } else {
+      return { isConnected: true, requiresAuth: false, message: `Serveur accessible - Code: ${response.status}` };
+    }
+  } catch (error) {
+    return { 
+      isConnected: false, 
+      requiresAuth: false, 
+      message: 'Serveur non accessible - Vérifiez que le serveur backend est démarré sur http://localhost:8000',
+      error: error.message 
+    };
+  }
+};
+
+// Enhanced error message for better user feedback
+export const getEnhancedErrorMessage = (error) => {
+  if (isNetworkError(error)) {
+    return {
+      title: 'Problème de connexion',
+      message: 'Le serveur backend n\'est pas accessible. Vérifiez que le serveur est démarré sur http://localhost:8000.',
+      action: 'Redémarrer le serveur',
+      type: 'network'
+    };
+  }
+  
+  if (error.response?.status === 401) {
+    return {
+      title: 'Session expirée',
+      message: 'Votre session a expiré. Veuillez vous reconnecter.',
+      action: 'Se reconnecter',
+      type: 'auth'
+    };
+  }
+  
+  if (error.response?.status === 403) {
+    return {
+      title: 'Accès refusé',
+      message: 'Vous n\'avez pas les permissions nécessaires pour cette action.',
+      action: 'Contacter l\'administrateur',
+      type: 'permission'
+    };
+  }
+  
+  return {
+    title: 'Erreur',
+    message: error.response?.data?.message || error.message || 'Une erreur inattendue s\'est produite',
+    action: 'Réessayer',
+    type: 'general'
+  };
+};

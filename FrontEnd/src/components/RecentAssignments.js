@@ -74,7 +74,7 @@ const RecentAssignments = () => {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Assignations Récentes</h3>
         <button
-          onClick={() => navigate('/assignments')}
+          onClick={() => navigate('/affectations')}
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
           Voir tout →
@@ -90,7 +90,7 @@ const RecentAssignments = () => {
           </div>
           <p className="text-gray-500 text-sm">Aucune assignation récente</p>
           <button
-            onClick={() => navigate('/assignments')}
+            onClick={() => navigate('/affectations')}
             className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
           >
             Créer une assignation
@@ -136,7 +136,7 @@ const RecentAssignments = () => {
 
       <div className="mt-4 pt-4 border-t border-gray-200">
         <button
-          onClick={() => navigate('/assignments')}
+          onClick={() => navigate('/affectations')}
           className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 text-sm"
         >
           Gérer toutes les assignations

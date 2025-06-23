@@ -39,13 +39,36 @@ class AffectationController extends AbstractController
     {
         $affectations = $this->affectationRepository->findAll();
         
-        $data = $this->serializer->serialize(
-            $affectations, 
-            'json', 
-            ['groups' => ['affectation:read']]
-        );
+        error_log('Nombre d\'affectations trouvées: ' . count($affectations));
         
-        return new JsonResponse($data, Response::HTTP_OK, [], true);
+        $affectationsData = [];
+        foreach ($affectations as $affectation) {
+            $user = $affectation->getUser();
+            $course = $affectation->getCours();
+            
+            $affectationData = [
+                'id' => $affectation->getId(),
+                'dateAssigned' => $affectation->getDateAssigned()?->format('Y-m-d'),
+                'assigneCours' => $affectation->isAssigneCours(),
+                'user' => $user ? [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'fullName' => $user->getFullName(),
+                    'firstName' => $user->getFirstName(),
+                    'lastName' => $user->getLastName(),
+                ] : null,
+                'cours' => $course ? [
+                    'id' => $course->getId(),
+                    'title' => $course->getTitle(),
+                    'description' => $course->getDescription(),
+                ] : null
+            ];
+            
+            error_log('Affectation ' . $affectation->getId() . ': ' . json_encode($affectationData));
+            $affectationsData[] = $affectationData;
+        }
+        
+        return $this->json($affectationsData);
     }
 
     /**
@@ -82,7 +105,10 @@ class AffectationController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         
+        error_log('Affectation Create - Données reçues: ' . json_encode($data));
+        
         if (!$data) {
+            error_log('Affectation Create - JSON invalide');
             return new JsonResponse(
                 ['error' => 'Invalid JSON data'], 
                 Response::HTTP_BAD_REQUEST
@@ -91,6 +117,7 @@ class AffectationController extends AbstractController
 
         // Validate required fields
         if (!isset($data['userId']) || !isset($data['courseId'])) {
+            error_log('Affectation Create - Champs manquants: userId=' . ($data['userId'] ?? 'null') . ', courseId=' . ($data['courseId'] ?? 'null'));
             return new JsonResponse(
                 ['error' => 'userId and courseId are required'], 
                 Response::HTTP_BAD_REQUEST
@@ -101,7 +128,11 @@ class AffectationController extends AbstractController
         $user = $this->userRepository->find($data['userId']);
         $course = $this->courseRepository->find($data['courseId']);
 
+        error_log('Affectation Create - Utilisateur trouvé: ' . ($user ? $user->getId() . ' (' . $user->getEmail() . ')' : 'null'));
+        error_log('Affectation Create - Cours trouvé: ' . ($course ? $course->getId() . ' (' . $course->getTitle() . ')' : 'null'));
+
         if (!$user) {
+            error_log('Affectation Create - Utilisateur non trouvé avec ID: ' . $data['userId']);
             return new JsonResponse(
                 ['error' => 'User not found'], 
                 Response::HTTP_NOT_FOUND
@@ -109,6 +140,7 @@ class AffectationController extends AbstractController
         }
 
         if (!$course) {
+            error_log('Affectation Create - Cours non trouvé avec ID: ' . $data['courseId']);
             return new JsonResponse(
                 ['error' => 'Course not found'], 
                 Response::HTTP_NOT_FOUND
@@ -122,6 +154,7 @@ class AffectationController extends AbstractController
         ]);
 
         if ($existingAffectation) {
+            error_log('Affectation Create - Affectation existe déjà: utilisateur ' . $user->getId() . ' -> cours ' . $course->getId());
             return new JsonResponse(
                 ['error' => 'User is already assigned to this course'], 
                 Response::HTTP_CONFLICT
@@ -132,6 +165,8 @@ class AffectationController extends AbstractController
         $affectation = new Affectation();
         $affectation->setUser($user);
         $affectation->setCours($course);
+        
+        error_log('Affectation Create - Nouvelle affectation créée');
         
         // Set optional fields
         if (isset($data['dateAssigned'])) {
@@ -150,6 +185,7 @@ class AffectationController extends AbstractController
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
+            error_log('Affectation Create - Erreurs de validation: ' . json_encode($errorMessages));
             return new JsonResponse(
                 ['errors' => $errorMessages], 
                 Response::HTTP_BAD_REQUEST
@@ -157,8 +193,17 @@ class AffectationController extends AbstractController
         }
 
         // Save to database
-        $this->entityManager->persist($affectation);
-        $this->entityManager->flush();
+        try {
+            $this->entityManager->persist($affectation);
+            $this->entityManager->flush();
+            error_log('Affectation Create - Sauvegarde réussie avec ID: ' . $affectation->getId());
+        } catch (\Exception $e) {
+            error_log('Affectation Create - Erreur lors de la sauvegarde: ' . $e->getMessage());
+            return new JsonResponse(
+                ['error' => 'Database error: ' . $e->getMessage()], 
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
         $data = $this->serializer->serialize(
             $affectation, 

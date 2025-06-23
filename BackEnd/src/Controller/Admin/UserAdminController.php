@@ -65,13 +65,21 @@ class UserAdminController extends AbstractController
 
         $usersData = [];
         foreach ($users as $user) {
-            $usersData[] = [
+            $userData = [
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
                 'fullName' => $user->getFullName(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
                 'roles' => $user->getRole(),
             ];
+            
+            // Log pour debug
+            error_log('User data: ' . json_encode($userData));
+            $usersData[] = $userData;
         }
+        
+        error_log('Total users found with role filter: ' . count($usersData));
 
         return $this->json([
             'users' => $usersData,

@@ -97,7 +97,7 @@ const QuickAssignment = () => {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Assignation Rapide</h3>
         <button
-          onClick={() => navigate('/assignments')}
+          onClick={() => navigate('/affectations')}
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
           Voir tout →
@@ -153,7 +153,7 @@ const QuickAssignment = () => {
             {loading ? 'Assignation...' : 'Assigner'}
           </button>
           <button
-            onClick={() => navigate('/assignments')}
+            onClick={() => navigate('/affectations')}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-sm"
           >
             Gestion complète

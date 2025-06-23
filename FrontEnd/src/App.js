@@ -5,7 +5,6 @@ import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import CourseManagement from './components/CourseManagement';
 import CourseDetailsPage from './components/CourseDetailsPage';
-import CourseAssignment from './components/CourseAssignment';
 import UserManagement from './components/UserManagement';
 import EmployeeList from './components/EmployeeList';
 import RessourceManagement from './components/RessourceManagement';
@@ -14,6 +13,8 @@ import QuizManagement from './components/QuizManagement';
 import QuestionsList from './components/QuestionsList';
 import QuestionForm from './components/QuestionForm';
 import AffectationsList from './components/AffectationsList';
+import AffectationCreate from './components/AffectationCreate';
+import AffectationEdit from './components/AffectationEdit';
 import RessourcesList from './components/RessourcesList';
 import EmployeeQuizDetails from './components/EmployeeQuizDetails';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -82,19 +83,11 @@ function App() {
             />            <Route 
               path="/ressources" 
               element={
-                <ProtectedRoute>
-                  <RessourceManagement />
+                <ProtectedRoute>                  <RessourceManagement />
                 </ProtectedRoute>
               } 
             />
             <Route 
-              path="/assignments" 
-              element={
-                <ProtectedRoute>
-                  <CourseAssignment />
-                </ProtectedRoute>
-              } 
-            />            <Route 
               path="/statistics" 
               element={
                 <ProtectedRoute>
@@ -132,12 +125,27 @@ function App() {
                   <QuestionForm />
                 </ProtectedRoute>
               } 
-            />
-            <Route 
+            />            <Route 
               path="/affectations" 
               element={
                 <ProtectedRoute>
                   <AffectationsList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/affectations/create" 
+              element={
+                <ProtectedRoute>
+                  <AffectationCreate />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/affectations/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <AffectationEdit />
                 </ProtectedRoute>
               } 
             />
