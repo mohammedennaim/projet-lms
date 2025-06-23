@@ -172,6 +172,9 @@ class AffectationController extends AbstractController
         if (isset($data['dateAssigned'])) {
             $dateAssigned = new \DateTime($data['dateAssigned']);
             $affectation->setDateAssigned($dateAssigned);
+        } else {
+            // Set today's date as default if no date provided
+            $affectation->setDateAssigned(new \DateTime());
         }
         
         if (isset($data['assigneCours'])) {

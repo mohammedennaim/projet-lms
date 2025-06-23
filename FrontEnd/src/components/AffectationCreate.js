@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 
-const AffectationCreate = () => {
-  const [employees, setEmployees] = useState([]);
+const AffectationCreate = () => {  const [employees, setEmployees] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [dateAssigned, setDateAssigned] = useState(() => {
+    // Date d'aujourd'hui par défaut au format YYYY-MM-DD
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -179,12 +183,11 @@ const AffectationCreate = () => {
 
     fetchData();
   }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!selectedEmployee || !selectedCourse) {
-      setError('Veuillez sélectionner un employé et un cours');
+    if (!selectedEmployee || !selectedCourse || !dateAssigned) {
+      setError('Veuillez sélectionner un employé, un cours et une date d\'affectation');
       return;
     }
 
@@ -193,7 +196,8 @@ const AffectationCreate = () => {
       const token = localStorage.getItem('token');
       console.log('Envoi des données:', {
         userId: selectedEmployee,
-        courseId: selectedCourse
+        courseId: selectedCourse,
+        dateAssigned: dateAssigned
       });
       
       const response = await fetch('http://localhost:8000/api/admin/affectations', {
@@ -204,7 +208,8 @@ const AffectationCreate = () => {
         },
         body: JSON.stringify({
           userId: selectedEmployee,
-          courseId: selectedCourse
+          courseId: selectedCourse,
+          dateAssigned: dateAssigned
         })
       });
 
@@ -397,13 +402,29 @@ const AffectationCreate = () => {
                 ) : (
                   <p className="text-sm text-green-600 mt-1">
                     ✅ {courses.length} cours disponible(s) pour l'affectation
-                  </p>
-                )}
+                  </p>                )}
+              </div>
+
+              {/* Champ de date d'affectation */}
+              <div>
+                <label htmlFor="dateAssigned" className="block text-sm font-medium text-gray-700 mb-2">
+                  Date d'affectation *
+                </label>
+                <input
+                  type="date"
+                  id="dateAssigned"
+                  value={dateAssigned}
+                  onChange={(e) => setDateAssigned(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  📅 Date par défaut : aujourd'hui ({new Date(dateAssigned).toLocaleDateString('fr-FR')})
+                </p>
               </div>              {/* Boutons */}
-              <div className="flex gap-4 pt-4">
-                <button
+              <div className="flex gap-4 pt-4">                <button
                   type="submit"
-                  disabled={loading || employees.length === 0 || courses.length === 0}
+                  disabled={loading || employees.length === 0 || courses.length === 0 || !dateAssigned}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500"
                 >
                   {loading ? (

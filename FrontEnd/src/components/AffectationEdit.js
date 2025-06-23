@@ -3,11 +3,11 @@ import { useParams } from 'react-router-dom';
 import Navbar from './Navbar';
 
 const AffectationEdit = () => {
-  const { id } = useParams();
-  const [employees, setEmployees] = useState([]);
+  const { id } = useParams();  const [employees, setEmployees] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [dateAssigned, setDateAssigned] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -26,12 +26,22 @@ const AffectationEdit = () => {
             'Content-Type': 'application/json'
           }
         });
-        
-        if (affectationResponse.ok) {
+          if (affectationResponse.ok) {
           const affectation = await affectationResponse.json();
           setSelectedEmployee(affectation.user?.id || affectation.employee?.id || '');
           setSelectedCourse(affectation.cours?.id || affectation.course?.id || '');
-        }        // Charger les employés
+          
+          // Récupérer et formater la date d'affectation
+          if (affectation.dateAssigned) {
+            // Convertir la date au format YYYY-MM-DD pour l'input date
+            const date = new Date(affectation.dateAssigned);
+            setDateAssigned(date.toISOString().split('T')[0]);
+          } else {
+            // Date d'aujourd'hui par défaut si pas de date existante
+            const today = new Date();
+            setDateAssigned(today.toISOString().split('T')[0]);
+          }
+        }// Charger les employés
         const employeesResponse = await fetch('http://localhost:8000/api/admin/users?role=ROLE_EMPLOYEE', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -101,12 +111,11 @@ const AffectationEdit = () => {
 
     fetchData();
   }, [id]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!selectedEmployee || !selectedCourse) {
-      setError('Veuillez sélectionner un employé et un cours');
+    if (!selectedEmployee || !selectedCourse || !dateAssigned) {
+      setError('Veuillez sélectionner un employé, un cours et une date d\'affectation');
       return;
     }
 
@@ -123,7 +132,8 @@ const AffectationEdit = () => {
         },
         body: JSON.stringify({
           userId: selectedEmployee,
-          courseId: selectedCourse
+          courseId: selectedCourse,
+          dateAssigned: dateAssigned
         })
       });
 
@@ -233,15 +243,31 @@ const AffectationEdit = () => {
                     <option key={course.id} value={course.id}>
                       {course.title}
                     </option>
-                  ))}
-                </select>
+                  ))}                </select>
+              </div>
+
+              {/* Champ de date d'affectation */}
+              <div>
+                <label htmlFor="dateAssigned" className="block text-sm font-medium text-gray-700 mb-2">
+                  Date d'affectation *
+                </label>
+                <input
+                  type="date"
+                  id="dateAssigned"
+                  value={dateAssigned}
+                  onChange={(e) => setDateAssigned(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  📅 Date actuelle : {dateAssigned ? new Date(dateAssigned).toLocaleDateString('fr-FR') : 'Non définie'}
+                </p>
               </div>
 
               {/* Boutons */}
-              <div className="flex gap-4 pt-4">
-                <button
+              <div className="flex gap-4 pt-4">                <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !dateAssigned}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Modification...' : 'Modifier l\'affectation'}
