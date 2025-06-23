@@ -26,14 +26,32 @@ api.interceptors.request.use(
 
 // Handle responses and errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response received:', response.config.url, response.status);
+    return response;
+  },
   (error) => {
+    console.error('API Error:', error.config?.url, error);
+    
+    // Network errors
+    if (!error.response) {
+      console.error('Network error - server might be down');
+      error.code = 'NETWORK_ERROR';
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401) {
       // Token expired or invalid
+      console.warn('Authentication error - redirecting to login');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
+    
     return Promise.reject(error);
   }
 );

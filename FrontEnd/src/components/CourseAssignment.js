@@ -16,7 +16,6 @@ const CourseAssignment = () => {
   const [assignmentDate, setAssignmentDate] = useState(new Date().toISOString().split('T')[0]);
   const [loadingData, setLoadingData] = useState(true);
   const [dataError, setDataError] = useState(null);
-  const [isMockData, setIsMockData] = useState(false);
 
   const showToast = useCallback((message, type) => {
     setToast({ message, type });
@@ -78,10 +77,13 @@ const CourseAssignment = () => {
       
       if (result.success) {
         setAssignments(result.data || []);
-        setIsMockData(result.isMockData || false);
+        setDataError(null); // Clear any previous errors
         
         if (result.isMockData) {
-          showToast('Données de démonstration chargées (API non disponible)', 'warning');
+          console.log('Using mock data for assignments');
+          showToast('Données de démonstration (serveur non accessible)', 'warning');
+        } else {
+          console.log('Successfully loaded assignments from API');
         }
       } else {
         console.error('Failed to fetch assignments:', result.error);
@@ -91,9 +93,24 @@ const CourseAssignment = () => {
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
-      setAssignments([]);
-      setDataError('Erreur lors du chargement des assignations');
-      showToast('Erreur lors du chargement des assignations', 'error');
+      // En cas d'erreur, on utilise les données mock comme fallback
+      try {
+        const mockResult = await affectationService.getAllAffectations();
+        if (mockResult.data && mockResult.data.length > 0) {
+          setAssignments(mockResult.data);
+          setDataError(null);
+          showToast('Utilisation des données de démonstration', 'warning');
+        } else {
+          setAssignments([]);
+          setDataError('Aucune donnée disponible');
+          showToast('Aucune assignation trouvée', 'error');
+        }
+      } catch (fallbackError) {
+        console.error('Even fallback failed:', fallbackError);
+        setAssignments([]);
+        setDataError('Erreur lors du chargement des assignations');
+        showToast('Erreur lors du chargement des assignations', 'error');
+      }
     }
   }, [showToast]);
 
@@ -244,19 +261,6 @@ const CourseAssignment = () => {
           </div>
         )}
 
-        {/* Indicateur de données mock */}
-        {isMockData && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"></path>
-              </svg>
-              <span className="text-yellow-700 font-medium">Données de démonstration</span>
-            </div>
-            <p className="text-yellow-600 mt-1">L'API n'est pas disponible. Les données affichées sont des exemples.</p>
-          </div>
-        )}
-
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-gray-800">
@@ -287,9 +291,6 @@ const CourseAssignment = () => {
                       Date d'assignation
                     </th>
                     <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -305,15 +306,6 @@ const CourseAssignment = () => {
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap">
                         {new Date(assignment.dateAssigned).toLocaleDateString('fr-FR')}
-                      </td>
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          assignment.assigneCours 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {assignment.assigneCours ? 'Assigné' : 'En attente'}
-                        </span>
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap">
                         <button
