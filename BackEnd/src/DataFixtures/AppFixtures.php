@@ -22,7 +22,7 @@ class AppFixtures extends Fixture implements DependentFixtureInterface, FixtureG
             QuestionFixtures::class,
             ReponseFixtures::class,
             RessourceFixtures::class,
-            // AffectationFixtures::class,
+            AffectationFixtures::class,
             // UserQuizResponseFixtures::class,
         ];
     }

@@ -37,38 +37,53 @@ class AffectationController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function index(): JsonResponse
     {
-        $affectations = $this->affectationRepository->findAll();
-        
-        error_log('Nombre d\'affectations trouvées: ' . count($affectations));
-        
-        $affectationsData = [];
-        foreach ($affectations as $affectation) {
-            $user = $affectation->getUser();
-            $course = $affectation->getCours();
+        try {
+            $affectations = $this->affectationRepository->findAll();
             
-            $affectationData = [
-                'id' => $affectation->getId(),
-                'dateAssigned' => $affectation->getDateAssigned()?->format('Y-m-d'),
-                'assigneCours' => $affectation->isAssigneCours(),
-                'user' => $user ? [
-                    'id' => $user->getId(),
-                    'email' => $user->getEmail(),
-                    'fullName' => $user->getFullName(),
-                    'firstName' => $user->getFirstName(),
-                    'lastName' => $user->getLastName(),
-                ] : null,
-                'cours' => $course ? [
-                    'id' => $course->getId(),
-                    'title' => $course->getTitle(),
-                    'description' => $course->getDescription(),
-                ] : null
-            ];
+            error_log('Nombre d\'affectations trouvées: ' . count($affectations));
             
-            error_log('Affectation ' . $affectation->getId() . ': ' . json_encode($affectationData));
-            $affectationsData[] = $affectationData;
+            $affectationsData = [];
+            foreach ($affectations as $affectation) {
+                $user = $affectation->getUser();
+                $course = $affectation->getCours();
+                
+                $affectationData = [
+                    'id' => $affectation->getId(),
+                    'dateAssigned' => $affectation->getDateAssigned()?->format('Y-m-d'),
+                    'assigneCours' => $affectation->isAssigneCours(),
+                    'user' => $user ? [
+                        'id' => $user->getId(),
+                        'email' => $user->getEmail(),
+                        'fullName' => $user->getFullName(),
+                        'firstName' => $user->getFirstName(),
+                        'lastName' => $user->getLastName(),
+                    ] : null,
+                    'cours' => $course ? [
+                        'id' => $course->getId(),
+                        'title' => $course->getTitle(),
+                        'description' => $course->getDescription(),
+                    ] : null
+                ];
+                
+                // Validation des données avant ajout
+                if ($user && $course) {
+                    error_log('Affectation ' . $affectation->getId() . ': ' . json_encode($affectationData));
+                    $affectationsData[] = $affectationData;
+                } else {
+                    error_log('Affectation incomplète ignorée - ID: ' . $affectation->getId() . 
+                             ', User: ' . ($user ? $user->getId() : 'null') . 
+                             ', Course: ' . ($course ? $course->getId() : 'null'));
+                }
+            }
+            
+            return $this->json($affectationsData);
+        } catch (\Exception $e) {
+            error_log('Erreur lors de la récupération des affectations: ' . $e->getMessage());
+            return new JsonResponse(
+                ['error' => 'Erreur interne du serveur', 'message' => $e->getMessage()], 
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
-        
-        return $this->json($affectationsData);
     }
 
     /**
@@ -547,42 +562,42 @@ class AffectationController extends AbstractController
         return new JsonResponse($responseData, Response::HTTP_CREATED);
     }
 
-    // /**
-    //  * Mark a course assignment as completed
-    //  */
-    // #[Route('/{id}/complete', name: 'mark_complete', methods: ['PATCH'])]
-    // #[IsGranted('ROLE_EMPLOYEE')]
-    // public function markAsComplete(int $id): JsonResponse
-    // {
-    //     $affectation = $this->affectationRepository->find($id);
+    /**
+     * Mark a course assignment as completed
+     */
+    #[Route('/{id}/complete', name: 'mark_complete', methods: ['PATCH'])]
+    #[IsGranted('ROLE_EMPLOYEE')]
+    public function markAsComplete(int $id): JsonResponse
+    {
+        $affectation = $this->affectationRepository->find($id);
         
-    //     if (!$affectation) {
-    //         return new JsonResponse(
-    //             ['error' => 'Affectation not found'], 
-    //             Response::HTTP_NOT_FOUND
-    //         );
-    //     }
+        if (!$affectation) {
+            return new JsonResponse(
+                ['error' => 'Affectation not found'], 
+                Response::HTTP_NOT_FOUND
+            );
+        }
 
-    //     // Check if the current user owns this affectation
-    //     $currentUser = $this->getUser();
-    //     if (!$this->isGranted('ROLE_ADMIN') && $affectation->getUser() !== $currentUser) {
-    //         return new JsonResponse(
-    //             ['error' => 'Access denied'], 
-    //             Response::HTTP_FORBIDDEN
-    //         );
-    //     }
+        // Check if the current user owns this affectation
+        $currentUser = $this->getUser();
+        if (!$this->isGranted('ROLE_ADMIN') && $affectation->getUser() !== $currentUser) {
+            return new JsonResponse(
+                ['error' => 'Access denied'], 
+                Response::HTTP_FORBIDDEN
+            );
+        }
 
-    //     $affectation->setAssigneCours(true);
-    //     $this->entityManager->flush();
+        $affectation->setAssigneCours(true);
+        $this->entityManager->flush();
 
-    //     $data = $this->serializer->serialize(
-    //         $affectation, 
-    //         'json', 
-    //         ['groups' => ['affectation:read']]
-    //     );
+        $data = $this->serializer->serialize(
+            $affectation, 
+            'json', 
+            ['groups' => ['affectation:read']]
+        );
 
-    //     return new JsonResponse($data, Response::HTTP_OK, [], true);
-    // }
+        return new JsonResponse($data, Response::HTTP_OK, [], true);
+    }
 
      // /**
     //  * Get courses assigned to current user (for employees)

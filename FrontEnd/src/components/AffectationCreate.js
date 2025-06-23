@@ -182,23 +182,70 @@ const AffectationCreate = () => {  const [employees, setEmployees] = useState([]
     };
 
     fetchData();
-  }, []);
-  const handleSubmit = async (e) => {
+  }, []);  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!selectedEmployee || !selectedCourse || !dateAssigned) {
-      setError('Veuillez sélectionner un employé, un cours et une date d\'affectation');
+    // Validation complète des données
+    if (!selectedEmployee || selectedEmployee === '') {
+      setError('Veuillez sélectionner un employé');
+      return;
+    }
+    
+    if (!selectedCourse || selectedCourse === '') {
+      setError('Veuillez sélectionner un cours');
+      return;
+    }
+    
+    if (!dateAssigned || dateAssigned === '') {
+      setError('Veuillez sélectionner une date d\'affectation');
+      return;
+    }
+
+    // Validation des IDs
+    const employeeId = parseInt(selectedEmployee);
+    const courseId = parseInt(selectedCourse);
+    
+    if (isNaN(employeeId) || employeeId <= 0) {
+      setError('ID employé invalide');
+      return;
+    }
+    
+    if (isNaN(courseId) || courseId <= 0) {
+      setError('ID cours invalide');
+      return;
+    }
+
+    // Validation de la date
+    const selectedDate = new Date(dateAssigned);
+    const today = new Date();
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(today.getFullYear() + 1);
+    
+    if (selectedDate > oneYearFromNow) {
+      setError('La date d\'affectation ne peut pas être plus d\'un an dans le futur');
       return;
     }
 
     setLoading(true);
-    setError(null);    try {
+    setError(null);
+
+    try {
       const token = localStorage.getItem('token');
-      console.log('Envoi des données:', {
-        userId: selectedEmployee,
-        courseId: selectedCourse,
-        dateAssigned: dateAssigned
-      });
+      
+      if (!token) {
+        setError('Token d\'authentification manquant. Veuillez vous reconnecter.');
+        setLoading(false);
+        return;
+      }
+      
+      const affectationData = {
+        userId: employeeId,
+        courseId: courseId,
+        dateAssigned: dateAssigned,
+        assigneCours: false // Par défaut, non assigné
+      };
+      
+      console.log('Envoi des données:', affectationData);
       
       const response = await fetch('http://localhost:8000/api/admin/affectations', {
         method: 'POST',
@@ -206,11 +253,7 @@ const AffectationCreate = () => {  const [employees, setEmployees] = useState([]
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          userId: selectedEmployee,
-          courseId: selectedCourse,
-          dateAssigned: dateAssigned
-        })
+        body: JSON.stringify(affectationData)
       });
 
       console.log('Statut de la réponse:', response.status);
@@ -218,9 +261,29 @@ const AffectationCreate = () => {  const [employees, setEmployees] = useState([]
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Erreur détaillée:', errorData);
+        
+        if (response.status === 409) {
+          throw new Error('Cet employé est déjà assigné à ce cours');
+        }
+        
+        if (response.status === 404) {
+          throw new Error('Employé ou cours introuvable');
+        }
+        
+        if (response.status === 401) {
+          throw new Error('Session expirée. Veuillez vous reconnecter.');
+        }
+        
+        if (response.status === 403) {
+          throw new Error('Permissions insuffisantes');
+        }
+        
         throw new Error(errorData.message || errorData.error || 'Erreur lors de la création de l\'affectation');
       }
 
+      const result = await response.json();
+      console.log('Affectation créée avec succès:', result);
+      
       setSuccess(true);
       // Rediriger vers la liste après 2 secondes
       setTimeout(() => {
@@ -228,12 +291,12 @@ const AffectationCreate = () => {  const [employees, setEmployees] = useState([]
       }, 2000);
 
     } catch (err) {
-      console.error('Error creating affectation:', err);
-      setError(err.message || 'Erreur lors de la création de l\'affectation');
+      console.error('Error creating affectation:', err);      setError(err.message || 'Erreur lors de la création de l\'affectation');
     } finally {
       setLoading(false);
     }
   };
+
   const handleCancel = () => {
     window.location.href = '/affectations';
   };
