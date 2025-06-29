@@ -17,6 +17,7 @@ import AffectationCreate from './components/AffectationCreate';
 import AffectationEdit from './components/AffectationEdit';
 import RessourcesList from './components/RessourcesList';
 import EmployeeQuizDetails from './components/EmployeeQuizDetails';
+import CourseCreationWorkflow from './components/CourseCreationWorkflow';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -178,6 +179,55 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CourseDetailsPage />
+                </ProtectedRoute>
+              } 
+            />
+            {/* Course Creation Workflow Routes */}
+            <Route 
+              path="/workflow" 
+              element={
+                <ProtectedRoute>
+                  <CourseCreationWorkflow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workflow/course" 
+              element={
+                <ProtectedRoute>
+                  <CourseCreationWorkflow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workflow/course/:courseId" 
+              element={
+                <ProtectedRoute>
+                  <CourseCreationWorkflow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workflow/resource/:courseId" 
+              element={
+                <ProtectedRoute>
+                  <CourseCreationWorkflow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workflow/quiz/:courseId" 
+              element={
+                <ProtectedRoute>
+                  <CourseCreationWorkflow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workflow/question/:quizId" 
+              element={
+                <ProtectedRoute>
+                  <CourseCreationWorkflow />
                 </ProtectedRoute>
               } 
             />

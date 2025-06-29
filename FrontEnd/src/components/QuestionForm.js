@@ -4,7 +4,7 @@ import Navbar from './Navbar';
 import questionService from '../services/questionService';
 import quizService from '../services/quizService';
 
-const QuestionForm = () => {
+const QuestionForm = ({ predefinedQuizId, onQuestionAdded, isWorkflowMode = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
@@ -12,11 +12,12 @@ const QuestionForm = () => {
   const [loading, setLoading] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
   const [toast, setToast] = useState(null);
+  const [questionsAdded, setQuestionsAdded] = useState(0);
   const [formData, setFormData] = useState({
     content: '',
-    quiz: '',
+    quiz: predefinedQuizId || '',
     reponses: [
-      { content: '', isCorrect: false },
+      { content: '', isCorrect: true },  // Par défaut, la première réponse est correcte
       { content: '', isCorrect: false },
       { content: '', isCorrect: false },
       { content: '', isCorrect: false }
@@ -37,16 +38,24 @@ const QuestionForm = () => {
         const quizzesData = await quizService.getAllQuizzes();
         setQuizzes(Array.isArray(quizzesData) ? quizzesData : []);
 
+        // Si un quizId est prédéfini, l'utiliser dans le formulaire
+        if (predefinedQuizId) {
+          setFormData(prev => ({
+            ...prev,
+            quiz: predefinedQuizId
+          }));
+        }
+
         // Si mode édition, charger la question
         if (isEdit) {
           const questionData = await questionService.getQuestionById(id);
           setFormData({
             content: questionData.content || '',
-            quiz: questionData.quiz?.id || '',
+            quiz: questionData.quiz?.id || predefinedQuizId || '',
             reponses: questionData.reponses?.length === 4 
               ? questionData.reponses 
               : [
-                  { content: '', isCorrect: false },
+                  { content: '', isCorrect: true },
                   { content: '', isCorrect: false },
                   { content: '', isCorrect: false },
                   { content: '', isCorrect: false }
@@ -62,7 +71,7 @@ const QuestionForm = () => {
     };
 
     fetchData();
-  }, [id, isEdit]);
+  }, [id, isEdit, predefinedQuizId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -117,6 +126,22 @@ const QuestionForm = () => {
     return true;
   };
 
+  const resetForm = () => {
+    // Garder le quiz sélectionné si en mode workflow
+    const quizToKeep = isWorkflowMode ? formData.quiz : '';
+    
+    setFormData({
+      content: '',
+      quiz: quizToKeep,
+      reponses: [
+        { content: '', isCorrect: true },
+        { content: '', isCorrect: false },
+        { content: '', isCorrect: false },
+        { content: '', isCorrect: false }
+      ]
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -128,12 +153,30 @@ const QuestionForm = () => {
       if (isEdit) {
         await questionService.updateQuestion(id, formData);
         showToast('Question modifiée avec succès', 'success');
+        
+        if (!isWorkflowMode) {
+          setTimeout(() => navigate('/questions'), 1500);
+        }
       } else {
-        await questionService.createQuestion(formData);
+        const newQuestion = await questionService.createQuestion(formData);
         showToast('Question créée avec succès', 'success');
+        
+        // Incrémenter le compteur de questions ajoutées
+        setQuestionsAdded(prev => prev + 1);
+        
+        // Notifier le composant parent si nécessaire
+        if (onQuestionAdded) {
+          onQuestionAdded(newQuestion);
+        }
+        
+        // Réinitialiser le formulaire si en mode workflow
+        if (isWorkflowMode) {
+          resetForm();
+        } else {
+          setTimeout(() => navigate('/questions'), 1500);
+        }
       }
-      
-      setTimeout(() => navigate('/questions'), 1500);    } catch (error) {
+    } catch (error) {
       console.error('Error saving question:', error);
       let errorMessage = isEdit 
         ? 'Erreur lors de la modification de la question' 
@@ -162,7 +205,7 @@ const QuestionForm = () => {
   if (loading && isEdit) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <Navbar />
+        {!isWorkflowMode && <Navbar />}
         <div className="flex items-center justify-center pt-20">
           <div className="w-16 h-16 relative">
             <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 border-blue-100 animate-spin"></div>
@@ -173,23 +216,38 @@ const QuestionForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <Navbar />
+    <div className={`${isWorkflowMode ? '' : 'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100'}`}>
+      {!isWorkflowMode && <Navbar />}
       
-      <div className="pt-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
+      <div className={isWorkflowMode ? '' : 'pt-20 px-4 sm:px-6 lg:px-8'}>
+        <div className={`${isWorkflowMode ? '' : 'max-w-4xl mx-auto'}`}>
           {/* Header */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/20 shadow-lg">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {isEdit ? 'Modifier la Question' : 'Nouvelle Question'}
-            </h1>
-            <p className="text-gray-600 mt-2">
-              {isEdit ? 'Modifiez les détails de la question' : 'Créez une nouvelle question avec 4 réponses'}
-            </p>
-          </div>
+          {!isWorkflowMode && (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/20 shadow-lg">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                {isEdit ? 'Modifier la Question' : 'Nouvelle Question'}
+              </h1>
+              <p className="text-gray-600 mt-2">
+                {isEdit ? 'Modifiez les détails de la question' : 'Créez une nouvelle question avec 4 réponses'}
+              </p>
+            </div>
+          )}
+
+          {isWorkflowMode && questionsAdded > 0 && (
+            <div className="mb-4 p-4 rounded-lg bg-green-50 border border-green-200">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span className="font-medium text-green-800">
+                  {questionsAdded} question{questionsAdded > 1 ? 's' : ''} ajoutée{questionsAdded > 1 ? 's' : ''} avec succès!
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Form */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+          <div className={`bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 ${isWorkflowMode ? '' : 'shadow-lg'}`}>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Quiz Selection */}
               <div>
@@ -201,8 +259,9 @@ const QuestionForm = () => {
                   name="quiz"
                   value={formData.quiz}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300"
+                  className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ${predefinedQuizId ? 'bg-gray-100' : ''}`}
                   required
+                  disabled={predefinedQuizId !== undefined}
                 >
                   <option value="">Sélectionnez un quiz</option>
                   {quizzes.map(quiz => (
@@ -211,6 +270,11 @@ const QuestionForm = () => {
                     </option>
                   ))}
                 </select>
+                {predefinedQuizId && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Le quiz est prédéfini dans le workflow de création.
+                  </p>
+                )}
               </div>
 
               {/* Question Content */}
@@ -268,13 +332,15 @@ const QuestionForm = () => {
 
               {/* Actions */}
               <div className="flex gap-4 pt-6">
-                <button
-                  type="button"
-                  onClick={() => navigate('/questions')}
-                  className="flex-1 px-6 py-3 text-gray-600 bg-gray-100 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-                >
-                  Annuler
-                </button>
+                {!isWorkflowMode && (
+                  <button
+                    type="button"
+                    onClick={() => navigate('/questions')}
+                    className="flex-1 px-6 py-3 text-gray-600 bg-gray-100 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Annuler
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={loading}
@@ -286,7 +352,7 @@ const QuestionForm = () => {
                       {isEdit ? 'Modification...' : 'Création...'}
                     </div>
                   ) : (
-                    isEdit ? 'Modifier la question' : 'Créer la question'
+                    isWorkflowMode ? 'Ajouter cette question' : (isEdit ? 'Modifier la question' : 'Créer la question')
                   )}
                 </button>
               </div>
@@ -297,8 +363,8 @@ const QuestionForm = () => {
 
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <div className={`flex items-center gap-3 p-4 rounded-xl shadow-2xl bg-white/90 backdrop-blur-xl border ${
+        <div className={`${isWorkflowMode ? 'relative mt-4' : 'fixed bottom-6 right-6 z-50'}`}>
+          <div className={`flex items-center gap-3 p-4 rounded-xl ${isWorkflowMode ? '' : 'shadow-2xl bg-white/90 backdrop-blur-xl'} border ${
             toast.type === 'success' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'
           }`}>
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${

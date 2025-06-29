@@ -39,7 +39,7 @@ const isValidVideoUrl = (url) => {
   }
 };
 
-const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
+const CourseForm = ({ course, onSave, onCancel, isEdit = false, isWorkflowMode = false }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -48,7 +48,9 @@ const CourseForm = ({ course, onSave, onCancel, isEdit = false }) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [loadingVideoUrl, setLoadingVideoUrl] = useState(false);  // Initialize form data when course prop changes
+  const [loadingVideoUrl, setLoadingVideoUrl] = useState(false);
+
+  // Initialize form data when course prop changes
   useEffect(() => {
     const loadCourseData = async () => {
       if (course && isEdit) {

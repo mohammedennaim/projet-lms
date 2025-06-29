@@ -3,16 +3,17 @@ import { ressourceService } from '../services/ressourceService';
 import { courseService } from '../services/courseService';
 import { useAuth } from '../context/AuthContext';
 
-const AddVideoResource = ({ onResourceAdded, onCancel }) => {
+const AddVideoResource = ({ onResourceAdded, onCancel, courseId }) => {
   const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     contenu: '',
-    course_id: ''
+    course_id: courseId || ''
   });
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [urlValidation, setUrlValidation] = useState({ isValid: false, message: '' });
+  const [resourcesAdded, setResourcesAdded] = useState(0);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -20,7 +21,15 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
       return;
     }
     fetchCourses();
-  }, [isAuthenticated]);
+    
+    // Si un courseId est fourni via les props, définissez-le dans le formulaire
+    if (courseId) {
+      setFormData(prev => ({
+        ...prev,
+        course_id: courseId
+      }));
+    }
+  }, [isAuthenticated, courseId]);
 
   const fetchCourses = async () => {
     try {
@@ -93,17 +102,13 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
         course_id: parseInt(formData.course_id)
       };
 
-      console.log('🔍 DEBUG - Données à envoyer:', resourceData);
-      console.log('🔍 DEBUG - Token présent:', localStorage.getItem('token') ? 'Oui' : 'Non');
-      console.log('🔍 DEBUG - Utilisateur authentifié:', isAuthenticated);
-      console.log('🔍 DEBUG - URL de base API:', process.env.REACT_APP_API_URL || 'http://localhost:8000');
-
       const newResource = await ressourceService.createRessource(resourceData);
       
-      console.log('✅ Ressource créée avec succès:', newResource);
+      // Incrémenter le compteur de ressources ajoutées
+      setResourcesAdded(prev => prev + 1);
       
-      // Réinitialiser le formulaire
-      setFormData({ contenu: '', course_id: '' });
+      // Réinitialiser uniquement le contenu, pas le cours sélectionné
+      setFormData(prev => ({ ...prev, contenu: '' }));
       setUrlValidation({ isValid: false, message: '' });
       
       // Notifier le composant parent
@@ -121,7 +126,7 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
       
       // Gestion spécifique des erreurs
       if (!err.response) {
-        setError('❌ Erreur de connexion: Impossible de contacter le serveur. Vérifiez que le serveur backend (localhost:8000) est démarré.');
+        setError('❌ Erreur de connexion: Impossible de contacter le serveur. Vérifiez que le serveur backend est démarré.');
       } else if (err.response.status === 401) {
         setError('❌ Erreur d\'authentification: Veuillez vous connecter en tant qu\'administrateur pour créer des ressources.');
       } else if (err.response.status === 403) {
@@ -147,9 +152,16 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
       
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Ajouter une Ressource Vidéo
-          </h2>
+          <div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              Ajouter des Ressources Vidéo
+            </h2>
+            {resourcesAdded > 0 && (
+              <p className="text-green-600 text-sm mt-2">
+                <span className="font-semibold">{resourcesAdded}</span> ressource{resourcesAdded > 1 ? 's' : ''} ajoutée{resourcesAdded > 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
           {onCancel && (
             <button
               onClick={onCancel}
@@ -184,7 +196,8 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
               value={formData.course_id}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300"
+              disabled={courseId !== undefined}
+              className={`w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ${courseId ? 'bg-gray-100' : ''}`}
             >
               <option value="">Sélectionnez un cours...</option>
               {courses.map(course => (
@@ -193,6 +206,11 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
                 </option>
               ))}
             </select>
+            {courseId && (
+              <p className="mt-1 text-xs text-gray-500">
+                Le cours est prédéfini dans le workflow de création.
+              </p>
+            )}
           </div>
 
           {/* URL de la vidéo */}
@@ -288,20 +306,10 @@ const AddVideoResource = ({ onResourceAdded, onCancel }) => {
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
                   </svg>
-                  Ajouter la Ressource
+                  Ajouter cette ressource
                 </>
               )}
             </button>
-            
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className="flex-1 sm:flex-none bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-300"
-              >
-                Annuler
-              </button>
-            )}
           </div>
         </form>
       </div>
