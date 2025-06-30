@@ -118,7 +118,32 @@ export const courseService = {  // Get all courses
       console.error('Error fetching courses with pagination:', error);
       throw new Error('Erreur lors de la récupération des cours avec pagination');
     }
-  }
+  },
+
+  // Get course by ID for employees (with resources and quizzes)
+  getCourseByIdForEmployee: async (id) => {
+    try {
+      const response = await courseAPI.get(`/employee/course/${id}/details`);
+      // Transform the response to match the expected structure
+      const data = response.data.data;
+      return {
+        id: data.course.id,
+        title: data.course.title,
+        description: data.course.description,
+        createdAt: data.course.createdAt,
+        updatedAt: data.course.updatedAt,
+        ressources: data.ressources.map(r => ({
+          id: r.id,
+          url: r.contenu // Backend uses 'contenu' for URL
+        })),
+        quizzes: data.quizzes,
+        stats: data.stats
+      };
+    } catch (error) {
+      console.error('Error fetching course details for employee:', error);
+      throw error; // Laisser le composant gérer l'erreur
+    }
+  },
 };
 
 export default courseService;

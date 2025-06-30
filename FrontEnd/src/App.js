@@ -9,6 +9,8 @@ import EmployeeQuizzesList from './components/EmployeeQuizzesList';
 import EmployeeResourcesList from './components/EmployeeResourcesList';
 import CourseManagement from './components/CourseManagement';
 import CourseDetailsPage from './components/CourseDetailsPage';
+import QuizPage from './components/QuizPage';
+import EmployeeQuizStatistics from './components/EmployeeQuizStatistics';
 import UserManagement from './components/UserManagement';
 import EmployeeList from './components/EmployeeList';
 import RessourceManagement from './components/RessourceManagement';
@@ -223,6 +225,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RessourcesList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/quiz/:quizId" 
+              element={
+                <ProtectedRoute>
+                  <QuizPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/quiz-statistics" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeQuizStatistics />
                 </ProtectedRoute>
               } 
             />

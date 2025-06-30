@@ -1,6 +1,7 @@
 import api from './api';
 
-const quizService = {  // Get all quizzes
+const quizService = {
+  // Get all quizzes
   getAllQuizzes: async () => {
     try {
       const response = await api.get('/admin/quizzes');
@@ -54,7 +55,57 @@ const quizService = {  // Get all quizzes
       console.error('Error deleting quiz:', error);
       throw error;
     }
-  }
+  },
+
+  // Employee quiz methods
+  getQuizByIdForEmployee: async (id) => {
+    try {
+      const response = await api.get(`/employee/quiz/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz for employee:', error);
+      throw error;
+    }
+  },
+
+  // Submit quiz answers
+  submitQuiz: async (id, answers, timeData = {}) => {
+    try {
+      const payload = {
+        answers: answers,
+        timeSpent: timeData.timeSpent,
+        questionTimes: timeData.questionTimes
+      };
+      
+      const response = await api.post(`/employee/quiz/${id}/submit`, payload);
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      throw error;
+    }
+  },
+
+  // Get quiz results
+  getQuizResults: async (id) => {
+    try {
+      const response = await api.get(`/employee/quiz/${id}/results`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz results:', error);
+      throw error;
+    }
+  },
+
+  // Get quiz statistics for employee
+  getQuizStatistics: async () => {
+    try {
+      const response = await api.get(`/employee/quiz/statistics`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz statistics:', error);
+      throw error;
+    }
+  },
 };
 
 export default quizService;

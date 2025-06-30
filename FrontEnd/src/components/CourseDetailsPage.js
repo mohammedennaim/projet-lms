@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import courseService from '../services/courseService';
+import { useAuth } from '../context/AuthContext';
 import Navbar from './Navbar';
 
 const CourseDetails = () => {
-  const { id } = useParams();
+  const { courseId, id } = useParams(); // Support both courseId and id
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [toast, setToast] = useState(null);
+
+  const courseIdToUse = courseId || id; // Use courseId if available, otherwise use id
 
   const showToast = (message, type) => {
     setToast({ message, type });
@@ -21,12 +25,26 @@ const CourseDetails = () => {
     const fetchCourseDetails = async () => {
       try {
         setLoading(true);
-        const courseData = await courseService.getCourseById(id);
+        
+        // Use different endpoint based on user role
+        let courseData;
+        if (user && user.role && user.role.includes('ROLE_EMPLOYEE')) {
+          courseData = await courseService.getCourseByIdForEmployee(courseIdToUse);
+        } else {
+          courseData = await courseService.getCourseById(courseIdToUse);
+        }
+        
         setCourse(courseData);
+        
+        console.log('CourseDetailsPage: Course data received:', courseData);
+        console.log('CourseDetailsPage: Resources:', courseData.ressources);
         
         // Sélectionner automatiquement la première vidéo s'il y en a une
         if (courseData.ressources && courseData.ressources.length > 0) {
-          setSelectedVideo(courseData.ressources[0]);
+          const firstVideo = courseData.ressources[0];
+          console.log('CourseDetailsPage: Setting first video:', firstVideo);
+          console.log('CourseDetailsPage: First video URL:', firstVideo.url);
+          setSelectedVideo(firstVideo);
         }
         
         setError(null);
@@ -38,27 +56,35 @@ const CourseDetails = () => {
       }
     };
 
-    if (id) {
+    if (courseIdToUse) {
       fetchCourseDetails();
     }
-  }, [id]);
+  }, [courseIdToUse]);
 
   // Fonction pour extraire l'ID de la vidéo YouTube
   const getYouTubeVideoId = (url) => {
+    console.log('getYouTubeVideoId: Input URL:', url);
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    const videoId = (match && match[2].length === 11) ? match[2] : null;
+    console.log('getYouTubeVideoId: Extracted video ID:', videoId);
+    return videoId;
   };
 
   // Fonction pour créer l'URL embed YouTube
   const getYouTubeEmbedUrl = (url) => {
+    console.log('getYouTubeEmbedUrl: Input URL:', url);
     const videoId = getYouTubeVideoId(url);
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1` : null;
+    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1` : null;
+    console.log('getYouTubeEmbedUrl: Generated embed URL:', embedUrl);
+    return embedUrl;
   };
 
   // Fonction pour vérifier si c'est une URL YouTube
   const isYouTubeUrl = (url) => {
-    return url.includes('youtube.com') || url.includes('youtu.be');
+    const isYT = url.includes('youtube.com') || url.includes('youtu.be');
+    console.log('isYouTubeUrl: URL:', url, 'Is YouTube:', isYT);
+    return isYT;
   };
 
   if (loading) {
@@ -135,6 +161,7 @@ const CourseDetails = () => {
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 overflow-hidden">
               {selectedVideo ? (
                 <div>
+                  {console.log('Rendering video player with selectedVideo:', selectedVideo)}
                   <div className="aspect-w-16 aspect-h-9 bg-gray-900">
                     {isYouTubeUrl(selectedVideo.url) ? (
                       <iframe
@@ -254,12 +281,20 @@ const CourseDetails = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Quiz du cours</h3>
                 <div className="space-y-3">
                   {course.quizzes.map((quiz) => (
-                    <div key={quiz.id} className="border border-gray-200 rounded-lg p-3">
+                    <div key={quiz.id} className="border border-gray-200 rounded-lg p-4">
                       <h4 className="font-medium text-gray-800">{quiz.title}</h4>
                       <p className="text-sm text-gray-600 mt-1">{quiz.description}</p>
                       <p className="text-xs text-gray-500 mt-2">
                         {quiz.questionsCount} question{quiz.questionsCount > 1 ? 's' : ''}
                       </p>
+                      <div className="mt-3">
+                        <button
+                          onClick={() => navigate(`/quiz/${quiz.id}`)}
+                          className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                        >
+                          Passer le quiz
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
