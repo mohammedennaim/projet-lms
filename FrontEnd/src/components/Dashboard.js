@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
+import AdminNavbar from './AdminNavbar';
 import courseService from '../services/courseService';
 import userService from '../services/UserService';
 import dashboardService from '../services/dashboardService';
@@ -240,8 +240,8 @@ const Dashboard = () => {
   };
   return (
     <>
-      {/* Navbar */}
-      <Navbar />
+      {/* Admin Navbar */}
+      <AdminNavbar />
       
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         {/* Contenu principal */}

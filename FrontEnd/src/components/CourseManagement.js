@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import courseService from '../services/courseService';
-import Navbar from './Navbar';
+import AdminNavbar from './AdminNavbar';
 import CourseForm from './CourseForm';
 
 const CourseManagement = () => {
@@ -79,8 +79,8 @@ const CourseManagement = () => {
   }
   return (
     <>
-      {/* Navbar */}
-      <Navbar />
+      {/* Admin Navbar */}
+      <AdminNavbar />
       
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6 md:p-8">
         {/* Header */}

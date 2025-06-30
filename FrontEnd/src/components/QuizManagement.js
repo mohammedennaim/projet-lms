@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Navbar from './Navbar';
+import AdminNavbar from './AdminNavbar';
 import quizService from '../services/quizService';
 import { courseService } from '../services/courseService';
 
@@ -164,7 +164,7 @@ const QuizManagement = () => {
 
   return (
     <>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6 md:p-8">
         {/* Header */}

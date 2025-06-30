@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Navbar from './Navbar';
+import AdminNavbar from './AdminNavbar';
 
 const AffectationsList = () => {
   const [affectations, setAffectations] = useState([]);
@@ -78,7 +78,7 @@ const AffectationsList = () => {
   if (loading && page === 1) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center pt-20">
           <div className="w-16 h-16 relative">
             <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 border-blue-100 animate-spin"></div>
@@ -90,7 +90,7 @@ const AffectationsList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <Navbar />
+      <AdminNavbar />
       
       <div className="pt-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">          {/* Header avec informations détaillées */}
