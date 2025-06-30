@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { courseService } from '../services/courseService';
+import courseService from '../services/courseService';
 
 const CourseList = ({ onSelectCourse, onEditCourse, onDeleteCourse }) => {
   const [courses, setCourses] = useState([]);

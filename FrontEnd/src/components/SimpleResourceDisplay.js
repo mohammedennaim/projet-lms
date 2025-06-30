@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ressourceService } from '../services/ressourceService';
+import ressourceService from '../services/ressourceService';
 import { useAuth } from '../context/AuthContext';
 
 const SimpleResourceDisplay = () => {

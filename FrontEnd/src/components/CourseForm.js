@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { courseService } from '../services/courseService';
-import { ressourceService } from '../services/ressourceService';
+import courseService from '../services/courseService';
+import ressourceService from '../services/ressourceService';
 
 // Fonction d'aide pour valider les URLs vidéo
 const isValidVideoUrl = (url) => {

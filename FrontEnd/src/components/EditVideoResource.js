@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ressourceService } from '../services/ressourceService';
-import { courseService } from '../services/courseService';
+import ressourceService from '../services/ressourceService';
+import courseService from '../services/courseService';
 
 const EditVideoResource = ({ resourceId, onResourceUpdated, onCancel }) => {
   const [formData, setFormData] = useState({

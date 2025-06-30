@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminNavbar from './AdminNavbar';
 import quizService from '../services/quizService';
-import { courseService } from '../services/courseService';
+import courseService from '../services/courseService';
 
 const QuizManagement = () => {
   const [quizzes, setQuizzes] = useState([]);

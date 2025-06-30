@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 // Liste des routes restreintes par rôle
 const roleRoutes = {
-  'ROLE_ADMIN': ['/dashboard', '/courses', '/users', '/employees', '/affectations', '/ressources', '/statistics', '/quizzes', '/questions'],
+  'ROLE_ADMIN': ['/dashboard', '/courses', '/users', '/employees', '/affectations', '/ressources', '/statistics', '/quizzes', '/questions', '/workflow'],
   'ROLE_EMPLOYEE': ['/employee-dashboard', '/quiz', '/course', '/employee-courses', '/employee-quizzes', '/employee-resources'],
 };
 

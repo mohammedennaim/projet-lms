@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './Navbar';
-import { ressourceService } from '../services/ressourceService';
+import ressourceService from '../services/ressourceService';
 import { useAuth } from '../context/AuthContext';
 
 const RessourcesList = () => {

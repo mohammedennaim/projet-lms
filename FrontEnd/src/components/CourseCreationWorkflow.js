@@ -22,23 +22,30 @@ const CourseCreationWorkflow = () => {
 
   // Déterminer l'étape actuelle à partir de l'URL
   useEffect(() => {
+    console.log('URL changée:', location.pathname);
     if (location.pathname.includes('/workflow/course')) {
+      console.log('Setting current step to: course');
       setCurrentStep('course');
     } else if (location.pathname.includes('/workflow/resource')) {
+      console.log('Setting current step to: resource');
       setCurrentStep('resource');
     } else if (location.pathname.includes('/workflow/quiz')) {
+      console.log('Setting current step to: quiz');
       setCurrentStep('quiz');
     } else if (location.pathname.includes('/workflow/question')) {
+      console.log('Setting current step to: question');
       setCurrentStep('question');
     }
     
     // Si un courseId est présent dans les params, mettre à jour le state
     if (courseId && !workflowData.courseId) {
+      console.log('Setting courseId in workflow data:', courseId);
       setWorkflowData(prev => ({ ...prev, courseId }));
     }
     
     // Si un quizId est présent dans les params, mettre à jour le state
     if (quizId && !workflowData.quizId) {
+      console.log('Setting quizId in workflow data:', quizId);
       setWorkflowData(prev => ({ ...prev, quizId }));
     }
   }, [location.pathname, courseId, quizId]);
@@ -64,10 +71,15 @@ const CourseCreationWorkflow = () => {
 
   // Gérer la sauvegarde d'un cours et passer à l'étape suivante
   const handleCourseSaved = (savedCourse) => {
-    setWorkflowData(prev => ({ ...prev, courseId: savedCourse.id }));
+    console.log('Cours sauvegardé dans le workflow:', savedCourse);
+    setWorkflowData(prev => ({ 
+      ...prev, 
+      courseId: savedCourse.id,
+      courseTitle: savedCourse.title 
+    }));
     setCurrentStep('resource');
     navigate(`/workflow/resource/${savedCourse.id}`);
-    showToast(`Le cours "${savedCourse.title}" a été créé avec succès!`, 'success');
+    showToast(`Le cours "${savedCourse.title}" a été créé avec succès! Passons aux ressources.`, 'success');
   };
 
   // Gérer l'ajout d'une ressource

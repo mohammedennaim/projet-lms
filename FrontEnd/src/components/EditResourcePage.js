@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ressourceService } from '../services/ressourceService';
+import ressourceService from '../services/ressourceService';
 import Navbar from './Navbar';
 import EditVideoResource from './EditVideoResource';
 

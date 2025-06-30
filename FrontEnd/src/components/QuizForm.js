@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { courseService } from '../services/courseService';
+import courseService from '../services/courseService';
 import quizService from '../services/quizService';
 
 const QuizForm = ({ onQuizCreated, isWorkflowMode = false, predefinedCourseId }) => {

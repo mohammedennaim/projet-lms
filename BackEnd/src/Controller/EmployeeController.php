@@ -38,11 +38,11 @@ class EmployeeController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
         
-        // Récupérer tous les cours assignés à cet employé
+        // Récupérer tous les cours assignés à cet employé via l'entité Affectation
         $assignedCourses = $this->courseRepository->createQueryBuilder('c')
-            ->innerJoin('c.employees', 'e')
+            ->innerJoin('App\Entity\Affectation', 'a', 'WITH', 'a.cours = c.id')
             ->leftJoin('c.quizzes', 'q')
-            ->where('e.id = :userId')
+            ->where('a.user = :userId')
             ->setParameter('userId', $user->getId())
             ->select('c', 'q')
             ->getQuery()
@@ -95,9 +95,9 @@ class EmployeeController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();        // Vérifier que l'employé a accès à ce quiz via un cours assigné
         $hasAccess = $this->courseRepository->createQueryBuilder('c')
-            ->innerJoin('c.employees', 'e')
+            ->innerJoin('App\Entity\Affectation', 'a', 'WITH', 'a.cours = c.id')
             ->innerJoin('c.quizzes', 'q')
-            ->where('e.id = :userId')
+            ->where('a.user = :userId')
             ->andWhere('q.id = :quizId')
             ->setParameter('userId', $user->getId())
             ->setParameter('quizId', $quizId)
@@ -168,27 +168,34 @@ class EmployeeController extends AbstractController
     /**
      * Récupère les détails d'un cours avec ses ressources
      */
-    #[Route('/course/{courseId}/details', name: 'employee_course_details', methods: ['GET'], requirements: ['courseId' => '\d+'])]
-    public function getCourseDetails(int $courseId): JsonResponse
+    #[Route('/course/{id}/details', name: 'employee_course_details', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function getCourseDetails(int $id): JsonResponse
     {
         /** @var User $user */
         $user = $this->security->getUser();
         
-        // Vérifier que l'employé a accès à ce cours avec ses ressources
+        // Vérifier si l'employé a accès à ce cours via une affectation
+        $affectation = $this->affectationRepository->findOneBy([
+            'user' => $user,
+            'cours' => $id
+        ]);
+
+        if (!$affectation) {
+            return $this->json(['message' => 'Cours non accessible'], Response::HTTP_FORBIDDEN);
+        }
+
+        // Récupérer le cours avec toutes ses relations
         $course = $this->courseRepository->createQueryBuilder('c')
             ->leftJoin('c.ressources', 'r')
             ->leftJoin('c.quizzes', 'q')
-            ->innerJoin('c.employees', 'e')
-            ->where('e.id = :userId')
-            ->andWhere('c.id = :courseId')
-            ->setParameter('userId', $user->getId())
-            ->setParameter('courseId', $courseId)
+            ->where('c.id = :courseId')
+            ->setParameter('courseId', $id)
             ->select('c', 'r', 'q')
             ->getQuery()
             ->getOneOrNullResult();
 
         if (!$course) {
-            return $this->json(['message' => 'Cours non accessible'], Response::HTTP_FORBIDDEN);
+            return $this->json(['message' => 'Cours non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
         // Structurer la réponse avec les ressources en premier
@@ -251,9 +258,9 @@ class EmployeeController extends AbstractController
         
         // Vérifier que l'employé a accès à ce cours
         $course = $this->courseRepository->createQueryBuilder('c')
-            ->innerJoin('c.employees', 'e')
+            ->innerJoin('App\Entity\Affectation', 'a', 'WITH', 'a.cours = c.id')
             ->leftJoin('c.ressources', 'r')
-            ->where('e.id = :userId')
+            ->where('a.user = :userId')
             ->andWhere('c.id = :courseId')
             ->setParameter('userId', $user->getId())
             ->setParameter('courseId', $courseId)
@@ -298,8 +305,8 @@ class EmployeeController extends AbstractController
 
         // Statistiques de l'employé
         $totalCourses = $this->courseRepository->createQueryBuilder('c')
-            ->innerJoin('c.employees', 'e')
-            ->where('e.id = :userId')
+            ->innerJoin('App\Entity\Affectation', 'a', 'WITH', 'a.cours = c.id')
+            ->where('a.user = :userId')
             ->setParameter('userId', $user->getId())
             ->select('COUNT(c.id)')
             ->getQuery()

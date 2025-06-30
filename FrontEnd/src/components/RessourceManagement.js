@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ressourceService } from '../services/ressourceService';
-import { courseService } from '../services/courseService';
+import ressourceService from '../services/ressourceService';
+import courseService from '../services/courseService';
 import Navbar from './Navbar';
 import AddVideoResource from './AddVideoResource';
 import EditVideoResource from './EditVideoResource';

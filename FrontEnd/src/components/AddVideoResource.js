@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ressourceService } from '../services/ressourceService';
-import { courseService } from '../services/courseService';
+import ressourceService from '../services/ressourceService';
+import courseService from '../services/courseService';
 import { useAuth } from '../context/AuthContext';
 
 const AddVideoResource = ({ onResourceAdded, onCancel, courseId }) => {

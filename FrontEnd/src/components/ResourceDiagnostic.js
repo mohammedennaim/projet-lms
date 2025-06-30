@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ressourceService } from '../services/ressourceService';
+import ressourceService from '../services/ressourceService';
 import apiClient from '../utils/apiClient';
 
 const ResourceDiagnostic = () => {
