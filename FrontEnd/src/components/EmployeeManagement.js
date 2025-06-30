@@ -52,7 +52,7 @@ const EmployeeManagement = () => {
             firstName: 'Jean',
             lastName: 'Dupont',
             email: 'jean.dupont@example.com',
-            role: 'employée',
+            role: 'ROLE_EMPLOYEE',
             department: 'IT',
             enrolledCourses: 3,
             completionRate: 78
@@ -62,7 +62,7 @@ const EmployeeManagement = () => {
             firstName: 'Marie',
             lastName: 'Martin',
             email: 'marie.martin@example.com',
-            role: 'employée',
+            role: 'ROLE_EMPLOYEE',
             department: 'HR',
             enrolledCourses: 5,
             completionRate: 92
@@ -72,7 +72,7 @@ const EmployeeManagement = () => {
             firstName: 'Pierre',
             lastName: 'Dubois',
             email: 'pierre.dubois@example.com',
-            role: 'employée',
+            role: 'ROLE_EMPLOYEE',
             department: 'Finance',
             enrolledCourses: 2,
             completionRate: 65
@@ -82,7 +82,7 @@ const EmployeeManagement = () => {
             firstName: 'Sophie',
             lastName: 'Bernard',
             email: 'sophie.bernard@example.com',
-            role: 'employée',
+            role: 'ROLE_EMPLOYEE',
             department: 'Marketing',
             enrolledCourses: 4,
             completionRate: 88
@@ -92,7 +92,7 @@ const EmployeeManagement = () => {
             firstName: 'Thomas',
             lastName: 'Petit',
             email: 'thomas.petit@example.com',
-            role: 'employée',
+            role: 'ROLE_EMPLOYEE',
             department: 'IT',
             enrolledCourses: 6,
             completionRate: 75

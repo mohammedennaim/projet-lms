@@ -31,8 +31,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 255)]
     private ?string $fullName = null;    #[ORM\Column(length: 50)]
     #[Groups(['user:read', 'affectation:read', 'affectation:details'])]
-    #[Assert\Choice(choices: ['admin', 'employée'], message: 'Le rôle doit être admin, instructeur, employée ou student')]
-    private string $roles = 'employée';
+    #[Assert\Choice(choices: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'], message: 'Le rôle doit être ROLE_ADMIN, ROLE_INSTRUCTOR, ROLE_EMPLOYEE ou ROLE_STUDENT')]
+    private string $roles = 'ROLE_EMPLOYEE';
 
     #[ORM\Column]
     private ?string $password = null;
@@ -111,24 +111,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // Convert string role to array format required by Symfony Security
         $roles = ['ROLE_USER']; // Always include ROLE_USER as a base role
         
-        // Map our custom roles to Symfony roles
-        switch ($this->roles) {
-            case 'admin':
-            case 'ROLE_ADMIN':
-                $roles[] = 'ROLE_ADMIN';
-                break;
-            case 'instructeur':
-            case 'ROLE_INSTRUCTOR':
-                $roles[] = 'ROLE_INSTRUCTOR';
-                break;
-            case 'employée':
-            case 'ROLE_EMPLOYEE':
-                $roles[] = 'ROLE_EMPLOYEE';
-                break;
-            case 'student':
-            case 'ROLE_STUDENT':
-                $roles[] = 'ROLE_STUDENT';
-                break;
+        // Add the user's role if it's not already in ROLE_ format
+        if ($this->roles && strpos($this->roles, 'ROLE_') === 0) {
+            $roles[] = $this->roles;
         }
         
         return array_unique($roles);

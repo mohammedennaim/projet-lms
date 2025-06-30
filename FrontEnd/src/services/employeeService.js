@@ -23,6 +23,17 @@ const employeeService = {
     }
   },
 
+  // Get assigned courses, quizzes and resources
+  getAssignments: async (userId) => {
+    try {
+      const response = await api.get(`/api/employee/affectations/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching employee assignments:', error);
+      throw error;
+    }
+  },
+
   // Get quiz details for employee
   getQuizDetails: async (quizId) => {
     try {
@@ -52,6 +63,17 @@ const employeeService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching quiz history:', error);
+      throw error;
+    }
+  },
+  
+  // Get course details
+  getCourseDetails: async (courseId) => {
+    try {
+      const response = await api.get(`/api/employee/courses/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching course details:', error);
       throw error;
     }
   }

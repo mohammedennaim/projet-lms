@@ -38,7 +38,7 @@ const EmployeeList = () => {
       } catch (adminError) {
         // Si l'endpoint admin ne fonctionne pas, essayer avec les filtres généraux
         const filters = {
-          role: 'employée',
+          role: 'ROLE_EMPLOYEE',
           search: searchTerm || ''
         };
         data = await userService.getUsers(page, 10, filters);

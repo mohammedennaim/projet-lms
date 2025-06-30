@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Affectation;
 use App\Repository\CourseRepository;
 use App\Repository\QuizRepository;
 use App\Repository\UserQuizResponseRepository;
+use App\Repository\AffectationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -17,12 +19,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api/employee')]
 #[IsGranted('ROLE_EMPLOYEE')]
 class EmployeeController extends AbstractController
-{    public function __construct(
+{    
+    public function __construct(
         private CourseRepository $courseRepository,
         private QuizRepository $quizRepository,
         private UserQuizResponseRepository $userQuizResponseRepository,
         private EntityManagerInterface $entityManager,
-        private Security $security
+        private Security $security,
+        private AffectationRepository $affectationRepository
     ) {}
 
     /**
@@ -316,5 +320,76 @@ class EmployeeController extends AbstractController
                 ]
             ]
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Récupère toutes les affectations pour un employé (cours, quiz, ressources)
+     */
+    #[Route('/affectations/{userId}', name: 'employee_affectations', methods: ['GET'])]
+    public function getEmployeeAffectations(int $userId): JsonResponse
+    {
+        // Récupérer l'utilisateur
+        $user = $this->entityManager->getRepository(User::class)->find($userId);
+        
+        if (!$user) {
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+        
+        // Vérifier que l'utilisateur est bien un employé
+        $userRole = $user->getRole();
+        if ($userRole !== 'employée') {
+            return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+        
+        // Récupérer toutes les affectations pour cet employé
+        $affectations = $this->entityManager->getRepository(Affectation::class)->findBy(['user' => $user]);
+        
+        // Organiser les données par type (cours, quiz, ressources)
+        $courses = [];
+        $quizzes = [];
+        $resources = [];
+        
+        foreach ($affectations as $affectation) {
+            // Ajouter le cours s'il est associé à cette affectation
+            if ($affectation->getCourse()) {
+                $course = $affectation->getCourse();
+                $courses[] = [
+                    'id' => $course->getId(),
+                    'title' => $course->getTitle(),
+                    'description' => $course->getDescription(),
+                    'createdAt' => $course->getCreatedAt() ? $course->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                ];
+            }
+            
+            // Ajouter le quiz s'il est associé à cette affectation
+            if ($affectation->getQuiz()) {
+                $quiz = $affectation->getQuiz();
+                $quizzes[] = [
+                    'id' => $quiz->getId(),
+                    'title' => $quiz->getTitle(),
+                    'questionCount' => count($quiz->getQuestions()),
+                    'createdAt' => $quiz->getCreatedAt() ? $quiz->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                ];
+            }
+            
+            // Ajouter les ressources si elles sont associées à cette affectation
+            if ($affectation->getRessource()) {
+                $resource = $affectation->getRessource();
+                $resources[] = [
+                    'id' => $resource->getId(),
+                    'title' => $resource->getTitle(),
+                    'type' => $resource->getType(),
+                    'url' => $resource->getUrl(),
+                    'createdAt' => $resource->getCreatedAt() ? $resource->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                ];
+            }
+        }
+        
+        // Retourner les données structurées
+        return $this->json([
+            'courses' => $courses,
+            'quizzes' => $quizzes,
+            'resources' => $resources
+        ]);
     }
 }

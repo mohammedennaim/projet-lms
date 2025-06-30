@@ -70,7 +70,7 @@ const Dashboard = () => {
       // Récupérer les employés
       let employeeCount = 0;
       try {
-        const employeesResponse = await userService.getUsers(1, 1000, { role: 'employée' });
+        const employeesResponse = await userService.getUsers(1, 1000, { role: 'ROLE_EMPLOYEE' });
         employeeCount = employeesResponse.pagination?.total || employeesResponse.users?.length || 0;
       } catch (employeeError) {
         console.error('Erreur lors du chargement des employés:', employeeError);

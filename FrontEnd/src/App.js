@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import EmployeeDashboard from './components/EmployeeDashboard';
+import EmployeeCoursesList from './components/EmployeeCoursesList';
+import EmployeeQuizzesList from './components/EmployeeQuizzesList';
+import EmployeeResourcesList from './components/EmployeeResourcesList';
 import CourseManagement from './components/CourseManagement';
 import CourseDetailsPage from './components/CourseDetailsPage';
 import UserManagement from './components/UserManagement';
@@ -22,12 +26,26 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  // Importer la garde des rôles de façon dynamique pour éviter les problèmes de dépendances circulaires
+  const { RoleGuard } = require('./utils/roleGuard');
+  return <RoleGuard>{children}</RoleGuard>;
 }
 
 function PublicRoute({ children }) {
-  const { isAuthenticated } = useAuth();
-  return !isAuthenticated ? children : <Navigate to="/dashboard" />;
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated) {
+    return children;
+  } else {
+    // Utiliser la fonction utilitaire pour déterminer la destination en fonction du rôle
+    const { getHomePageForRole } = require('./utils/roleGuard');
+    const redirectPath = user && user.role ? getHomePageForRole(user.role) : '/dashboard';
+    return <Navigate to={redirectPath} />;
+  }
 }
 
 function App() {
@@ -57,6 +75,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee-courses" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeCoursesList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee-quizzes" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeQuizzesList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee-resources" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeResourcesList />
                 </ProtectedRoute>
               } 
             />
