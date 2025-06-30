@@ -19,6 +19,8 @@ const QuizPage = () => {
   const [startTime, setStartTime] = useState(null);
   const [questionStartTime, setQuestionStartTime] = useState(null);
   const [questionTimes, setQuestionTimes] = useState({});
+  const [showHistory, setShowHistory] = useState(false);
+  const [quizAttempts, setQuizAttempts] = useState(null);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -33,12 +35,11 @@ const QuizPage = () => {
           setStartTime(new Date());
           setQuestionStartTime(new Date());
           
-          // Si le quiz a déjà été passé, afficher les résultats
-          if (response.data.alreadySubmitted) {
-            const resultsResponse = await quizService.getQuizResults(quizId);
-            if (resultsResponse.success) {
-              setResults(resultsResponse.data);
-              setShowResults(true);
+          // Si l'utilisateur a des tentatives précédentes, charger l'historique
+          if (response.data.hasAttempts) {
+            const attemptsResponse = await quizService.getQuizAttempts(quizId);
+            if (attemptsResponse.success) {
+              setQuizAttempts(attemptsResponse.data);
             }
           }
         } else {
@@ -130,6 +131,12 @@ const QuizPage = () => {
         if (resultsResponse.success) {
           setResults(resultsResponse.data);
           setShowResults(true);
+          
+          // Mettre à jour l'historique des tentatives
+          const attemptsResponse = await quizService.getQuizAttempts(quizId);
+          if (attemptsResponse.success) {
+            setQuizAttempts(attemptsResponse.data);
+          }
         }
       } else {
         setError(response.message || 'Erreur lors de la soumission du quiz');
@@ -188,6 +195,12 @@ const QuizPage = () => {
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Résultats du Quiz</h1>
                 <h2 className="text-xl text-gray-600">{results.quiz.title}</h2>
+                {/* Affiche le numéro de la tentative si disponible */}
+                {results.attemptNumber && (
+                  <p className="text-sm text-blue-600 mt-2 font-medium">
+                    Tentative #{results.attemptNumber} - Dernière soumission
+                  </p>
+                )}
               </div>
 
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8">
@@ -227,7 +240,7 @@ const QuizPage = () => {
 
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-800">Détail des réponses :</h3>
-                
+                {/* Affiche les réponses de la dernière tentative */}
                 {results.questions.map((question, index) => (
                   <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
@@ -273,14 +286,97 @@ const QuizPage = () => {
                 ))}
               </div>
 
-              <div className="mt-8 text-center">
+              <div className="mt-8 text-center space-y-4">
                 <button
                   onClick={() => navigate(-1)}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 mr-4"
                 >
                   Retour au cours
                 </button>
+                
+                <button
+                  onClick={() => {
+                    setShowResults(false);
+                    setResults(null);
+                    setAnswers({});
+                    setCurrentQuestionIndex(0);
+                    setStartTime(new Date());
+                    setQuestionStartTime(new Date());
+                    setQuestionTimes({});
+                  }}
+                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  Repasser le quiz
+                </button>
+                
+                {quizAttempts && quizAttempts.totalAttempts > 1 && (
+                  <button
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ml-4"
+                  >
+                    {showHistory ? 'Masquer l\'historique' : 'Voir l\'historique'}
+                  </button>
+                )}
               </div>
+
+              {/* Historique des tentatives */}
+              {showHistory && quizAttempts && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Historique des tentatives</h3>
+                  {/* Affiche toutes les tentatives précédentes, la dernière en haut */}
+                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-blue-600">{quizAttempts.totalAttempts}</div>
+                        <div className="text-sm text-blue-700">Tentatives</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-600">{Math.round(quizAttempts.bestScore)}%</div>
+                        <div className="text-sm text-green-700">Meilleur score</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-orange-600">{Math.round(quizAttempts.averageScore)}%</div>
+                        <div className="text-sm text-orange-700">Score moyen</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {quizAttempts.attempts.map((attempt, index) => (
+                      <div key={attempt.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="font-medium text-gray-800">Tentative #{attempt.attemptNumber}</span>
+                            <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${
+                              attempt.score >= 90 ? 'bg-green-100 text-green-800' :
+                              attempt.score >= 80 ? 'bg-blue-100 text-blue-800' :
+                              attempt.score >= 70 ? 'bg-yellow-100 text-yellow-800' :
+                              attempt.score >= 60 ? 'bg-orange-100 text-orange-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {attempt.performanceLevel}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-lg">{Math.round(attempt.score)}%</div>
+                            <div className="text-xs text-gray-500">
+                              {new Date(attempt.submittedAt).toLocaleDateString('fr-FR')}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-sm text-gray-600">
+                          {attempt.correctAnswers}/{attempt.totalQuestions} bonnes réponses
+                          {attempt.timeSpent && (
+                            <span className="ml-4">
+                              Temps: {Math.floor(attempt.timeSpent / 60)}m {attempt.timeSpent % 60}s
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

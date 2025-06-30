@@ -65,10 +65,10 @@ class EmployeeQuizController extends AbstractController
             }
 
             // Vérifier si l'utilisateur a déjà passé ce quiz
-            $existingResponse = $this->userQuizResponseRepository->findOneBy([
+            $existingResponses = $this->userQuizResponseRepository->findBy([
                 'user' => $user,
                 'quiz' => $quiz
-            ]);
+            ], ['submittedAt' => 'DESC']);
 
             $data = [
                 'id' => $quiz->getId(),
@@ -79,30 +79,48 @@ class EmployeeQuizController extends AbstractController
                     'title' => $quiz->getCourse()->getTitle()
                 ],
                 'questions' => [],
-                'alreadySubmitted' => $existingResponse !== null,
-                'previousScore' => $existingResponse ? $existingResponse->getScore() : null,
-                'submittedAt' => $existingResponse ? $existingResponse->getSubmittedAt()->format('Y-m-d H:i:s') : null
+                'hasAttempts' => count($existingResponses) > 0,
+                'attemptCount' => count($existingResponses),
+                'bestScore' => 0,
+                'lastScore' => null,
+                'previousAttempts' => []
             ];
 
-            // Si le quiz n'a pas encore été passé, inclure les questions
-            if (!$existingResponse) {
-                foreach ($quiz->getQuestions() as $question) {
-                    $questionData = [
-                        'id' => $question->getId(),
-                        'content' => $question->getContent(),
-                        'responses' => []
+            // Si l'utilisateur a déjà des tentatives, calculer les statistiques
+            if (count($existingResponses) > 0) {
+                $scores = array_map(fn($response) => $response->getPercentageScore(), $existingResponses);
+                $data['bestScore'] = max($scores);
+                $data['lastScore'] = $existingResponses[0]->getPercentageScore(); // Le plus récent
+                
+                // Historique des tentatives (limitées aux 5 dernières)
+                foreach (array_slice($existingResponses, 0, 5) as $index => $response) {
+                    $data['previousAttempts'][] = [
+                        'attemptNumber' => count($existingResponses) - $index,
+                        'score' => $response->getPercentageScore(),
+                        'performanceLevel' => $response->getPerformanceLevel(),
+                        'submittedAt' => $response->getSubmittedAt()->format('Y-m-d H:i:s'),
+                        'timeSpent' => $response->getTimeSpentSeconds()
                     ];
-
-                    foreach ($question->getReponses() as $response) {
-                        $questionData['responses'][] = [
-                            'id' => $response->getId(),
-                            'content' => $response->getContent()
-                            // Ne pas inclure isCorrect pour éviter la triche
-                        ];
-                    }
-
-                    $data['questions'][] = $questionData;
                 }
+            }
+
+            // Toujours inclure les questions pour permettre une nouvelle tentative
+            foreach ($quiz->getQuestions() as $question) {
+                $questionData = [
+                    'id' => $question->getId(),
+                    'content' => $question->getContent(),
+                    'responses' => []
+                ];
+
+                foreach ($question->getReponses() as $response) {
+                    $questionData['responses'][] = [
+                        'id' => $response->getId(),
+                        'content' => $response->getContent()
+                        // Ne pas inclure isCorrect pour éviter la triche
+                    ];
+                }
+
+                $data['questions'][] = $questionData;
             }
 
             return new JsonResponse([
@@ -149,18 +167,11 @@ class EmployeeQuizController extends AbstractController
                 ], 403);
             }
 
-            // Vérifier si l'utilisateur a déjà passé ce quiz
-            $existingResponse = $this->userQuizResponseRepository->findOneBy([
+            // Vérifier si l'utilisateur a déjà passé ce quiz (ne plus bloquer les nouvelles tentatives)
+            $existingResponses = $this->userQuizResponseRepository->findBy([
                 'user' => $user,
                 'quiz' => $quiz
             ]);
-
-            if ($existingResponse) {
-                return new JsonResponse([
-                    'success' => false,
-                    'message' => 'Vous avez déjà passé ce quiz'
-                ], 400);
-            }
 
             $data = json_decode($request->getContent(), true);
             $answers = $data['answers'] ?? [];
@@ -238,7 +249,7 @@ class EmployeeQuizController extends AbstractController
             $userQuizResponse->setScore($score);
             
             // Générer un feedback personnalisé
-            $feedback = $this->generateFeedback($score, $correctAnswers, $totalQuestions);
+            $feedback = $this->generateFeedback($score, $correctAnswers, $totalQuestions, count($existingResponses) + 1);
             $userQuizResponse->setFeedback($feedback);
 
             // Sauvegarder en base
@@ -255,6 +266,7 @@ class EmployeeQuizController extends AbstractController
                     'performanceLevel' => $userQuizResponse->getPerformanceLevel(),
                     'feedback' => $feedback,
                     'timeSpent' => $timeSpent,
+                    'attemptNumber' => count($existingResponses) + 1,
                     'submittedAt' => $userQuizResponse->getSubmittedAt()->format('Y-m-d H:i:s')
                 ],
                 'message' => 'Quiz soumis avec succès'
@@ -286,13 +298,27 @@ class EmployeeQuizController extends AbstractController
             $userQuizResponse = $this->userQuizResponseRepository->findOneBy([
                 'user' => $user,
                 'quiz' => $quiz
-            ]);
+            ], ['submittedAt' => 'DESC']); // Trier par date décroissante pour avoir la dernière tentative
 
             if (!$userQuizResponse) {
                 return new JsonResponse([
                     'success' => false,
                     'message' => 'Vous n\'avez pas encore passé ce quiz'
                 ], 404);
+            }
+
+            // Compter le nombre total de tentatives pour obtenir le numéro de cette tentative
+            $allAttempts = $this->userQuizResponseRepository->findBy([
+                'user' => $user,
+                'quiz' => $quiz
+            ], ['submittedAt' => 'DESC']);
+            
+            $attemptNumber = 1;
+            foreach ($allAttempts as $index => $attempt) {
+                if ($attempt->getId() === $userQuizResponse->getId()) {
+                    $attemptNumber = $index + 1;
+                    break;
+                }
             }
 
             $results = [
@@ -309,6 +335,8 @@ class EmployeeQuizController extends AbstractController
                 'feedback' => $userQuizResponse->getFeedback(),
                 'timeSpent' => $userQuizResponse->getTimeSpentSeconds(),
                 'submittedAt' => $userQuizResponse->getSubmittedAt()->format('Y-m-d H:i:s'),
+                'attemptNumber' => $attemptNumber,
+                'totalAttempts' => count($allAttempts),
                 'questions' => []
             ];
 
@@ -442,22 +470,83 @@ class EmployeeQuizController extends AbstractController
     /**
      * Génère un feedback personnalisé basé sur le score
      */
-    private function generateFeedback(float $score, int $correctAnswers, int $totalQuestions): string
+    private function generateFeedback(float $score, int $correctAnswers, int $totalQuestions, int $attemptNumber = 1): string
     {
         $percentage = round($score, 1);
+        $attemptText = $attemptNumber > 1 ? " (Tentative #{$attemptNumber})" : "";
         
         if ($percentage >= 90) {
-            return "Excellent travail ! Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Vous maîtrisez parfaitement ce sujet.";
+            return "Excellent travail{$attemptText} ! Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Vous maîtrisez parfaitement ce sujet.";
         } elseif ($percentage >= 80) {
-            return "Très bien ! Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Vous avez une bonne compréhension du sujet.";
+            return "Très bien{$attemptText} ! Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Vous avez une bonne compréhension du sujet.";
         } elseif ($percentage >= 70) {
-            return "Bien joué ! Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Quelques révisions pourraient vous aider à parfaire vos connaissances.";
+            return "Bien joué{$attemptText} ! Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Quelques révisions pourraient vous aider à parfaire vos connaissances.";
         } elseif ($percentage >= 60) {
-            return "Résultat satisfaisant. Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Il serait bénéfique de revoir certains points du cours.";
+            return "Résultat satisfaisant{$attemptText}. Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Il serait bénéfique de revoir certains points du cours.";
         } elseif ($percentage >= 50) {
-            return "Résultat passable. Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Je vous recommande de réviser le cours attentivement.";
+            return "Résultat passable{$attemptText}. Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). Je vous recommande de réviser le cours attentivement.";
         } else {
-            return "Il semble que vous ayez des difficultés avec ce sujet. Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%). N'hésitez pas à revoir le cours et à demander de l'aide si nécessaire.";
+            $encouragement = $attemptNumber > 1 ? " N'abandonnez pas, la persévérance est la clé du succès !" : " N'hésitez pas à revoir le cours et à demander de l'aide si nécessaire.";
+            return "Il semble que vous ayez des difficultés avec ce sujet{$attemptText}. Vous avez obtenu {$correctAnswers}/{$totalQuestions} bonnes réponses ({$percentage}%).{$encouragement}";
+        }
+    }
+
+    #[Route('/{id}/attempts', name: 'quiz_attempts', methods: ['GET'])]
+    public function getQuizAttempts(int $id): JsonResponse
+    {
+        try {
+            $quiz = $this->quizRepository->find($id);
+            
+            if (!$quiz) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Quiz non trouvé'
+                ], 404);
+            }
+
+            $user = $this->getUser();
+            
+            // Récupérer toutes les tentatives de l'utilisateur pour ce quiz
+            $attempts = $this->userQuizResponseRepository->findBy([
+                'user' => $user,
+                'quiz' => $quiz
+            ], ['submittedAt' => 'DESC']);
+
+            $attemptsData = [];
+            foreach ($attempts as $index => $attempt) {
+                $attemptsData[] = [
+                    'id' => $attempt->getId(),
+                    'attemptNumber' => count($attempts) - $index,
+                    'score' => $attempt->getPercentageScore(),
+                    'correctAnswers' => $attempt->getCorrectAnswers(),
+                    'totalQuestions' => $attempt->getTotalQuestions(),
+                    'performanceLevel' => $attempt->getPerformanceLevel(),
+                    'feedback' => $attempt->getFeedback(),
+                    'timeSpent' => $attempt->getTimeSpentSeconds(),
+                    'submittedAt' => $attempt->getSubmittedAt()->format('Y-m-d H:i:s')
+                ];
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'data' => [
+                    'quiz' => [
+                        'id' => $quiz->getId(),
+                        'title' => $quiz->getTitle(),
+                        'description' => $quiz->getDescription()
+                    ],
+                    'totalAttempts' => count($attempts),
+                    'bestScore' => count($attempts) > 0 ? max(array_map(fn($a) => $a->getPercentageScore(), $attempts)) : 0,
+                    'averageScore' => count($attempts) > 0 ? round(array_sum(array_map(fn($a) => $a->getPercentageScore(), $attempts)) / count($attempts), 2) : 0,
+                    'attempts' => $attemptsData
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des tentatives: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -106,6 +106,19 @@ const quizService = {
       throw error;
     }
   },
+
+  // Get quiz attempts history
+  getQuizAttempts: async (id) => {
+    try {
+      const response = await api.get(`/employee/quiz/${id}/attempts`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz attempts:', error);
+      throw error;
+    }
+  },
+
+  // ...existing admin methods...
 };
 
 export default quizService;
