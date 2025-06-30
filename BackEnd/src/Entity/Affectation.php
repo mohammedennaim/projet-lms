@@ -36,7 +36,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     security: "is_granted('IS_AUTHENTICATED_FULLY')"
 )]
 class Affectation
-{    #[ORM\Id]
+{    
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Groups(['affectation:read'])]
@@ -56,12 +57,24 @@ class Affectation
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Course::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['affectation:read', 'affectation:write', 'affectation:details'])]
     private ?Course $cours = null;
 
+    #[ORM\ManyToOne(targetEntity: Quiz::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['affectation:read', 'affectation:write', 'affectation:details'])]
+    private ?Quiz $quiz = null;
+
+    #[ORM\ManyToOne(targetEntity: Ressource::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['affectation:read', 'affectation:write', 'affectation:details'])]
+    private ?Ressource $ressource = null;
+
     #[ORM\OneToMany(mappedBy: 'affectation', targetEntity: Evaluation::class, cascade: ['persist', 'remove'])]
-    private Collection $evaluations;    public function __construct()
+    private Collection $evaluations;
+
+    public function __construct()
     {
         $this->evaluations = new ArrayCollection();
         $this->dateAssigned = new \DateTime();
@@ -113,6 +126,40 @@ class Affectation
     public function setCours(?Course $cours): static
     {
         $this->cours = $cours;
+        return $this;
+    }
+
+    // Méthodes aliases pour la compatibilité
+    public function getCourse(): ?Course
+    {
+        return $this->cours;
+    }
+
+    public function setCourse(?Course $course): static
+    {
+        $this->cours = $course;
+        return $this;
+    }
+
+    public function getQuiz(): ?Quiz
+    {
+        return $this->quiz;
+    }
+
+    public function setQuiz(?Quiz $quiz): static
+    {
+        $this->quiz = $quiz;
+        return $this;
+    }
+
+    public function getRessource(): ?Ressource
+    {
+        return $this->ressource;
+    }
+
+    public function setRessource(?Ressource $ressource): static
+    {
+        $this->ressource = $ressource;
         return $this;
     }
 

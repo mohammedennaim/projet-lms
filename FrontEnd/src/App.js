@@ -22,6 +22,8 @@ import AffectationEdit from './components/AffectationEdit';
 import RessourcesList from './components/RessourcesList';
 import EmployeeQuizDetails from './components/EmployeeQuizDetails';
 import CourseCreationWorkflow from './components/CourseCreationWorkflow';
+import EmployeeAffectationsTest from './components/EmployeeAffectationsTest';
+import EmployeeDashboardTest from './components/EmployeeDashboardTest';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -107,6 +109,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EmployeeResourcesList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/test-affectations" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeAffectationsTest />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/test-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeDashboardTest />
                 </ProtectedRoute>
               } 
             />

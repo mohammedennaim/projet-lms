@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/api/affectations')]
+#[Route('/api/employee')]
 class AffectationController extends AbstractController
 {
     public function __construct(

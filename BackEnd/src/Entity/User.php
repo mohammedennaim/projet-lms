@@ -31,7 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 255)]
     private ?string $fullName = null;    #[ORM\Column(length: 50)]
     #[Groups(['user:read', 'affectation:read', 'affectation:details'])]
-    #[Assert\Choice(choices: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'], message: 'Le rôle doit être ROLE_ADMIN, ROLE_INSTRUCTOR, ROLE_EMPLOYEE ou ROLE_STUDENT')]
+    #[Assert\Choice(choices: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'], message: 'Le rôle doit être ROLE_ADMIN ou ROLE_EMPLOYEE')]
     private string $roles = 'ROLE_EMPLOYEE';
 
     #[ORM\Column]

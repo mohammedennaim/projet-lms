@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Backend Server (Symfony)",
+			"type": "shell",
+			"command": "cd ${workspaceFolder}/BackEnd && php -S localhost:8000 -t public",
+			"group": "none",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

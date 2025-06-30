@@ -31,7 +31,15 @@ class RegistrationController extends AbstractController
         $user->setEmail($data['email']);
         $user->setFullName($data['fullName']);
         $user->setPlainPassword($data['password']);
-        $user->setRoles($data['roles'] ?? 'employée');
+        
+        // Gérer les rôles correctement
+        $role = $data['roles'] ?? 'ROLE_EMPLOYEE';
+        // S'assurer que le rôle est valide
+        if (!in_array($role, ['ROLE_ADMIN', 'ROLE_EMPLOYEE'])) {
+            $role = 'ROLE_EMPLOYEE';
+        }
+        $user->setRoles($role);
+        
         $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
         $user->setPassword($hashedPassword);
 

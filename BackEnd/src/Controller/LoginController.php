@@ -38,10 +38,10 @@ class LoginController extends AbstractController
         $token = $jwtManager->create($user);
 
         return $this->json([
-            'user' => $user->getEmail(),
             'token' => $token,
-            'role' => $user->getRole(),
+            'user' => $user->getEmail(),
             'userId' => $user->getId(),
+            'role' => $user->getRole(),
             'fullName' => $user->getFullName()
         ]);
     }

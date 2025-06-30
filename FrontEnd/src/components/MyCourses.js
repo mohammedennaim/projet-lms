@@ -11,7 +11,7 @@ const MyCourses = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8000/api/affectations/my-courses', {
+        const response = await fetch('http://localhost:8000/api/employee/my-courses', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

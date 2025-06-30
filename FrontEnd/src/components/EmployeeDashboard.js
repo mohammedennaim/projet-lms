@@ -20,7 +20,7 @@ const EmployeeDashboard = () => {
         // Fetch only assigned courses for the employee
         const userId = user.userId;
         console.log(`Fetching assigned courses for employee with ID: ${userId}`);
-        const response = await api.get(`/api/employee/affectations/${userId}`);
+        const response = await api.get(`/employee/affectations/${userId}`);
         
         console.log('API Response data:', response.data);
         console.log('Assigned courses:', response.data.courses || []);

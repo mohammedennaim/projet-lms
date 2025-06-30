@@ -336,13 +336,13 @@ class EmployeeController extends AbstractController
         }
         
         // Vérifier que l'utilisateur est bien un employé
-        $userRole = $user->getRole();
-        if ($userRole !== 'employée') {
-            return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        $userRoles = $user->getRoles();
+        if (!in_array('ROLE_EMPLOYEE', $userRoles)) {
+            return $this->json(['message' => 'Access denied - User is not an employee'], Response::HTTP_FORBIDDEN);
         }
         
         // Récupérer toutes les affectations pour cet employé
-        $affectations = $this->entityManager->getRepository(Affectation::class)->findBy(['user' => $user]);
+        $affectations = $this->affectationRepository->findBy(['user' => $user]);
         
         // Organiser les données par type (cours, quiz, ressources)
         $courses = [];
@@ -387,9 +387,49 @@ class EmployeeController extends AbstractController
         
         // Retourner les données structurées
         return $this->json([
+            'message' => 'Affectations retrieved successfully',
             'courses' => $courses,
             'quizzes' => $quizzes,
-            'resources' => $resources
+            'resources' => $resources,
+            'total' => [
+                'courses' => count($courses),
+                'quizzes' => count($quizzes),
+                'resources' => count($resources)
+            ]
+        ]);
+    }
+
+    /**
+     * Debug: Récupère toutes les affectations pour déboguer
+     */
+    #[Route('/debug/affectations', name: 'debug_affectations', methods: ['GET'])]
+    public function debugAffectations(): JsonResponse
+    {
+        // Récupérer toutes les affectations
+        $affectations = $this->affectationRepository->findAll();
+        
+        $debugData = [];
+        foreach ($affectations as $affectation) {
+            $user = $affectation->getUser();
+            $debugData[] = [
+                'affectation_id' => $affectation->getId(),
+                'user_id' => $user ? $user->getId() : null,
+                'user_email' => $user ? $user->getEmail() : null,
+                'user_roles' => $user ? $user->getRoles() : null,
+                'user_role_string' => $user ? $user->getRole() : null,
+                'has_course' => $affectation->getCourse() ? true : false,
+                'course_id' => $affectation->getCourse() ? $affectation->getCourse()->getId() : null,
+                'course_title' => $affectation->getCourse() ? $affectation->getCourse()->getTitle() : null,
+                'has_quiz' => $affectation->getQuiz() ? true : false,
+                'has_resource' => $affectation->getRessource() ? true : false,
+                'date_assigned' => $affectation->getDateAssigned() ? $affectation->getDateAssigned()->format('Y-m-d H:i:s') : null,
+            ];
+        }
+        
+        return $this->json([
+            'message' => 'Debug data for all affectations',
+            'total_affectations' => count($affectations),
+            'data' => $debugData
         ]);
     }
 }

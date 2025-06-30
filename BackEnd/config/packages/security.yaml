@@ -15,12 +15,6 @@ security:    # https://symfony.com/doc/current/security.html#registering-the-use
         login:
             pattern: ^/api/login
             stateless: true
-            json_login:
-                check_path: /api/login
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
         api:
             pattern: ^/api
             stateless: true
@@ -35,7 +29,6 @@ security:    # https://symfony.com/doc/current/security.html#registering-the-use
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/users, roles: ROLE_ADMIN && ROLE_EMPLOYEE }
         - { path: ^/api/employee, roles: ROLE_EMPLOYEE }
-        - { path: ^/api/affectations/my-courses, roles: [ROLE_EMPLOYEE, ROLE_ADMIN] }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

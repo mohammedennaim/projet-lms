@@ -6,7 +6,7 @@ const affectationService = {
   getAllAffectations: async () => {
     try {
       console.log('Fetching affectations from API...');
-      const response = await api.get('/api/admin/affectations');
+      const response = await api.get('/admin/affectations');
       console.log('Affectations response:', response);
       
       // Normaliser la réponse - retourner toujours un tableau d'affectations
@@ -99,7 +99,7 @@ const affectationService = {
   // Créer une nouvelle affectation
   createAffectation: async (affectationData) => {
     try {
-      const response = await api.post('/api/admin/affectations', affectationData);
+      const response = await api.post('/admin/affectations', affectationData);
       return {
         data: response.data,
         success: true
@@ -337,7 +337,7 @@ const affectationService = {
   checkApiHealth: async () => {
     try {
       console.log('Checking affectations API health...');
-      await api.get('/api/admin/affectations?limit=1');
+      await api.get('/admin/affectations?limit=1');
       
       return {
         success: true,

@@ -28,7 +28,7 @@ const AuthDiagnostic = () => {
     // Test API call to verify token
     let apiTestResult = null;
     try {
-      const response = await api.get('/api/admin/affectations');
+      const response = await api.get('/admin/affectations');
       apiTestResult = {
         success: true,
         status: response.status,
