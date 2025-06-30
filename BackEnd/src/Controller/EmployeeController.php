@@ -212,8 +212,10 @@ class EmployeeController extends AbstractController
                 'id' => $quiz->getId(),
                 'title' => $quiz->getTitle(),
                 'description' => $quiz->getDescription(),
+                'questionsCount' => count($quiz->getQuestions()),
                 'completed' => $userResponse !== null,
-                'score' => $userResponse ? $userResponse->getScore() : null
+                'score' => $userResponse ? $userResponse->getScore() : null,
+                'submittedAt' => $userResponse ? $userResponse->getSubmittedAt()->format('Y-m-d H:i:s') : null
             ];
         }
 

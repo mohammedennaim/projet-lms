@@ -35,9 +35,35 @@ class UserQuizResponseFixtures extends Fixture implements DependentFixtureInterf
                 $userQuizResponse->setUser($user);
                 $userQuizResponse->setQuiz($quiz);
                 
-                // Score aléatoire entre 0 et 20
-                $score = $faker->randomFloat(2, 0, 20);
+                // Calculer le nombre de questions dans le quiz
+                $totalQuestions = count($quiz->getQuestions());
+                $userQuizResponse->setTotalQuestions($totalQuestions);
+                
+                // Nombre de bonnes réponses aléatoire
+                $correctAnswers = $faker->numberBetween(0, $totalQuestions);
+                $userQuizResponse->setCorrectAnswers($correctAnswers);
+                
+                // Score calculé en pourcentage
+                $score = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 100 : 0;
                 $userQuizResponse->setScore($score);
+                
+                // Temps passé aléatoire (entre 2 et 15 minutes)
+                $timeSpent = $faker->numberBetween(120, 900);
+                $userQuizResponse->setTimeSpentSeconds($timeSpent);
+                
+                // Générer un feedback
+                if ($score >= 90) {
+                    $feedback = "Excellent travail ! Vous maîtrisez parfaitement ce sujet.";
+                } elseif ($score >= 80) {
+                    $feedback = "Très bien ! Vous avez une bonne compréhension du sujet.";
+                } elseif ($score >= 70) {
+                    $feedback = "Bien joué ! Quelques révisions pourraient vous aider.";
+                } elseif ($score >= 60) {
+                    $feedback = "Résultat satisfaisant. Il serait bénéfique de revoir certains points.";
+                } else {
+                    $feedback = "Il serait recommandé de réviser le cours attentivement.";
+                }
+                $userQuizResponse->setFeedback($feedback);
                 
                 // Date de soumission dans les 15 derniers jours
                 $submittedAt = $faker->dateTimeBetween('-15 days', 'now');

@@ -17,55 +17,55 @@ class RessourceFixtures extends Fixture implements DependentFixtureInterface
             [
                 'courseIndex' => 0,
                 'ressources' => [
-                    'Introduction aux variables et types de données en programmation',
-                    'Les structures de contrôle : conditions et boucles',
-                    'Introduction aux fonctions et procédures',
-                    'Concepts de base de la programmation orientée objet',
-                    'Exercices pratiques et exemples de code'
+                    'https://www.youtube.com/watch?v=ZJ6rTUPoPKc', // Introduction aux variables
+                    'https://www.youtube.com/watch?v=UDZJGYIwjE8', // Structures de contrôle
+                    'https://www.youtube.com/watch?v=xnCJ-4dRdQs', // Introduction aux fonctions
+                    'https://www.youtube.com/watch?v=pTB0EiLXZ2c', // Programmation orientée objet
+                    'https://www.youtube.com/watch?v=rfscVS0vtbw'  // Exercices pratiques
                 ]
             ],
             // Ressources pour "Développement web avec PHP" (Course 1)
             [
                 'courseIndex' => 1,
                 'ressources' => [
-                    'Installation et configuration de PHP et serveur web',
-                    'Syntaxe PHP : variables, tableaux, fonctions',
-                    'Interaction avec les bases de données MySQL',
-                    'Gestion des formulaires et sessions en PHP',
-                    'Bonnes pratiques et sécurité en PHP'
+                    'https://www.youtube.com/watch?v=OK_JCtrrv-c', // Installation PHP
+                    'https://www.youtube.com/watch?v=XKWqdp17BFo', // Syntaxe PHP
+                    'https://www.youtube.com/watch?v=9YfhRVJGFOA', // PHP et MySQL
+                    'https://www.youtube.com/watch?v=1SnPKhCdlsU', // Formulaires PHP
+                    'https://www.youtube.com/watch?v=zKEP3KH6s_8'  // Sécurité PHP
                 ]
             ],
             // Ressources pour "Bases de données relationnelles" (Course 2)
             [
                 'courseIndex' => 2,
                 'ressources' => [
-                    'Modélisation conceptuelle avec le modèle entité-association',
-                    'Langage SQL : requêtes SELECT, INSERT, UPDATE, DELETE',
-                    'Les jointures et sous-requêtes en SQL',
-                    'Optimisation des performances et indexation',
-                    'Administration et sauvegarde de bases de données'
+                    'https://www.youtube.com/watch?v=ER8oKX5myE0', // Modélisation BDD
+                    'https://www.youtube.com/watch?v=HXV3zeQKqGY', // Langage SQL
+                    'https://www.youtube.com/watch?v=9yeOJ0ZMUYw', // Jointures SQL
+                    'https://www.youtube.com/watch?v=fsXVi9_7xbE', // Optimisation BDD
+                    'https://www.youtube.com/watch?v=vzzPSXIXHSU'  // Administration BDD
                 ]
             ],
             // Ressources pour "Gestion de projet agile" (Course 3)
             [
                 'courseIndex' => 3,
                 'ressources' => [
-                    'Les principes et valeurs de la méthode Agile',
-                    'Framework Scrum : rôles, événements et artefacts',
-                    'Planification et estimation en mode agile',
-                    'Outils de gestion de projet : Jira, Trello, Azure DevOps',
-                    'Métriques et amélioration continue'
+                    'https://www.youtube.com/watch?v=1-CXGEOTr_o', // Principes Agile
+                    'https://www.youtube.com/watch?v=gy1c4_YixCo', // Framework Scrum
+                    'https://www.youtube.com/watch?v=GE6lbPLEAzc', // Planification agile
+                    'https://www.youtube.com/watch?v=uM_m7AHle-M', // Outils de gestion
+                    'https://www.youtube.com/watch?v=jttO6OKgHx4'  // Métriques agiles
                 ]
             ],
             // Ressources pour "Sécurité informatique" (Course 4)
             [
                 'courseIndex' => 4,
                 'ressources' => [
-                    'Principes fondamentaux de la cybersécurité',
-                    'Chiffrement symétrique et asymétrique',
-                    'Authentification et contrôle d\'accès',
-                    'Sécurité des applications web : OWASP Top 10',
-                    'Audit de sécurité et tests de pénétration'
+                    'https://www.youtube.com/watch?v=inWWhr5tnEA', // Cybersécurité
+                    'https://www.youtube.com/watch?v=AQDCe585Lnc', // Chiffrement
+                    'https://www.youtube.com/watch?v=zbxjNx6dGOc', // Authentification
+                    'https://www.youtube.com/watch?v=lWwE6y4YKdI', // Sécurité web
+                    'https://www.youtube.com/watch?v=6KQFn7GVJgw'  // Audit sécurité
                 ]
             ]
         ];

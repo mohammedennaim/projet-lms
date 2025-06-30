@@ -39,6 +39,19 @@ class UserQuestionResponse
     #[Groups(['user_quiz_response:read', 'user_question_response:read'])]
     private ?bool $isCorrect = null;
 
+    #[ORM\Column]
+    #[Groups(['user_quiz_response:read', 'user_question_response:read'])]
+    private ?\DateTimeImmutable $answeredAt = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['user_quiz_response:read', 'user_question_response:read'])]
+    private ?int $timeSpentSeconds = null;
+
+    public function __construct()
+    {
+        $this->answeredAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +103,30 @@ class UserQuestionResponse
     public function setIsCorrect(bool $isCorrect): static
     {
         $this->isCorrect = $isCorrect;
+
+        return $this;
+    }
+
+    public function getAnsweredAt(): ?\DateTimeImmutable
+    {
+        return $this->answeredAt;
+    }
+
+    public function setAnsweredAt(\DateTimeImmutable $answeredAt): static
+    {
+        $this->answeredAt = $answeredAt;
+
+        return $this;
+    }
+
+    public function getTimeSpentSeconds(): ?int
+    {
+        return $this->timeSpentSeconds;
+    }
+
+    public function setTimeSpentSeconds(?int $timeSpentSeconds): static
+    {
+        $this->timeSpentSeconds = $timeSpentSeconds;
 
         return $this;
     }
