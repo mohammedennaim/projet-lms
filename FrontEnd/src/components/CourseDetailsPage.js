@@ -287,14 +287,28 @@ const CourseDetails = () => {
                       <p className="text-xs text-gray-500 mt-2">
                         {quiz.questionsCount} question{quiz.questionsCount > 1 ? 's' : ''}
                       </p>
-                      <div className="mt-3">
-                        <button
-                          onClick={() => navigate(`/quiz/${quiz.id}`)}
-                          className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          Passer le quiz
-                        </button>
-                      </div>
+                      {/* Masquer le bouton "Passer le quiz" pour les administrateurs */}
+                      {user && user.role && !user.role.includes('ROLE_ADMIN') && (
+                        <div className="mt-3">
+                          <button
+                            onClick={() => navigate(`/quiz/${quiz.id}`)}
+                            className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                          >
+                            Passer le quiz
+                          </button>
+                        </div>
+                      )}
+                      {/* Affichage informatif pour les administrateurs */}
+                      {user && user.role && user.role.includes('ROLE_ADMIN') && (
+                        <div className="mt-3">
+                          <div className="text-xs text-blue-600 bg-blue-50 px-3 py-2 rounded-lg">
+                            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Quiz créé par l'administrateur - Réservé aux employés
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
