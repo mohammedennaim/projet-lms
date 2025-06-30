@@ -215,10 +215,14 @@ const CourseDetails = () => {
             {/* Informations du cours */}
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Informations</h3>
-              <div className="space-y-3">                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">L'employé assigné:</span>
-                  <span className="font-medium text-gray-800">{course.employees?.length || 0}</span>
-                </div>
+              <div className="space-y-3">
+                {/* Afficher les employés assignés seulement pour l'admin */}
+                {user && user.role && user.role.includes('ROLE_ADMIN') && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Employés assignés:</span>
+                    <span className="font-medium text-gray-800">{course.employeeCount || course.assignedEmployees?.length || 0}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Quiz disponibles:</span>
                   <span className="font-medium text-gray-800">{course.quizzes?.length || 0}</span>

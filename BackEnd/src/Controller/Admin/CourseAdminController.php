@@ -6,6 +6,7 @@ use App\Entity\Course;
 use App\Entity\User;
 use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
+use App\Repository\AffectationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,6 +22,7 @@ class CourseAdminController extends AbstractController
         private EntityManagerInterface $entityManager,
         private CourseRepository $courseRepository,
         private UserRepository $userRepository,
+        private AffectationRepository $affectationRepository,
         private ValidatorInterface $validator
     ) {
     }
@@ -58,13 +60,25 @@ class CourseAdminController extends AbstractController
 
         $coursesData = [];
         foreach ($courses as $course) {
+            // Compter les employés assignés via l'entité Affectation
+            $affectations = $this->affectationRepository->findBy(['cours' => $course]);
+            $employeeCount = 0;
+            
+            foreach ($affectations as $affectation) {
+                $employee = $affectation->getUser();
+                // Vérifier que c'est bien un employé (pas un admin)
+                if (in_array('ROLE_EMPLOYEE', $employee->getRoles())) {
+                    $employeeCount++;
+                }
+            }
+            
             $coursesData[] = [
                 'id' => $course->getId(),
                 'title' => $course->getTitle(),
                 'description' => $course->getDescription(),
                 'createdAt' => $course->getCreatedAt()?->format('Y-m-d H:i:s'),
                 'updatedAt' => $course->getUpdatedAt()?->format('Y-m-d H:i:s'),
-                'studentsCount' => $course->getEmployees()->count()
+                'studentsCount' => $employeeCount
             ];
         }
 
@@ -91,13 +105,24 @@ class CourseAdminController extends AbstractController
             return $this->json(['message' => 'Cours non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $employees = [];
-        foreach ($course->getEmployees() as $employee) {
-            $employees[] = [
-                'id' => $employee->getId(),
-                'fullName' => $employee->getFullName(),
-                'email' => $employee->getEmail(),
-            ];
+        // Récupérer les employés assignés via l'entité Affectation
+        $affectations = $this->affectationRepository->findBy(['cours' => $course]);
+        $assignedEmployees = [];
+        $employeeCount = 0;
+        
+        foreach ($affectations as $affectation) {
+            $employee = $affectation->getUser();
+            // Vérifier que c'est bien un employé (pas un admin)
+            if (in_array('ROLE_EMPLOYEE', $employee->getRoles())) {
+                $assignedEmployees[] = [
+                    'id' => $employee->getId(),
+                    'fullName' => $employee->getFullName(),
+                    'email' => $employee->getEmail(),
+                    'dateAssigned' => $affectation->getDateAssigned()?->format('Y-m-d H:i:s'),
+                    'status' => $affectation->isAssigneCours() ? 'actif' : 'inactif'
+                ];
+                $employeeCount++;
+            }
         }
 
         // Récupérer les ressources associées au cours
@@ -127,9 +152,15 @@ class CourseAdminController extends AbstractController
             'description' => $course->getDescription(),
             'createdAt' => $course->getCreatedAt()?->format('Y-m-d H:i:s'),
             'updatedAt' => $course->getUpdatedAt()?->format('Y-m-d H:i:s'),
-            'employees' => $employees,
+            'assignedEmployees' => $assignedEmployees,
+            'employeeCount' => $employeeCount,
             'ressources' => $ressources,
-            'quizzes' => $quizzes
+            'quizzes' => $quizzes,
+            'stats' => [
+                'totalEmployees' => $employeeCount,
+                'totalRessources' => count($ressources),
+                'totalQuizzes' => count($quizzes)
+            ]
         ]);
     }
 
