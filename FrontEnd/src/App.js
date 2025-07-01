@@ -26,6 +26,11 @@ import EmployeeQuizDetails from './components/EmployeeQuizDetails';
 import CourseCreationWorkflow from './components/CourseCreationWorkflow';
 import EmployeeAffectationsTest from './components/EmployeeAffectationsTest';
 import EmployeeDashboardTest from './components/EmployeeDashboardTest';
+import EmmaTest from './components/EmmaTest';
+import FeedbacksTest from './components/FeedbacksTest';
+import RawDataTest from './components/RawDataTest';
+import DebugAyoub from './components/DebugAyoub';
+import SimpleStatisticsTest from './components/SimpleStatisticsTest';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
@@ -127,6 +132,46 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EmployeeDashboardTest />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/test-emma" 
+              element={
+                <ProtectedRoute>
+                  <EmmaTest />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/test-feedbacks" 
+              element={
+                <ProtectedRoute>
+                  <FeedbacksTest />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/test-raw" 
+              element={
+                <ProtectedRoute>
+                  <RawDataTest />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/debug-ayoub" 
+              element={
+                <ProtectedRoute>
+                  <DebugAyoub />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/simple-statistics-test" 
+              element={
+                <ProtectedRoute>
+                  <SimpleStatisticsTest />
                 </ProtectedRoute>
               } 
             />

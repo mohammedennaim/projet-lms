@@ -17,10 +17,9 @@ const EmployeeCoursesList = () => {
         setError('');
         
         // Fetch assigned courses for the employee
-        const userId = user.userId;
-        console.log(`EmployeeCoursesList: Fetching courses for employee ID ${userId}`);
+        console.log('EmployeeCoursesList: Fetching courses for current employee');
         
-        const response = await api.get(`/employee/affectations/${userId}`);
+        const response = await api.get('/employee/affectations');
         console.log('EmployeeCoursesList: API response received:', response.data);
         
         // Ensure we only display courses assigned to this employee

@@ -28,4 +28,21 @@ class AffectationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Récupère toutes les affectations avec leurs évaluations
+     */
+    public function findAllWithEvaluations()
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.evaluations', 'e')
+            ->leftJoin('a.user', 'u')
+            ->leftJoin('a.cours', 'c')
+            ->addSelect('e')
+            ->addSelect('u')
+            ->addSelect('c')
+            ->orderBy('a.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

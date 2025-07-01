@@ -47,6 +47,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
     }
 
+    /**
+     * Compte les utilisateurs par rôle
+     */
+    public function countByRole(string $role): int
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->andWhere('u.roles = :role OR u.roles LIKE :rolePattern')
+            ->setParameter('role', $role)
+            ->setParameter('rolePattern', '%' . $role . '%')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

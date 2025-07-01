@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final - Données Hassan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+        .employee-card {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .hassan-highlight {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success { background-color: #28a745; color: white; }
+        .status.warning { background-color: #ffc107; color: black; }
+        .status.error { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Test Final - Vérification des données Hassan</h1>
+        
+        <div class="test-section info">
+            <h2>📋 Résumé du problème résolu</h2>
+            <p><strong>Problème:</strong> Hassan (hassan@gmail.com) n'apparaissait pas dans le tableau de bord des statistiques car ses réponses de quiz n'étaient pas liées à des évaluations dans son affectation.</p>
+            <p><strong>Solution:</strong> Création automatique d'évaluations lors de la soumission de quiz + script de rattrapage pour les quiz existants.</p>
+            <p><strong>Résultat attendu:</strong> Hassan devrait maintenant apparaître avec son évaluation de 12/20 (60%) pour le cours "Introduction à la programmation".</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 Tests des API</h2>
+            <button onclick="testDebugEmployees()">Test Debug Employees</button>
+            <button onclick="testAffectationsSimple()">Test Affectations Simple</button>
+            <button onclick="testFullDashboard()">Test Tableau de Bord Complet</button>
+            <button onclick="clearResults()">Effacer les résultats</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const baseUrl = 'http://localhost:8000';
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function addResult(title, content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-section ${type}`;
+            testDiv.innerHTML = `
+                <h3>${title}</h3>
+                <div>${content}</div>
+            `;
+            resultsDiv.appendChild(testDiv);
+        }
+        
+        async function makeApiCall(endpoint) {
+            try {
+                console.log(`Making API call to: ${baseUrl}${endpoint}`);
+                const response = await fetch(`${baseUrl}${endpoint}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log(`Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                return { success: true, data };
+            } catch (error) {
+                console.error('API call failed:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function testDebugEmployees() {
+            addResult('🔍 Test en cours...', 'Appel vers /api/statistics/debug-employees', 'info');
+            
+            const result = await makeApiCall('/api/statistics/debug-employees');
+            
+            if (result.success) {
+                const employees = result.data;
+                let hassanFound = false;
+                let employeesList = '';
+                
+                employees.forEach((emp, index) => {
+                    const isHassan = emp.email === 'hassan@gmail.com';
+                    if (isHassan) hassanFound = true;
+                    
+                    employeesList += `
+                        <div class="employee-card ${isHassan ? 'hassan-highlight' : ''}">
+                            <strong>${isHassan ? '🎯 ' : ''}${emp.email}</strong> (ID: ${emp.id})
+                            ${emp.fullName ? `<br>Nom: ${emp.fullName}` : ''}
+                            <br>Affectations: ${emp.affectations ? emp.affectations.length : 0}
+                            ${emp.affectations && emp.affectations.length > 0 ? 
+                                emp.affectations.map(aff => `
+                                    <br>📚 ${aff.coursTitle} - Évaluations: ${aff.evaluations ? aff.evaluations.length : 0}
+                                    ${aff.evaluations && aff.evaluations.length > 0 ? 
+                                        aff.evaluations.map(eval => `<br>   📊 Note: ${eval.note}/20`).join('') : 
+                                        '<br>   ❌ Aucune évaluation'
+                                    }
+                                `).join('') : 
+                                '<br>❌ Aucune affectation'
+                            }
+                        </div>
+                    `;
+                });
+                
+                addResult(
+                    `✅ Debug Employees - ${employees.length} employés trouvés`,
+                    `
+                        <div>
+                            <span class="status ${hassanFound ? 'success' : 'error'}">
+                                Hassan ${hassanFound ? 'TROUVÉ' : 'NON TROUVÉ'}
+                            </span>
+                        </div>
+                        <h4>Liste des employés:</h4>
+                        ${employeesList}
+                        <details>
+                            <summary>Données JSON brutes</summary>
+                            <pre>${JSON.stringify(employees, null, 2)}</pre>
+                        </details>
+                    `,
+                    hassanFound ? 'success' : 'error'
+                );
+            } else {
+                addResult('❌ Erreur Debug Employees', `<pre>${result.error}</pre>`, 'error');
+            }
+        }
+        
+        async function testAffectationsSimple() {
+            addResult('🔍 Test en cours...', 'Appel vers /api/statistics/affectations-simple', 'info');
+            
+            const result = await makeApiCall('/api/statistics/affectations-simple');
+            
+            if (result.success) {
+                const affectations = result.data;
+                let hassanAffectations = affectations.filter(aff => aff.userEmail === 'hassan@gmail.com');
+                
+                addResult(
+                    `✅ Affectations Simple - ${affectations.length} affectations trouvées`,
+                    `
+                        <div>
+                            <span class="status ${hassanAffectations.length > 0 ? 'success' : 'error'}">
+                                Hassan: ${hassanAffectations.length} affectation(s)
+                            </span>
+                        </div>
+                        ${hassanAffectations.length > 0 ? `
+                            <h4>Affectations de Hassan:</h4>
+                            ${hassanAffectations.map(aff => `
+                                <div class="employee-card hassan-highlight">
+                                    📚 <strong>${aff.courseTitle}</strong><br>
+                                    👤 ${aff.userEmail}<br>
+                                    📊 Évaluations: ${aff.evaluations ? aff.evaluations.length : 0}
+                                    ${aff.evaluations && aff.evaluations.length > 0 ? 
+                                        aff.evaluations.map(eval => `<br>   🎯 Note: ${eval.note}/20`).join('') : 
+                                        '<br>   ❌ Aucune évaluation'
+                                    }
+                                </div>
+                            `).join('')}
+                        ` : '<p>❌ Aucune affectation trouvée pour Hassan</p>'}
+                        <details>
+                            <summary>Toutes les affectations (JSON)</summary>
+                            <pre>${JSON.stringify(affectations, null, 2)}</pre>
+                        </details>
+                    `,
+                    hassanAffectations.length > 0 ? 'success' : 'error'
+                );
+            } else {
+                addResult('❌ Erreur Affectations Simple', `<pre>${result.error}</pre>`, 'error');
+            }
+        }
+        
+        async function testFullDashboard() {
+            addResult('🔍 Test en cours...', 'Simulation du tableau de bord complet', 'info');
+            
+            const debugResult = await makeApiCall('/api/statistics/debug-employees');
+            const affectationsResult = await makeApiCall('/api/statistics/affectations-simple');
+            
+            if (debugResult.success && affectationsResult.success) {
+                const employees = debugResult.data;
+                const affectations = affectationsResult.data;
+                
+                // Simulate the frontend logic
+                const processedEmployees = employees.map(employee => {
+                    const employeeAffectations = affectations.filter(aff => aff.userEmail === employee.email);
+                    
+                    let totalScore = 0;
+                    let evaluationCount = 0;
+                    let coursesAssigned = employeeAffectations.length;
+                    let coursesCompleted = 0;
+                    
+                    employeeAffectations.forEach(aff => {
+                        if (aff.evaluations && aff.evaluations.length > 0) {
+                            coursesCompleted++;
+                            aff.evaluations.forEach(eval => {
+                                totalScore += eval.note;
+                                evaluationCount++;
+                            });
+                        }
+                    });
+                    
+                    const averageScore = evaluationCount > 0 ? (totalScore / evaluationCount) : 0;
+                    const completionRate = coursesAssigned > 0 ? (coursesCompleted / coursesAssigned * 100) : 0;
+                    
+                    return {
+                        ...employee,
+                        coursesAssigned,
+                        coursesCompleted,
+                        averageScore: averageScore.toFixed(1),
+                        completionRate: completionRate.toFixed(1),
+                        evaluationCount,
+                        affectations: employeeAffectations
+                    };
+                });
+                
+                const hassan = processedEmployees.find(emp => emp.email === 'hassan@gmail.com');
+                const allEmployeesWithData = processedEmployees.filter(emp => emp.evaluationCount > 0 || emp.coursesAssigned > 0);
+                
+                addResult(
+                    `🎯 Simulation Tableau de Bord`,
+                    `
+                        <div>
+                            <span class="status ${hassan ? 'success' : 'error'}">
+                                Hassan ${hassan ? 'TROUVÉ dans le traitement' : 'NON TROUVÉ'}
+                            </span>
+                        </div>
+                        
+                        ${hassan ? `
+                            <div class="employee-card hassan-highlight">
+                                <h4>🎯 Données Hassan</h4>
+                                <strong>Email:</strong> ${hassan.email}<br>
+                                <strong>Cours assignés:</strong> ${hassan.coursesAssigned}<br>
+                                <strong>Cours complétés:</strong> ${hassan.coursesCompleted}<br>
+                                <strong>Note moyenne:</strong> ${hassan.averageScore}/20<br>
+                                <strong>Taux de completion:</strong> ${hassan.completionRate}%<br>
+                                <strong>Nombre d'évaluations:</strong> ${hassan.evaluationCount}<br>
+                                
+                                <h5>Détail des affectations:</h5>
+                                ${hassan.affectations.map(aff => `
+                                    <div style="margin-left: 20px;">
+                                        📚 <strong>${aff.courseTitle}</strong><br>
+                                        🎯 Évaluations: ${aff.evaluations ? aff.evaluations.length : 0}
+                                        ${aff.evaluations && aff.evaluations.length > 0 ? 
+                                            aff.evaluations.map(eval => `<br>   📊 Note: ${eval.note}/20`).join('') : 
+                                            '<br>   ❌ Aucune évaluation'
+                                        }
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="employee-card error">❌ Hassan non trouvé dans les données</div>'}
+                        
+                        <h4>Résumé de tous les employés avec données:</h4>
+                        <p><strong>Total:</strong> ${allEmployeesWithData.length} employés affichés dans le tableau de bord</p>
+                        
+                        <details>
+                            <summary>Liste complète des employés traités</summary>
+                            ${processedEmployees.map(emp => `
+                                <div class="employee-card ${emp.email === 'hassan@gmail.com' ? 'hassan-highlight' : ''}">
+                                    <strong>${emp.email}</strong><br>
+                                    Cours: ${emp.coursesAssigned} | Complétés: ${emp.coursesCompleted} | Moyenne: ${emp.averageScore}/20 | Taux: ${emp.completionRate}%
+                                </div>
+                            `).join('')}
+                        </details>
+                    `,
+                    hassan && hassan.evaluationCount > 0 ? 'success' : 'warning'
+                );
+            } else {
+                addResult('❌ Erreur Simulation Dashboard', 
+                    `Debug: ${debugResult.success ? 'OK' : debugResult.error}<br>
+                     Affectations: ${affectationsResult.success ? 'OK' : affectationsResult.error}`, 
+                    'error');
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addResult('🚀 Tests automatiques', 'Lancement des tests...', 'info');
+                testDebugEmployees();
+                setTimeout(() => testAffectationsSimple(), 1000);
+                setTimeout(() => testFullDashboard(), 2000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

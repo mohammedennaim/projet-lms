@@ -2,6 +2,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 class Evaluation
@@ -9,12 +10,15 @@ class Evaluation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['evaluation:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['evaluation:read'])]
     private int $note;
 
     #[ORM\Column(type: 'boolean')]
+    #[Groups(['evaluation:read'])]
     private bool $evalueAffectation = false;
 
     #[ORM\ManyToOne(targetEntity: Affectation::class, inversedBy: 'evaluations')]

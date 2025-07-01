@@ -9,6 +9,7 @@ use App\Entity\UserQuestionResponse;
 use App\Entity\Question;
 use App\Entity\Reponse;
 use App\Entity\Affectation;
+use App\Entity\Evaluation;
 use App\Repository\QuizRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserQuizResponseRepository;
@@ -152,10 +153,12 @@ class EmployeeQuizController extends AbstractController
             
             // Vérifier si l'utilisateur a accès à ce quiz
             $hasAccess = false;
+            $relevantAffectation = null;
             $affectations = $this->affectationRepository->findBy(['user' => $user]);
             foreach ($affectations as $affectation) {
                 if ($affectation->getCourse() === $quiz->getCourse()) {
                     $hasAccess = true;
+                    $relevantAffectation = $affectation;
                     break;
                 }
             }
@@ -254,6 +257,22 @@ class EmployeeQuizController extends AbstractController
 
             // Sauvegarder en base
             $this->entityManager->persist($userQuizResponse);
+            
+            // 🎯 CRÉER UNE ÉVALUATION DANS L'AFFECTATION
+            if ($relevantAffectation) {
+                $evaluation = new Evaluation();
+                // Convertir le pourcentage (0-100) en note sur 20
+                $notesSur20 = ($score / 100) * 20;
+                $evaluation->setNote((int)round($notesSur20));
+                $evaluation->setEvalueAffectation(true);
+                $evaluation->setAffectation($relevantAffectation);
+                
+                $this->entityManager->persist($evaluation);
+                
+                // Log pour déboguer
+                error_log("✅ Évaluation créée pour {$user->getUserIdentifier()}: Note {$evaluation->getNote()}/20 (score: {$score}%) pour le cours {$quiz->getCourse()->getTitle()}");
+            }
+            
             $this->entityManager->flush();
 
             return new JsonResponse([

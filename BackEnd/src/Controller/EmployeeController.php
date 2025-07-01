@@ -332,16 +332,16 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * Récupère toutes les affectations pour un employé (cours, quiz, ressources)
+     * Récupère toutes les affectations pour l'employé connecté (cours, quiz, ressources)
      */
-    #[Route('/affectations/{userId}', name: 'employee_affectations', methods: ['GET'])]
-    public function getEmployeeAffectations(int $userId): JsonResponse
+    #[Route('/affectations', name: 'employee_affectations', methods: ['GET'])]
+    public function getEmployeeAffectations(): JsonResponse
     {
-        // Récupérer l'utilisateur
-        $user = $this->entityManager->getRepository(User::class)->find($userId);
+        /** @var User $user */
+        $user = $this->security->getUser();
         
         if (!$user) {
-            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+            return $this->json(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
         }
         
         // Vérifier que l'utilisateur est bien un employé
@@ -360,8 +360,8 @@ class EmployeeController extends AbstractController
         
         foreach ($affectations as $affectation) {
             // Ajouter le cours s'il est associé à cette affectation
-            if ($affectation->getCourse()) {
-                $course = $affectation->getCourse();
+            if ($affectation->getCours()) {
+                $course = $affectation->getCours();
                 $courses[] = [
                     'id' => $course->getId(),
                     'title' => $course->getTitle(),
@@ -377,7 +377,7 @@ class EmployeeController extends AbstractController
                     'id' => $quiz->getId(),
                     'title' => $quiz->getTitle(),
                     'questionCount' => count($quiz->getQuestions()),
-                    'createdAt' => $quiz->getCreatedAt() ? $quiz->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                    // 'createdAt' => 'N/A', // Quiz n'a pas de createdAt
                 ];
             }
             
@@ -389,7 +389,7 @@ class EmployeeController extends AbstractController
                     'title' => $resource->getTitle(),
                     'type' => $resource->getType(),
                     'url' => $resource->getUrl(),
-                    'createdAt' => $resource->getCreatedAt() ? $resource->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                    // 'createdAt' => 'N/A', // Resource n'a pas de createdAt
                 ];
             }
         }
@@ -426,9 +426,9 @@ class EmployeeController extends AbstractController
                 'user_email' => $user ? $user->getEmail() : null,
                 'user_roles' => $user ? $user->getRoles() : null,
                 'user_role_string' => $user ? $user->getRole() : null,
-                'has_course' => $affectation->getCourse() ? true : false,
-                'course_id' => $affectation->getCourse() ? $affectation->getCourse()->getId() : null,
-                'course_title' => $affectation->getCourse() ? $affectation->getCourse()->getTitle() : null,
+                'has_course' => $affectation->getCours() ? true : false,
+                'course_id' => $affectation->getCours() ? $affectation->getCours()->getId() : null,
+                'course_title' => $affectation->getCours() ? $affectation->getCours()->getTitle() : null,
                 'has_quiz' => $affectation->getQuiz() ? true : false,
                 'has_resource' => $affectation->getRessource() ? true : false,
                 'date_assigned' => $affectation->getDateAssigned() ? $affectation->getDateAssigned()->format('Y-m-d H:i:s') : null,
@@ -439,6 +439,89 @@ class EmployeeController extends AbstractController
             'message' => 'Debug data for all affectations',
             'total_affectations' => count($affectations),
             'data' => $debugData
+        ]);
+    }
+
+    /**
+     * [ADMIN] Récupère toutes les affectations pour un employé spécifique (cours, quiz, ressources)
+     */
+    #[Route('/admin/affectations/{userId}', name: 'admin_employee_affectations', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getEmployeeAffectationsForAdmin(int $userId): JsonResponse
+    {
+        // Récupérer l'utilisateur
+        $user = $this->entityManager->getRepository(User::class)->find($userId);
+        
+        if (!$user) {
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+        
+        // Vérifier que l'utilisateur est bien un employé
+        $userRoles = $user->getRoles();
+        if (!in_array('ROLE_EMPLOYEE', $userRoles)) {
+            return $this->json(['message' => 'Access denied - User is not an employee'], Response::HTTP_FORBIDDEN);
+        }
+        
+        // Récupérer toutes les affectations pour cet employé
+        $affectations = $this->affectationRepository->findBy(['user' => $user]);
+        
+        // Organiser les données par type (cours, quiz, ressources)
+        $courses = [];
+        $quizzes = [];
+        $resources = [];
+        
+        foreach ($affectations as $affectation) {
+            // Ajouter le cours s'il est associé à cette affectation
+            if ($affectation->getCours()) {
+                $course = $affectation->getCours();
+                $courses[] = [
+                    'id' => $course->getId(),
+                    'title' => $course->getTitle(),
+                    'description' => $course->getDescription(),
+                    'createdAt' => $course->getCreatedAt() ? $course->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                ];
+            }
+            
+            // Ajouter le quiz s'il est associé à cette affectation
+            if ($affectation->getQuiz()) {
+                $quiz = $affectation->getQuiz();
+                $quizzes[] = [
+                    'id' => $quiz->getId(),
+                    'title' => $quiz->getTitle(),
+                    'questionCount' => count($quiz->getQuestions()),
+                    // 'createdAt' => 'N/A', // Quiz n'a pas de createdAt
+                ];
+            }
+            
+            // Ajouter les ressources si elles sont associées à cette affectation
+            if ($affectation->getRessource()) {
+                $resource = $affectation->getRessource();
+                $resources[] = [
+                    'id' => $resource->getId(),
+                    'title' => $resource->getTitle(),
+                    'type' => $resource->getType(),
+                    'url' => $resource->getUrl(),
+                    // 'createdAt' => 'N/A', // Resource n'a pas de createdAt
+                ];
+            }
+        }
+        
+        // Retourner les données structurées
+        return $this->json([
+            'message' => 'Affectations retrieved successfully',
+            'employee' => [
+                'id' => $user->getId(),
+                'fullName' => $user->getFullName(),
+                'email' => $user->getEmail()
+            ],
+            'courses' => $courses,
+            'quizzes' => $quizzes,
+            'resources' => $resources,
+            'total' => [
+                'courses' => count($courses),
+                'quizzes' => count($quizzes),
+                'resources' => count($resources)
+            ]
         ]);
     }
 }

@@ -26,6 +26,7 @@ security:    # https://symfony.com/doc/current/security.html#registering-the-use
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/statistics, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/users, roles: ROLE_ADMIN && ROLE_EMPLOYEE }
         - { path: ^/api/employee, roles: ROLE_EMPLOYEE }

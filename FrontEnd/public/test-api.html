@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Direct</title>
+</head>
+<body>
+    <h1>Test API Direct</h1>
+    <button onclick="testEmployees()">Test /api/statistics/debug-employees</button>
+    <button onclick="testAffectations()">Test /api/statistics/affectations-simple</button>
+    <div id="result"></div>
+
+    <script>
+        async function testEmployees() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Testing employees API...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/statistics/debug-employees');
+                const data = await response.json();
+                result.innerHTML = '<h3>Employees API - SUCCESS</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                result.innerHTML = '<h3>Employees API - ERROR</h3><pre>' + error.message + '</pre>';
+            }
+        }
+
+        async function testAffectations() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Testing affectations API...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/statistics/affectations-simple');
+                const data = await response.json();
+                result.innerHTML = '<h3>Affectations API - SUCCESS</h3><pre>' + JSON.stringify(data.slice(0, 3), null, 2) + '... (showing first 3 items)</pre>';
+            } catch (error) {
+                result.innerHTML = '<h3>Affectations API - ERROR</h3><pre>' + error.message + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>

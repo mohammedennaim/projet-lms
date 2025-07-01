@@ -23,10 +23,10 @@ const employeeService = {
     }
   },
 
-  // Get assigned courses, quizzes and resources
-  getAssignments: async (userId) => {
+  // Get assigned courses, quizzes and resources for current employee
+  getAssignments: async () => {
     try {
-      const response = await api.get(`/api/employee/affectations/${userId}`);
+      const response = await api.get('/employee/affectations');
       return response.data;
     } catch (error) {
       console.error('Error fetching employee assignments:', error);

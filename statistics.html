@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques des Employés - LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .employees-grid {
+            padding: 30px;
+        }
+
+        .employee-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .employee-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .employee-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .employee-info h3 {
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+
+        .employee-info p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .employee-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .employee-stat {
+            text-align: center;
+        }
+
+        .employee-stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .employee-stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .performance-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .performance-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .performance-très-bien {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .performance-bien {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .performance-satisfaisant {
+            background: #ffeaa7;
+            color: #6c5ce7;
+        }
+
+        .performance-à-améliorer {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .courses-section {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .course-item {
+            background: white;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .course-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-title {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .course-date {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .quizzes-section {
+            padding: 15px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .quiz-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #28a745;
+        }
+
+        .quiz-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .attempts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .attempt-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .attempt-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .attempt-details {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .feedback {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-style: italic;
+            color: #1565c0;
+            border-left: 3px solid #2196f3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .toggle-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .toggle-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Statistiques des Employés</h1>
+            <p>Vue d'ensemble des performances et des affectations</p>
+        </div>
+
+        <div id="loading" class="loading">
+            🔄 Chargement des statistiques...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalEmployees">0</div>
+                    <div class="stat-label">Employés Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="employeesWithAssignments">0</div>
+                    <div class="stat-label">Avec Affectations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="employeesWithQuizzes">0</div>
+                    <div class="stat-label">Ont Passé des Quiz</div>
+                </div>
+            </div>
+
+            <div class="employees-grid" id="employeesGrid">
+                <!-- Les employés seront chargés ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration de l'API
+        const API_BASE_URL = 'http://localhost:8000/api';
+
+        // Fonction pour charger les statistiques
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/statistics/employees-detailed`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Erreur lors du chargement des données');
+                }
+
+                displayStatistics(result.data, result.summary);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError('Erreur lors du chargement des statistiques: ' + error.message);
+            }
+        }
+
+        // Afficher les statistiques
+        function displayStatistics(employees, summary) {
+            // Masquer le loading
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Mettre à jour le résumé
+            document.getElementById('totalEmployees').textContent = summary.totalEmployees;
+            document.getElementById('employeesWithAssignments').textContent = summary.totalWithAssignments;
+            document.getElementById('employeesWithQuizzes').textContent = summary.totalWithQuizAttempts;
+
+            // Afficher les employés
+            const employeesGrid = document.getElementById('employeesGrid');
+            employeesGrid.innerHTML = '';
+
+            if (employees.length === 0) {
+                employeesGrid.innerHTML = '<div class="no-data">Aucun employé trouvé</div>';
+                return;
+            }
+
+            employees.forEach(employeeData => {
+                const employeeCard = createEmployeeCard(employeeData);
+                employeesGrid.appendChild(employeeCard);
+            });
+        }
+
+        // Créer une carte d'employé
+        function createEmployeeCard(employeeData) {
+            const { employee, courses, totalCourses, totalQuizAttempts, averageScore, overallPerformance } = employeeData;
+
+            const card = document.createElement('div');
+            card.className = 'employee-card';
+
+            const performanceClass = `performance-${overallPerformance.toLowerCase().replace(/\s+/g, '-')}`;
+
+            card.innerHTML = `
+                <div class="employee-header">
+                    <div class="employee-info">
+                        <h3>${employee.fullName}</h3>
+                        <p>${employee.email}</p>
+                    </div>
+                    <div class="employee-stats">
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${totalCourses}</div>
+                            <div class="employee-stat-label">Cours</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${totalQuizAttempts}</div>
+                            <div class="employee-stat-label">Quiz</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${averageScore}%</div>
+                            <div class="employee-stat-label">Moyenne</div>
+                        </div>
+                        <div class="performance-badge ${performanceClass}">
+                            ${overallPerformance}
+                        </div>
+                    </div>
+                </div>
+                <div class="courses-section" id="courses-${employee.id}">
+                    ${createCoursesSection(courses, employee.id)}
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Créer la section des cours
+        function createCoursesSection(courses, employeeId) {
+            if (courses.length === 0) {
+                return '<div class="no-data">Aucun cours assigné</div>';
+            }
+
+            return courses.map((course, index) => `
+                <div class="course-item">
+                    <div class="course-header" onclick="toggleQuizzes('${employeeId}-${index}')">
+                        <div>
+                            <div class="course-title">${course.title}</div>
+                            <div class="course-date">Assigné le: ${course.dateAssigned || 'Non renseigné'}</div>
+                        </div>
+                        <button class="toggle-btn">Voir Quiz (${course.quizzes.length})</button>
+                    </div>
+                    <div class="quizzes-section" id="quizzes-${employeeId}-${index}">
+                        ${createQuizzesSection(course.quizzes)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Créer la section des quiz
+        function createQuizzesSection(quizzes) {
+            if (quizzes.length === 0) {
+                return '<div class="no-data">Aucun quiz disponible</div>';
+            }
+
+            return quizzes.map(quiz => `
+                <div class="quiz-item">
+                    <div class="quiz-title">${quiz.title}</div>
+                    <p>${quiz.description || 'Pas de description'}</p>
+                    <div class="attempts-grid">
+                        ${quiz.attempts.map((attempt, index) => `
+                            <div class="attempt-item">
+                                <div class="attempt-score">${attempt.percentage}%</div>
+                                <div class="attempt-details">
+                                    Tentative ${index + 1}<br>
+                                    ${attempt.correctAnswers}/${attempt.totalQuestions} bonnes réponses<br>
+                                    Temps: ${attempt.timeSpentFormatted}<br>
+                                    ${attempt.submittedAtFormatted}
+                                </div>
+                                ${attempt.feedback ? `<div class="feedback">${attempt.feedback}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Basculer l'affichage des quiz
+        function toggleQuizzes(id) {
+            const quizzesSection = document.getElementById(`quizzes-${id}`);
+            if (quizzesSection.style.display === 'none' || quizzesSection.style.display === '') {
+                quizzesSection.style.display = 'block';
+            } else {
+                quizzesSection.style.display = 'none';
+            }
+        }
+
+        // Afficher une erreur
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Charger les données au chargement de la page
+        document.addEventListener('DOMContentLoaded', loadStatistics);
+    </script>
+</body>
+</html>

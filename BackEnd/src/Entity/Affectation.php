@@ -72,6 +72,7 @@ class Affectation
     private ?Ressource $ressource = null;
 
     #[ORM\OneToMany(mappedBy: 'affectation', targetEntity: Evaluation::class, cascade: ['persist', 'remove'])]
+    #[Groups(['affectation:details'])]
     private Collection $evaluations;
 
     public function __construct()

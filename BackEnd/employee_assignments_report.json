@@ -1,0 +1,366 @@
+{
+    "timestamp": "2025-07-01 13:51:32",
+    "summary": {
+        "totalEmployees": 10,
+        "employeesWithCourses": 10,
+        "employeesWithScores": 0,
+        "totalCourseAssignments": 22,
+        "totalScoreEntries": 0
+    },
+    "employees": [
+        {
+            "id": 44,
+            "email": "john.doe@lms.com",
+            "fullName": "John Doe",
+            "courses": [
+                {
+                    "id": 29,
+                    "title": "Bases de données relationnelles",
+                    "description": "Maîtrisez les concepts des bases de données, SQL, la modélisation et l'optimisation des requêtes.",
+                    "dateAssigned": "2025-05-14",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 28,
+                    "title": "Développement web avec PHP",
+                    "description": "Apprenez à créer des applications web dynamiques avec PHP, MySQL et les bonnes pratiques de développement.",
+                    "dateAssigned": "2025-05-16",
+                    "status": "Assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 32,
+                    "title": "Ex exercitationem",
+                    "description": "Eaque nemo adipisici",
+                    "dateAssigned": "2025-05-13",
+                    "status": "Assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-06-30",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 4,
+            "totalScores": 0
+        },
+        {
+            "id": 45,
+            "email": "jane.smith@lms.com",
+            "fullName": "Jane Smith",
+            "courses": [
+                {
+                    "id": 29,
+                    "title": "Bases de données relationnelles",
+                    "description": "Maîtrisez les concepts des bases de données, SQL, la modélisation et l'optimisation des requêtes.",
+                    "dateAssigned": "2025-06-01",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 30,
+                    "title": "Gestion de projet agile",
+                    "description": "Découvrez les méthodologies agiles, Scrum, Kanban et les outils de gestion de projet modernes.",
+                    "dateAssigned": "2025-06-15",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 2,
+            "totalScores": 0
+        },
+        {
+            "id": 46,
+            "email": "mike.johnson@lms.com",
+            "fullName": "Mike Johnson",
+            "courses": [
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-04-28",
+                    "status": "Assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 31,
+                    "title": "Sécurité informatique",
+                    "description": "Apprenez les principes de sécurité, le chiffrement, l'authentification et la protection des données.",
+                    "dateAssigned": "2025-06-19",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 32,
+                    "title": "Ex exercitationem",
+                    "description": "Eaque nemo adipisici",
+                    "dateAssigned": "2025-06-06",
+                    "status": "Assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 3,
+            "totalScores": 0
+        },
+        {
+            "id": 47,
+            "email": "sarah.wilson@lms.com",
+            "fullName": "Sarah Wilson",
+            "courses": [
+                {
+                    "id": 29,
+                    "title": "Bases de données relationnelles",
+                    "description": "Maîtrisez les concepts des bases de données, SQL, la modélisation et l'optimisation des requêtes.",
+                    "dateAssigned": "2025-05-23",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 30,
+                    "title": "Gestion de projet agile",
+                    "description": "Découvrez les méthodologies agiles, Scrum, Kanban et les outils de gestion de projet modernes.",
+                    "dateAssigned": "2025-04-22",
+                    "status": "Assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 31,
+                    "title": "Sécurité informatique",
+                    "description": "Apprenez les principes de sécurité, le chiffrement, l'authentification et la protection des données.",
+                    "dateAssigned": "2025-05-09",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 3,
+            "totalScores": 0
+        },
+        {
+            "id": 48,
+            "email": "david.brown@lms.com",
+            "fullName": "David Brown",
+            "courses": [
+                {
+                    "id": 28,
+                    "title": "Développement web avec PHP",
+                    "description": "Apprenez à créer des applications web dynamiques avec PHP, MySQL et les bonnes pratiques de développement.",
+                    "dateAssigned": "2025-05-02",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 31,
+                    "title": "Sécurité informatique",
+                    "description": "Apprenez les principes de sécurité, le chiffrement, l'authentification et la protection des données.",
+                    "dateAssigned": "2025-04-30",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 30,
+                    "title": "Gestion de projet agile",
+                    "description": "Découvrez les méthodologies agiles, Scrum, Kanban et les outils de gestion de projet modernes.",
+                    "dateAssigned": "2025-06-02",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-06-24",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 4,
+            "totalScores": 0
+        },
+        {
+            "id": 49,
+            "email": "emma.martin@lms.com",
+            "fullName": "Emma Martin",
+            "courses": [
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-06-01",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 1,
+            "totalScores": 0
+        },
+        {
+            "id": 50,
+            "email": "ayoub@gmail.com",
+            "fullName": "Ayoub Labit",
+            "courses": [
+                {
+                    "id": 28,
+                    "title": "Développement web avec PHP",
+                    "description": "Apprenez à créer des applications web dynamiques avec PHP, MySQL et les bonnes pratiques de développement.",
+                    "dateAssigned": "2025-06-30",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                },
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-06-30",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 2,
+            "totalScores": 0
+        },
+        {
+            "id": 51,
+            "email": "said@gmail.com",
+            "fullName": "rrr",
+            "courses": [
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-07-01",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 1,
+            "totalScores": 0
+        },
+        {
+            "id": 52,
+            "email": "hamid@gmail.com",
+            "fullName": "hamid",
+            "courses": [
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-07-01",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 1,
+            "totalScores": 0
+        },
+        {
+            "id": 53,
+            "email": "hassan@gmail.com",
+            "fullName": "hassan",
+            "courses": [
+                {
+                    "id": 27,
+                    "title": "Introduction à la programmation",
+                    "description": "Ce cours couvre les bases de la programmation avec des concepts fondamentaux comme les variables, les boucles et les fonctions.",
+                    "dateAssigned": "2025-07-01",
+                    "status": "Non assigné",
+                    "scoresCount": 0,
+                    "averageScore": 0,
+                    "feedbacksCount": 0,
+                    "scores": [],
+                    "feedbacks": []
+                }
+            ],
+            "totalCourses": 1,
+            "totalScores": 0
+        }
+    ]
+}
