@@ -235,23 +235,132 @@ const CourseCreationWorkflow = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Barre de progression */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <div className={`text-sm font-medium ${currentStep === 'course' ? 'text-blue-600' : 'text-gray-500'}`}>Cours</div>
-          <div className={`text-sm font-medium ${currentStep === 'resource' ? 'text-blue-600' : 'text-gray-500'}`}>Ressources</div>
-          <div className={`text-sm font-medium ${currentStep === 'quiz' ? 'text-blue-600' : 'text-gray-500'}`}>Quiz</div>
-          <div className={`text-sm font-medium ${currentStep === 'question' ? 'text-blue-600' : 'text-gray-500'}`}>Questions</div>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
-          <div 
-            className="bg-blue-600 h-2.5 rounded-full" 
-            style={{ 
-              width: currentStep === 'course' ? '25%' : 
-                     currentStep === 'resource' ? '50%' : 
-                     currentStep === 'quiz' ? '75%' : '100%' 
-            }}
-          ></div>
+      {/* Barre d'étapes moderne */}
+      <div className="mb-12">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl shadow-blue-500/5 border border-white/20">
+          <div className="flex items-center justify-between">
+            {/* Étape 1: Cours */}
+            <div className="flex items-center">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+                currentStep === 'course' 
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' 
+                  : 'bg-gray-100 text-gray-400'
+              }`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className={`text-sm font-semibold ${
+                  currentStep === 'course' ? 'text-blue-600' : 'text-gray-500'
+                }`}>Cours</p>
+                <p className="text-xs text-gray-400">Créer le cours</p>
+              </div>
+            </div>
+
+            {/* Ligne de connexion */}
+            <div className={`flex-1 h-1 mx-4 rounded-full transition-all duration-500 ${
+              ['resource', 'quiz', 'question'].includes(currentStep) 
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-500' 
+                : 'bg-gray-200'
+            }`}></div>
+
+            {/* Étape 2: Ressources */}
+            <div className="flex items-center">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+                currentStep === 'resource' 
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' 
+                  : ['quiz', 'question'].includes(currentStep)
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                    : 'bg-gray-100 text-gray-400'
+              }`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10M7 4v16a1 1 0 001 1h8a1 1 0 001-1V4M12 8v8m-4-4h8" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className={`text-sm font-semibold ${
+                  currentStep === 'resource' ? 'text-blue-600' : 
+                  ['quiz', 'question'].includes(currentStep) ? 'text-green-600' : 'text-gray-500'
+                }`}>Ressources</p>
+                <p className="text-xs text-gray-400">Ajouter contenus</p>
+              </div>
+            </div>
+
+            {/* Ligne de connexion */}
+            <div className={`flex-1 h-1 mx-4 rounded-full transition-all duration-500 ${
+              ['quiz', 'question'].includes(currentStep) 
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-500' 
+                : 'bg-gray-200'
+            }`}></div>
+
+            {/* Étape 3: Quiz */}
+            <div className="flex items-center">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+                currentStep === 'quiz' 
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' 
+                  : currentStep === 'question'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                    : 'bg-gray-100 text-gray-400'
+              }`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className={`text-sm font-semibold ${
+                  currentStep === 'quiz' ? 'text-blue-600' : 
+                  currentStep === 'question' ? 'text-green-600' : 'text-gray-500'
+                }`}>Quiz</p>
+                <p className="text-xs text-gray-400">Créer évaluation</p>
+              </div>
+            </div>
+
+            {/* Ligne de connexion */}
+            <div className={`flex-1 h-1 mx-4 rounded-full transition-all duration-500 ${
+              currentStep === 'question' 
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-500' 
+                : 'bg-gray-200'
+            }`}></div>
+
+            {/* Étape 4: Questions */}
+            <div className="flex items-center">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+                currentStep === 'question' 
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' 
+                  : 'bg-gray-100 text-gray-400'
+              }`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className={`text-sm font-semibold ${
+                  currentStep === 'question' ? 'text-blue-600' : 'text-gray-500'
+                }`}>Questions</p>
+                <p className="text-xs text-gray-400">Ajouter questions</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Barre de progression globale */}
+          <div className="mt-6 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-700 ease-out"
+              style={{ 
+                width: currentStep === 'course' ? '25%' : 
+                       currentStep === 'resource' ? '50%' : 
+                       currentStep === 'quiz' ? '75%' : '100%' 
+              }}
+            ></div>
+          </div>
+
+          {/* Indicateur textuel de progression */}
+          <div className="mt-3 text-center">
+            <p className="text-sm text-gray-600">
+              Étape {currentStep === 'course' ? '1' : currentStep === 'resource' ? '2' : currentStep === 'quiz' ? '3' : '4'} sur 4
+            </p>
+          </div>
         </div>
       </div>
 
